@@ -513,23 +513,23 @@ ROOM('ESCUDOS',480,137,65,58,'#456d69','shields'),
 ROOM('COMUNICACIONES',380,218,65,65,'#405b6c','comms'),
 ROOM('MOTOR INFERIOR',230,282,100,32,'#596b72','engine')
 ],corridors:[
-{name:'EJE MOTOR SUPERIOR–CAFETERÍA',points:[PT(280,50),PT(280,112)],width:6.5},
-{name:'EJE CAFETERÍA–ADMINISTRACIÓN',points:[PT(280,200),PT(280,220)],width:6.5},
-{name:'EJE ADMINISTRACIÓN–MOTOR INFERIOR',points:[PT(280,275),PT(280,282)],width:6.5},
-{name:'ESPINA OESTE',points:[PT(95,84),PT(95,250)],width:6.5},
-{name:'ESPINA ESTE',points:[PT(464,84),PT(464,250)],width:6.5},
-{name:'CONEXIÓN OESTE–CAFETERÍA',points:[PT(95,156),PT(220,156)],width:6.5},
-{name:'CONEXIÓN CAFETERÍA–ESTE',points:[PT(340,156),PT(464,156)],width:6.5},
-{name:'REACTOR',points:[PT(83,152),PT(95,152)],width:6.5},
-{name:'SEGURIDAD',points:[PT(95,84),PT(112,84)],width:6.5},
-{name:'ENFERMERÍA',points:[PT(95,166),PT(112,166)],width:6.5},
-{name:'ELÉCTRICA',points:[PT(83,250),PT(95,250)],width:6.5},
-{name:'ALMACÉN',points:[PT(95,250),PT(112,250)],width:6.5},
-{name:'ARMAS',points:[PT(445,84),PT(464,84)],width:6.5},
-{name:'NAVEGACIÓN',points:[PT(464,84),PT(480,84)],width:6.5},
-{name:'O2',points:[PT(445,166),PT(464,166)],width:6.5},
-{name:'ESCUDOS',points:[PT(464,166),PT(480,166)],width:6.5},
-{name:'COMUNICACIONES',points:[PT(445,250),PT(464,250)],width:6.5}
+{name:'EJE MOTOR SUPERIOR–CAFETERÍA',points:[PT(280,50),PT(280,112)],width:5.5},
+{name:'EJE CAFETERÍA–ADMINISTRACIÓN',points:[PT(280,200),PT(280,220)],width:5.5},
+{name:'EJE ADMINISTRACIÓN–MOTOR INFERIOR',points:[PT(280,275),PT(280,282)],width:5.5},
+{name:'ESPINA OESTE',points:[PT(95,84),PT(95,250)],width:5.5},
+{name:'ESPINA ESTE',points:[PT(464,84),PT(464,250)],width:5.5},
+{name:'CONEXIÓN OESTE–CAFETERÍA',points:[PT(95,125),PT(220,125)],width:5.2},
+{name:'CONEXIÓN CAFETERÍA–ESTE',points:[PT(340,125),PT(464,125)],width:5.2},
+{name:'REACTOR',points:[PT(83,152),PT(95,152)],width:5.5},
+{name:'SEGURIDAD',points:[PT(95,84),PT(112,84)],width:5.5},
+{name:'ENFERMERÍA',points:[PT(95,166),PT(112,166)],width:5.5},
+{name:'ELÉCTRICA',points:[PT(83,250),PT(95,250)],width:5.5},
+{name:'ALMACÉN',points:[PT(95,250),PT(112,250)],width:5.5},
+{name:'ARMAS',points:[PT(445,84),PT(464,84)],width:5.5},
+{name:'NAVEGACIÓN',points:[PT(464,84),PT(480,84)],width:5.5},
+{name:'O2',points:[PT(445,166),PT(464,166)],width:5.5},
+{name:'ESCUDOS',points:[PT(464,166),PT(480,166)],width:5.5},
+{name:'COMUNICACIONES',points:[PT(445,250),PT(464,250)],width:5.5}
 ],obstacles:[],tasks:[
 {id:'upper_fuel',name:'Repostar motor superior',room:'MOTOR SUPERIOR',x:MX(280),y:MY(30),type:'fuel'},
 {id:'reactor_start',name:'Iniciar reactor',room:'REACTOR',x:MX(50),y:MY(152),type:'sequence'},
@@ -633,13 +633,8 @@ function shipRoomDecor(room,g){
  // Suelo amplio y continuo: nada de rejillas brillantes que parezcan placas electrónicas.
  shipBox(g,cx,-.12,cz,w,.16,d,floor);
  shipBox(g,cx,-.025,cz,w-.12,.025,d-.12,accent);
- // Cuatro paredes bajas con entradas anchas; el interior queda despejado.
- const H=.42,T=.14,gap=Math.min(1.18,Math.min(w,d)*.46),segW=(w-gap)/2;
- // Solo pared del fondo, opuesta a la cámara. Sin pared frontal ni paredes laterales que corten la vista.
- shipBox(g,x+segW/2,H/2,z,segW,H,T,wall);shipBox(g,x+w-segW/2,H/2,z,segW,H,T,wall);
- shipBox(g,cx,.055,z,w-gap,.055,.045,trim);
- // Los techos no se crean: todas las habitaciones quedan abiertas desde arriba.
- // Equipamiento reconocible, bajo y pegado a los laterales para dejar libre el recorrido.
+ // Salas completamente abiertas: sin techos ni paredes verticales que tapen la vista.
+ // Equipamiento bajo, contenido dentro de cada estancia.
  const console=(px,pz,rot=0)=>{const base=shipBox(g,px,.22,pz,.72,.42,.34,wall);base.rotation.y=rot;const screen=shipBox(g,px,.46,pz-.19,.48,.22,.035,accent);screen.rotation.y=rot;shipBox(g,px,.12,pz,.78,.08,.4,trim).rotation.y=rot};
  if(room.kind==='cafe'){
   // CAFETERÍA: mobiliario modelado pieza a pieza, con siluetas claras desde la cámara isométrica.
@@ -647,14 +642,14 @@ function shipRoomDecor(room,g){
   const cyl=(parent,px,py,pz,rt,rb,h,mat,seg=32)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),mat);m.position.set(px,py,pz);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m};
   const sphere=(parent,px,py,pz,sx,sy,sz,mat)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),mat);m.position.set(px,py,pz);m.scale.set(sx,sy,sz);m.castShadow=true;parent.add(m);return m};
   const chair=(px,pz,a)=>{
-   const dx=Math.cos(a),dz=Math.sin(a),sx=px+dx*.235,sz=pz+dz*.235;
+   const dx=Math.cos(a),dz=Math.sin(a),sx=px+dx*.125,sz=pz+dz*.125;
    // base giratoria, columna, cojín y respaldo curvado visualmente
-   cyl(g,sx,.105,sz,.105,.12,.07,metal,20);
-   cyl(g,sx,.19,sz,.045,.055,.13,metal,16);
-   const cushion=shipBox(g,sx,.255,sz,.17,.075,.17,seatPad);cushion.rotation.y=-a;
-   const back=shipBox(g,sx-dx*.065,.36,sz-dz*.065,.17,.16,.055,seatMat);back.rotation.y=-a;
-   const seam=shipBox(g,sx-dx*.065,.37,sz-dz*.065,.12,.012,.058,edge);seam.rotation.y=-a;
-   for(const side of [-1,1]){const arm=shipBox(g,sx-dx*.04+Math.cos(a+Math.PI/2)*side*.095,.34,sz-dz*.04+Math.sin(a+Math.PI/2)*side*.095,.035,.08,.035,metal)}
+   cyl(g,sx,.105,sz,.055,.065,.05,metal,20);
+   cyl(g,sx,.19,sz,.025,.03,.08,metal,16);
+   const cushion=shipBox(g,sx,.255,sz,.09,.045,.09,seatPad);cushion.rotation.y=-a;
+   const back=shipBox(g,sx-dx*.065,.36,sz-dz*.065,.09,.10,.035,seatMat);back.rotation.y=-a;
+   const seam=shipBox(g,sx-dx*.065,.37,sz-dz*.065,.065,.008,.038,edge);seam.rotation.y=-a;
+   for(const side of [-1,1]){const arm=shipBox(g,sx-dx*.04+Math.cos(a+Math.PI/2)*side*.05,.34,sz-dz*.04+Math.sin(a+Math.PI/2)*side*.095,.022,.05,.022,metal)}
   };
   const roundTable=(px,pz,r,emergency=false)=>{
    // pie pesado y columna central
@@ -685,7 +680,7 @@ function shipRoomDecor(room,g){
   // Tres mesas de reunión distribuidas dejando un pasillo central amplio.
   const positions=[[x+w*.27,z+d*.31],[x+w*.73,z+d*.31],[x+w*.27,z+d*.72],[x+w*.73,z+d*.72]];
   positions.forEach(([px,pz],i)=>{
-   roundTable(px,pz,.205,false);for(let n=0;n<4;n++)chair(px,pz,n*Math.PI/2+Math.PI/4);
+   roundTable(px,pz,.085,false);for(let n=0;n<4;n++)chair(px,pz,n*Math.PI/2+Math.PI/4);
    // Bandeja central con vasos, platos y pequeños detalles para que cada mesa tenga vida.
    cyl(g,px,.414,pz,.065,.065,.018,edge,24);
    cyl(g,px,.426,pz,.045,.045,.012,tableTop,24);
@@ -696,7 +691,7 @@ function shipRoomDecor(room,g){
    }
   });
   // Mesa central de emergencia, mayor y con el botón rojo protagonista.
-  const ex=cx,ez=cz;roundTable(ex,ez,.285,true);
+  const ex=cx,ez=cz;roundTable(ex,ez,.135,true);
   for(let n=0;n<4;n++)chair(ex,ez,n*Math.PI/2);
   // Terminal de tareas junto al lateral: monitor inclinado, teclado, lector y luces de estado.
   const tx=x+w*.87,tz=z+d*.52;
@@ -731,8 +726,7 @@ function shipRoomDecor(room,g){
  }else{
   for(let k=0;k<2;k++){const px=x+w*(.34+k*.32);shipBox(g,px,.22,cz,.54,.4,.5,accent);shipBox(g,px,.44,cz,.58,.055,.52,trim)}
  }
- // Placa de identificación de sala en el muro del fondo.
- shipBox(g,cx,.53,z+.13,Math.min(1.05,w*.48),.12,.045,trim);
+ // Sin placas murales: la vista cenital queda completamente despejada.
 }function initShip3D(){
  if(!window.THREE||shipRenderer)return;
  const arena=$('arena'),old=$('world');if(!arena||!old)return;
