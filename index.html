@@ -627,54 +627,47 @@ const shipScale=.043;
 function shipMat(color,rough=.78,metal=.12){return new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal})}
 function shipBox(parent,x,y,z,w,h,d,mat,bevel=0){const geo=new THREE.BoxGeometry(w,h,d);const mesh=new THREE.Mesh(geo,mat);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh}
 function shipRoomDecor(room,g){
- const x=room.x*shipScale,z=room.y*shipScale,w=room.w*shipScale,d=room.h*shipScale;
- const palette={cafe:0x398ca1,engine:0xb96b43,reactor:0x8056a4,security:0x367d86,medbay:0x48a99a,electrical:0xc08a43,storage:0x98774c,admin:0x4b9a75,weapons:0xa96b48,nav:0x4783b7,o2:0x36a88a,shields:0x388ba6,comms:0x8763a9};
- const accent=shipMat(palette[room.kind]||0x55a8ba,.5,.24),dark=shipMat(0x172b3b),light=shipMat(0xa5e9ed,.28,.3);
- // Sala con suelo propio, baldosas y cuatro accesos visibles.
- const floorMat=shipMat(palette[room.kind]||0x356b7c,.72,.18);
- const floorPlate=shipBox(g,x+w/2,-.075,z+d/2,w-.16,.09,d-.16,floorMat);
- const tileMat=shipMat(0xb8e9ed,.55,.22);
- for(let ix=1;ix<Math.max(2,Math.floor(w/.48));ix++){const px=x+w*ix/Math.max(2,Math.floor(w/.48));shipBox(g,px,-.022,z+d/2,.012,.012,d-.24,tileMat).material=shipMat(0x9dd5df,.82,.08)}
- for(let iz=1;iz<Math.max(2,Math.floor(d/.48));iz++){const pz=z+d*iz/Math.max(2,Math.floor(d/.48));shipBox(g,x+w/2,-.022,pz,w-.24,.012,.012,shipMat(0x9dd5df,.82,.08))}
- // Muros segmentados: dejamos huecos centrales para que las puertas coincidan con los pasillos.
- const wallH=.48,th=.13,gap=Math.min(.92,w*.32,d*.32);
- const horizontal=(zz)=>{const side=(w-gap)/2;shipBox(g,x+side/2,wallH/2,zz,side,wallH,th,dark);shipBox(g,x+w-side/2,wallH/2,zz,side,wallH,th,dark)};
- const vertical=(xx)=>{const side=(d-gap)/2;shipBox(g,xx,wallH/2,z+side/2,th,wallH,side,dark);shipBox(g,xx,wallH/2,z+d-side/2,th,wallH,side,dark)};
- horizontal(z);horizontal(z+d);vertical(x);vertical(x+w);
- // Marcos luminosos alrededor de los accesos.
- [[x+w/2,z],[x+w/2,z+d],[x,z+d/2],[x+w,z+d/2]].forEach(([dx,dz])=>{shipBox(g,dx-gap/2,.39,dz,.075,.82,.10,accent);shipBox(g,dx+gap/2,.39,dz,.075,.82,.10,accent);shipBox(g,dx,.81,dz,gap+.12,.07,.10,accent)});
- // Wall top trim and glowing strips.
- shipBox(g,x+w/2,wallH+.025,z,.95,.055,.055,accent);
- shipBox(g,x+w/2,wallH+.025,z+d,.95,.055,.055,accent);
- // Ceiling lights and colored floor inlays.
- for(let k=0;k<3;k++){const lx=x+w*(.24+k*.26),lz=z+d*.17;const lamp=shipBox(g,lx,.52,lz,.42,.045,.12,light);const pl=new THREE.PointLight(palette[room.kind]||0x6bd8ed,.28,2.4);pl.position.set(lx,.75,lz);g.add(pl)}
- // Room-specific chunky equipment.
- const centerX=x+w/2,centerZ=z+d/2;
- if(room.kind==='cafe'){
-  for(let row=0;row<2;row++)for(let col=0;col<3;col++){const tx=x+w*(.27+col*.23),tz=z+d*(.43+row*.28);shipBox(g,tx,.12,tz,.52,.18,.52,accent);const top=shipBox(g,tx,.24,tz,.62,.08,.62,light);top.material=light;for(let k=0;k<3;k++){const seat=shipBox(g,tx-.4+k*.4,.14,tz-.48,.2,.2,.2,dark)}}
-  shipBox(g,centerX,.24,centerZ-d*.36,.9,.45,.48,dark);
- }else if(room.kind==='reactor'){
-  const core=new THREE.Mesh(new THREE.CylinderGeometry(.43,.5,.95,12),accent);core.position.set(centerX,.58,centerZ);core.castShadow=true;g.add(core);const ring=new THREE.Mesh(new THREE.TorusGeometry(.62,.075,8,32),light);ring.rotation.x=Math.PI/2;ring.position.set(centerX,.62,centerZ);g.add(ring);const glow=new THREE.PointLight(0xb879ff,1.6,4);glow.position.set(centerX,1,centerZ);g.add(glow);
- }else if(room.kind==='engine'){
-  for(let k=0;k<3;k++){const ex=x+w*(.25+k*.25);const cyl=new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,.95,16),dark);cyl.rotation.z=Math.PI/2;cyl.position.set(ex,.55,centerZ);cyl.castShadow=true;g.add(cyl);const band=shipBox(g,ex,.55,centerZ-.31,.13,.62,.07,accent);band.rotation.z=0;const gl=new THREE.PointLight(0x67dfff,.5,2);gl.position.set(ex,.5,centerZ);g.add(gl)}
- }else if(room.kind==='medbay'){
-  shipBox(g,centerX,.22,centerZ,.95,.28,.55,light);shipBox(g,centerX,.4,centerZ,.12,.08,.65,accent);for(let k=0;k<3;k++){const pod=shipBox(g,x+w*(.2+k*.3),.42,z+d*.23,.25,.48,.25,accent);pod.material=accent}
- }else if(room.kind==='electrical'||room.kind==='comms'||room.kind==='security'||room.kind==='admin'||room.kind==='nav'||room.kind==='weapons'){
-  for(let k=0;k<3;k++){const px=x+w*(.25+k*.25);shipBox(g,px,.34,z+d*.23,.48,.58,.18,dark);shipBox(g,px,.38,z+d*.23-.105,.34,.24,.035,accent);shipBox(g,px,.18,z+d*.23-.13,.14,.035,.025,light)}
-  if(room.kind==='weapons'){for(let k=0;k<2;k++){const gun=new THREE.Mesh(new THREE.CylinderGeometry(.08,.12,.95,10),accent);gun.rotation.x=Math.PI/2;gun.position.set(centerX,.36,centerZ+k*.42);g.add(gun)}}
- }else{
-  for(let k=0;k<3;k++){const crate=shipBox(g,x+w*(.24+k*.26),.25,z+d*.55,.52,.48,.48,accent);shipBox(g,crate.position.x,.51,crate.position.z,.54,.055,.5,light)}
+ const x=room.x*shipScale,z=room.y*shipScale,w=room.w*shipScale,d=room.h*shipScale,cx=x+w/2,cz=z+d/2;
+ const colors={cafe:0x397b91,engine:0x9b603d,reactor:0x76539b,security:0x397d7c,medbay:0x438b91,electrical:0x9a7942,storage:0x77705a,admin:0x477d68,weapons:0x8d6447,nav:0x47749a,o2:0x438b79,shields:0x397c91,comms:0x735b91};
+ const accent=shipMat(colors[room.kind]||0x477d91,.72,.08),wall=shipMat(0x18354a,.82,.08),trim=shipMat(0x39748b,.7,.12),floor=shipMat(0x29485b,.9,.02);
+ // Suelo amplio y continuo: nada de rejillas brillantes que parezcan placas electrónicas.
+ shipBox(g,cx,-.12,cz,w,.16,d,floor);
+ shipBox(g,cx,-.025,cz,w-.12,.025,d-.12,accent);
+ // Cuatro paredes bajas con entradas anchas; el interior queda despejado.
+ const H=.43,T=.14,gap=Math.min(1.12,Math.min(w,d)*.42),segW=(w-gap)/2,segD=(d-gap)/2;
+ for(const zz of [z,z+d]){shipBox(g,x+segW/2,H/2,zz,segW,H,T,wall);shipBox(g,x+w-segW/2,H/2,zz,segW,H,T,wall)}
+ for(const xx of [x,x+w]){shipBox(g,xx,H/2,z+segD/2,T,H,segD,wall);shipBox(g,xx,H/2,z+d-segD/2,T,H,segD,wall)}
+ // Zócalo luminoso discreto y marcos de puerta, sin barrotes cruzando las entradas.
+ for(const zz of [z,z+d])shipBox(g,cx,.055,zz,w-gap,.055,.045,trim);
+ for(const xx of [x,x+w])shipBox(g,xx,.055,cz,.045,d-gap,.055,trim);
+ for(const [dx,dz,vertical] of [[cx,z,false],[cx,z+d,false],[x,cz,true],[x+w,cz,true]]){
+  const len=gap/2;shipBox(g,vertical?dx:dx-len,.25,vertical?dz-len:dz,.07,.5,.08,accent);shipBox(g,vertical?dx:dx+len,.25,vertical?dz+len:dz,.07,.5,.08,accent);
  }
- // Door threshold markers.
- const door=shipBox(g,centerX,.035,z,.92,.045,.13,shipMat(0x54dbe9,.35,.4));door.position.z=z;
-}
-function initShip3D(){
+ // Equipamiento reconocible, bajo y pegado a los laterales para dejar libre el recorrido.
+ const console=(px,pz,rot=0)=>{const base=shipBox(g,px,.22,pz,.72,.42,.34,wall);base.rotation.y=rot;const screen=shipBox(g,px,.46,pz-.19,.48,.22,.035,accent);screen.rotation.y=rot;shipBox(g,px,.12,pz,.78,.08,.4,trim).rotation.y=rot};
+ if(room.kind==='cafe'){
+  // Mesas circulares y asientos, como cafetería.
+  for(let row=0;row<2;row++)for(let col=0;col<2;col++){const px=x+w*(.32+col*.36),pz=z+d*(.36+row*.34);const table=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.09,20),shipMat(0x9cb8bb));table.position.set(px,.24,pz);g.add(table);for(let k=0;k<3;k++){const ang=k*Math.PI*2/3,seat=shipBox(g,px+Math.cos(ang)*.48,.13,pz+Math.sin(ang)*.48,.2,.2,.2,accent)}}
+ }else if(room.kind==='reactor'){
+  const core=new THREE.Mesh(new THREE.CylinderGeometry(.35,.42,.62,16),accent);core.position.set(cx,.34,cz);g.add(core);const ring=new THREE.Mesh(new THREE.TorusGeometry(.48,.055,8,24),shipMat(0x9edfff,.35,.2));ring.rotation.x=Math.PI/2;ring.position.set(cx,.38,cz);g.add(ring);
+ }else if(room.kind==='engine'){
+  for(let k=0;k<2;k++){const px=x+w*(.35+k*.3),engine=new THREE.Mesh(new THREE.CylinderGeometry(.24,.24,.65,14),shipMat(0x263c4d));engine.rotation.z=Math.PI/2;engine.position.set(px,.3,cz);g.add(engine);shipBox(g,px,.3,cz-.26,.12,.42,.06,accent)}
+ }else if(room.kind==='medbay'){
+  for(let k=0;k<2;k++){const px=x+w*(.34+k*.32);shipBox(g,px,.18,cz,.72,.2,.42,shipMat(0xa6c6c6));shipBox(g,px,.31,cz,.12,.07,.48,accent)}
+ }else if(room.kind==='electrical'||room.kind==='comms'||room.kind==='security'||room.kind==='admin'||room.kind==='nav'||room.kind==='weapons'){
+  console(x+w*.32,z+d*.28);console(x+w*.68,z+d*.28);
+ }else{
+  for(let k=0;k<2;k++){const px=x+w*(.34+k*.32);shipBox(g,px,.22,cz,.54,.4,.5,accent);shipBox(g,px,.44,cz,.58,.055,.52,trim)}
+ }
+ // Placa de identificación de sala en el muro del fondo.
+ shipBox(g,cx,.53,z+.13,Math.min(1.05,w*.48),.12,.045,trim);
+}function initShip3D(){
  if(!window.THREE||shipRenderer)return;
  const arena=$('arena'),old=$('world');if(!arena||!old)return;
  const view=document.createElement('canvas');view.id='world3d';view.style.cssText='position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;touch-action:none';arena.insertBefore(view,old);old.style.opacity='0';old.style.pointerEvents='none';
  shipRenderer=new THREE.WebGLRenderer({canvas:view,antialias:false,alpha:false,powerPreference:'low-power'});shipRenderer.setPixelRatio(Math.min(devicePixelRatio||1,1.15));shipRenderer.shadowMap.enabled=false;shipRenderer.outputColorSpace=THREE.SRGBColorSpace;shipRenderer.toneMapping=THREE.ACESFilmicToneMapping;shipRenderer.toneMappingExposure=1.25;
  shipScene=new THREE.Scene();shipScene.background=new THREE.Color(0x071321);shipScene.fog=null;
- shipCamera=new THREE.OrthographicCamera(-15,15,9,-9,.1,150);shipCamera.up.set(0,0,-1);shipCamera.position.set(MAP.w*shipScale/2,32,MAP.h*shipScale/2);shipCamera.lookAt(MAP.w*shipScale/2,0,MAP.h*shipScale/2);
+ shipCamera=new THREE.OrthographicCamera(-15,15,9,-9,.1,150);shipCamera.up.set(0,1,0);shipCamera.position.set(MAP.w*shipScale/2,24,MAP.h*shipScale/2+18);shipCamera.lookAt(MAP.w*shipScale/2,0,MAP.h*shipScale/2);
  shipScene.add(new THREE.HemisphereLight(0xa9eaff,0x253044,2.15));const key=new THREE.DirectionalLight(0xffe7c2,2.5);key.position.set(-18,32,22);key.castShadow=false;shipScene.add(key);
  const floor=shipBox(shipScene,MAP.w*shipScale/2,-.42,MAP.h*shipScale/2,MAP.w*shipScale+5,.5,MAP.h*shipScale+5,shipMat(0x142c3e));floor.receiveShadow=true;
  // Metallic tiled floor grid.
@@ -686,12 +679,12 @@ function initShip3D(){
  const beaconMat=new THREE.MeshStandardMaterial({color:0xff334e,emissive:0x8c1024,emissiveIntensity:1.4});for(let k=0;k<8;k++){const b=new THREE.Mesh(new THREE.SphereGeometry(.09,12,8),beaconMat);b.position.set((k+.5)*MAP.w*shipScale/8,.2,.08);shipScene.add(b)}
  ship3d={view,arena,actors:shipActors};resizeShip3D();
 }
-function resizeShip3D(){if(!shipRenderer||!ship3d)return;const w=ship3d.arena.clientWidth,h=ship3d.arena.clientHeight;if(!w||!h)return;shipRenderer.setSize(w,h,false);const aspect=w/h,mapH=MAP.h*shipScale,mapW=MAP.w*shipScale;const span=Math.max(mapH*1.13,mapW/Math.max(.5,aspect)*1.13);shipCamera.left=-span*aspect/2;shipCamera.right=span*aspect/2;shipCamera.top=span/2;shipCamera.bottom=-span/2;shipCamera.updateProjectionMatrix();shipLastW=w;shipLastH=h}
+function resizeShip3D(){if(!shipRenderer||!ship3d)return;const w=ship3d.arena.clientWidth,h=ship3d.arena.clientHeight;if(!w||!h)return;shipRenderer.setSize(w,h,false);const aspect=w/h,mapH=MAP.h*shipScale,mapW=MAP.w*shipScale;const span=Math.max(mapH*.82,mapW/Math.max(.5,aspect)*1.12);shipCamera.left=-span*aspect/2;shipCamera.right=span*aspect/2;shipCamera.top=span/2;shipCamera.bottom=-span/2;shipCamera.updateProjectionMatrix();shipLastW=w;shipLastH=h}
 function makeCrew3D(q){const group=new THREE.Group(),base=shipMat(q.color||0x35a9d6,.42,.1),dark=shipMat(0x102536,.36,.2),glass=new THREE.MeshPhysicalMaterial({color:0x8edfff,metalness:.42,roughness:.12,clearcoat:1,clearcoatRoughness:.08});const body=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.55,6,12),base);body.position.y=.65;body.castShadow=true;group.add(body);const visor=new THREE.Mesh(new THREE.SphereGeometry(1,20,14),glass);visor.scale.set(.29,.19,.105);visor.position.set(.12,.86,.29);group.add(visor);const shine=new THREE.Mesh(new THREE.SphereGeometry(.045,8,8),shipMat(0xffffff,.15));shine.position.set(.04,.94,.385);group.add(shine);const pack=shipBox(group,-.31,.57,-.02,.19,.48,.36,dark);pack.rotation.z=-.06;const foot=shipBox(group,.12,.12,.02,.48,.18,.55,base);foot.material=base;const shadow=new THREE.Mesh(new THREE.CircleGeometry(.47,24),new THREE.MeshBasicMaterial({color:0x020913,transparent:true,opacity:.42}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.015;group.add(shadow);return group}
 function drawShip3D(){
  if(!shipRenderer||!shipScene||!gameState)return;
- Object.values(gameState.players||{}).forEach(q=>{let actor=shipActors.get(q.id);if(!actor){actor=makeCrew3D(q);shipActors.set(q.id,actor);shipScene.add(actor)}actor.visible=!!q.alive;actor.position.set(q.x*shipScale,.02,q.y*shipScale);actor.rotation.y=q._faceX<0?Math.PI:0;actor.scale.setScalar(q.id===playerId?.62:.58);if(actor.children[0]?.material?.color)actor.children[0].material.color.set(q.color||'#35a9d6')});
- const tx=MAP.w*shipScale/2,tz=MAP.h*shipScale/2;shipCamera.position.set(tx,32,tz);shipCamera.lookAt(tx,0,tz);shipRenderer.render(shipScene,shipCamera)
+ Object.values(gameState.players||{}).forEach(q=>{let actor=shipActors.get(q.id);if(!actor){actor=makeCrew3D(q);shipActors.set(q.id,actor);shipScene.add(actor)}actor.visible=!!q.alive;actor.position.set(q.x*shipScale,.02,q.y*shipScale);actor.rotation.y=q._faceX<0?Math.PI:0;actor.scale.setScalar(q.id===playerId?.48:.46);if(actor.children[0]?.material?.color)actor.children[0].material.color.set(q.color||'#35a9d6')});
+ const tx=MAP.w*shipScale/2,tz=MAP.h*shipScale/2;shipCamera.position.set(tx,24,tz+18);shipCamera.lookAt(tx,0,tz);shipRenderer.render(shipScene,shipCamera)
 }
 
 function draw(){if(window.THREE&&shipRenderer){try{drawShip3D();return}catch(e){console.warn('3D render fallback',e)}}if(!ctx||!canvas)return;try{const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width<1||canvas.height<1)return;if(w<2||h<2)return;const dpr=Math.min(window.devicePixelRatio||1,2);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';const p=gameState?.players?.[playerId],targetZ=Math.max(.1,Math.min(w/32,h/21));let z=targetZ,cx,cy;const focusX=p?.x??SPAWN_X,focusY=p?.y??SPAWN_Y;if(cameraIntro){const raw=Math.min(1,Math.max(0,(tsNow()-cameraIntro.start)/cameraIntro.duration)),ease=raw*raw*(3-2*raw),fitZ=Math.min(w/MAP.w,h/MAP.h)*.94;z=fitZ*Math.pow(targetZ/fitZ,ease);const fx=MAP.w/2+(focusX-MAP.w/2)*ease,fy=MAP.h/2+(focusY-MAP.h/2)*ease;cx=fx-w/z/2;cy=fy-h/z/2;if(raw>=1)cameraIntro=null}else{const vw=w/z,vh=h/z;cx=Math.max(0,Math.min(MAP.w-vw,focusX-vw/2));cy=Math.max(0,Math.min(MAP.h-vh,focusY-vh/2))}const vw=w/z,vh=h/z;ctx.clearRect(0,0,w,h);ctx.fillStyle='#020811';ctx.fillRect(0,0,w,h);ctx.save();ctx.scale(z,z);ctx.translate(-cx,-cy);
