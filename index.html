@@ -146,7 +146,38 @@
 .report-main{font-size:10px;font-weight:1000;letter-spacing:1px}
 .report-sub{font-size:7px;letter-spacing:1.5px;color:#f1b6a4}
 @media(max-width:700px){#contextActions{right:12px;bottom:15px;gap:7px}.action-orb{width:72px;height:72px;border-radius:19px}.report-orb{width:68px;height:68px;border-radius:17px}.report-main{font-size:9px}.report-sub{font-size:6px}#mapPanel{width:88vw;padding:10px}}
-</style><style id="canvas-layout-guard">html,body{width:100%;height:100%;min-height:100%;margin:0}#game:not(.hidden){display:flex!important;position:relative;width:100%;height:100dvh;min-height:100dvh;flex-direction:column}#arena{position:relative!important;display:block!important;flex:1 1 auto!important;width:100%!important;height:100%!important;min-width:0!important;min-height:1px!important;overflow:hidden!important}#world{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-width:1px!important;min-height:1px!important;z-index:0!important}#hud,#moreBtn,#contextActions,#mapPanel,#moreMenu,#joystick,#toast,#modal,#end{z-index:3}</style></head><body><div id="profileGate" class="profile-gate"><div class="profile-panel"><div class="profile-emblem">✦</div><div class="profile-kicker">STARSHIP : SABOTAGE</div><h1 id="gateTitle">WELCOME ABOARD</h1><p id="gateSubtitle">Choose your language and your player name</p><label id="gateLanguageLabel" for="languageChoice">LANGUAGE</label><select id="languageChoice"><option value="es">Español</option><option value="en">English</option><option value="fr">Français</option></select><label id="gateNameLabel" for="profileName">PLAYER NAME</label><input id="profileName" maxlength="16" autocomplete="nickname" placeholder="Your name"><button id="saveProfile">CONTINUE</button></div></div>
+</style><style id="canvas-layout-guard">html,body{width:100%;height:100%;min-height:100%;margin:0}#game:not(.hidden){display:flex!important;position:relative;width:100%;height:100dvh;min-height:100dvh;flex-direction:column}#arena{position:relative!important;display:block!important;flex:1 1 auto!important;width:100%!important;height:100%!important;min-width:0!important;min-height:1px!important;overflow:hidden!important}#world{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-width:1px!important;min-height:1px!important;z-index:0!important}#hud,#moreBtn,#contextActions,#mapPanel,#moreMenu,#joystick,#toast,#modal,#end{z-index:3}</style><style id="compact-map-popover">
+/* Mapa desplegable compacto, anclado junto al botón MAPA */
+#mapPanel{
+ position:absolute!important;
+ top:112px!important;
+ right:14px!important;
+ left:auto!important;
+ bottom:auto!important;
+ width:min(320px,calc(100vw - 28px))!important;
+ max-width:calc(100vw - 28px)!important;
+ max-height:42vh!important;
+ overflow:hidden!important;
+ padding:10px!important;
+ border-radius:14px!important;
+ transform-origin:top right;
+ box-shadow:0 12px 34px #000c,inset 0 1px #e8ffff24!important;
+}
+#mapPanel .map-panel-head{font-size:10px;letter-spacing:1.2px;margin-bottom:7px}
+#mapPanel #mapClose{width:29px;height:29px;flex-basis:29px;font-size:22px}
+#mapPanel canvas{
+ width:100%!important;
+ height:auto!important;
+ max-height:calc(42vh - 58px)!important;
+ aspect-ratio:10/7!important;
+ object-fit:contain;
+}
+@media(max-width:700px){
+ #mapPanel{top:108px!important;right:10px!important;width:min(270px,calc(100vw - 20px))!important;max-width:calc(100vw - 20px)!important;max-height:38vh!important;padding:8px!important}
+ #mapPanel canvas{max-height:calc(38vh - 48px)!important}
+ #mapPanel .map-panel-head{font-size:9px}
+}
+</style></head><body><div id="profileGate" class="profile-gate"><div class="profile-panel"><div class="profile-emblem">✦</div><div class="profile-kicker">STARSHIP : SABOTAGE</div><h1 id="gateTitle">WELCOME ABOARD</h1><p id="gateSubtitle">Choose your language and your player name</p><label id="gateLanguageLabel" for="languageChoice">LANGUAGE</label><select id="languageChoice"><option value="es">Español</option><option value="en">English</option><option value="fr">Français</option></select><label id="gateNameLabel" for="profileName">PLAYER NAME</label><input id="profileName" maxlength="16" autocomplete="nickname" placeholder="Your name"><button id="saveProfile">CONTINUE</button></div></div>
 <section id="connect" class="home-screen">
   <div class="space-stars"></div>
   <nav class="topbar">
