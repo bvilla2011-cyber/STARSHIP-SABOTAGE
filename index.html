@@ -622,7 +622,7 @@ function roundedRect(c,x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
 function roomPolygon(r){return r.poly.map(([x,y])=>[r.x+x*r.w,r.y+y*r.h])}
 
 /* ISOMETRIC 3D SHIP — scene renderer */
-let ship3d=null,shipRenderer=null,shipCamera=null,shipScene=null,shipActors=new Map(),shipLastW=0,shipLastH=0;
+let ship3d=null,shipRenderer=null,shipCamera=null,shipScene=null,shipActors=new Map(),shipRoomGroups=new Map(),shipLastW=0,shipLastH=0;
 const shipScale=.043;
 function shipMat(color,rough=.78,metal=.12){return new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal})}
 function shipBox(parent,x,y,z,w,h,d,mat,bevel=0){const geo=new THREE.BoxGeometry(w,h,d);const mesh=new THREE.Mesh(geo,mat);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh}
@@ -669,23 +669,33 @@ function shipRoomDecor(room,g){
  // Metallic tiled floor grid.
  const grid=new THREE.GridHelper(Math.max(MAP.w,MAP.h)*shipScale,Math.max(20,Math.round(MAP.w/12)),0x42718a,0x28475d);grid.position.set(MAP.w*shipScale/2,-.15,MAP.h*shipScale/2);shipScene.add(grid);
  MAP.corridors.forEach(c=>{for(let i=1;i<c.points.length;i++){const a=c.points[i-1],b=c.points[i],dx=(b[0]-a[0])*shipScale,dz=(b[1]-a[1])*shipScale,len=Math.hypot(dx,dz),midX=(a[0]+b[0])*shipScale/2,midZ=(a[1]+b[1])*shipScale/2;const deck=shipBox(shipScene,midX,-.08,midZ,len+.16,.16,c.width*shipScale,shipMat(0x3c6174));deck.rotation.y=-Math.atan2(dz,dx);shipBox(shipScene,midX,.015,midZ,len*.72,.025,.035,shipMat(0x8bd8e8,.35,.3)).rotation.y=-Math.atan2(dz,dx)}});
- MAP.rooms.forEach(r=>{const group=new THREE.Group();shipScene.add(group);shipRoomDecor(r,group)});
+ // Las salas se crean bajo demanda al entrar en el área visible de cámara.
  // Hull outline and animated hazard beacons.
  const hull=shipMat(0x294a60,.48,.48);shipBox(shipScene,MAP.w*shipScale/2,-.02,0,MAP.w*shipScale+2,.3,.32,hull);shipBox(shipScene,MAP.w*shipScale/2,-.02,MAP.h*shipScale,MAP.w*shipScale+2,.3,.32,hull);
  const beaconMat=new THREE.MeshStandardMaterial({color:0xff334e,emissive:0x8c1024,emissiveIntensity:1.4});for(let k=0;k<8;k++){const b=new THREE.Mesh(new THREE.SphereGeometry(.09,12,8),beaconMat);b.position.set((k+.5)*MAP.w*shipScale/8,.2,.08);shipScene.add(b)}
  ship3d={view,arena,actors:shipActors};resizeShip3D();
 }
-function resizeShip3D(){if(!shipRenderer||!ship3d)return;const w=ship3d.arena.clientWidth,h=ship3d.arena.clientHeight;if(!w||!h)return;shipRenderer.setSize(w,h,false);const aspect=w/h,mapH=MAP.h*shipScale,mapW=MAP.w*shipScale;const span=Math.max(mapH*.27,mapW/Math.max(.5,aspect)*.34,1.12);shipCamera.left=-span*aspect/2;shipCamera.right=span*aspect/2;shipCamera.top=span/2;shipCamera.bottom=-span/2;shipCamera.updateProjectionMatrix();shipLastW=w;shipLastH=h}
+function resizeShip3D(){if(!shipRenderer||!ship3d)return;const w=ship3d.arena.clientWidth,h=ship3d.arena.clientHeight;if(!w||!h)return;shipRenderer.setSize(w,h,false);const aspect=w/h,mapH=MAP.h*shipScale,mapW=MAP.w*shipScale;const span=Math.max(mapH*.19,mapW/Math.max(.5,aspect)*.24,.78);shipCamera.left=-span*aspect/2;shipCamera.right=span*aspect/2;shipCamera.top=span/2;shipCamera.bottom=-span/2;shipCamera.updateProjectionMatrix();shipLastW=w;shipLastH=h}
 function makeCrew3D(q){const group=new THREE.Group(),base=shipMat(q.color||0x35a9d6,.42,.1),dark=shipMat(0x102536,.36,.2),glass=new THREE.MeshPhysicalMaterial({color:0x8edfff,metalness:.42,roughness:.12,clearcoat:1,clearcoatRoughness:.08});const body=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.55,10,20),base);body.position.y=.65;body.castShadow=true;group.add(body);const visor=new THREE.Mesh(new THREE.SphereGeometry(1,28,20),glass);visor.scale.set(.29,.19,.105);visor.position.set(.12,.86,.29);group.add(visor);const shine=new THREE.Mesh(new THREE.SphereGeometry(.045,8,8),shipMat(0xffffff,.15));shine.position.set(.04,.94,.385);group.add(shine);const pack=shipBox(group,-.31,.57,-.02,.19,.48,.36,dark);pack.rotation.z=-.06;const foot=shipBox(group,.12,.12,.02,.48,.18,.55,base);foot.material=base;const shadow=new THREE.Mesh(new THREE.CircleGeometry(.47,24),new THREE.MeshBasicMaterial({color:0x020913,transparent:true,opacity:.42}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.015;group.add(shadow);return group}
 let shipCameraX=null,shipCameraZ=null;
 function drawShip3D(){
  if(!shipRenderer||!shipScene||!gameState)return;
- Object.values(gameState.players||{}).forEach(q=>{let actor=shipActors.get(q.id);if(!actor){actor=makeCrew3D(q);shipActors.set(q.id,actor);shipScene.add(actor)}actor.visible=!!q.alive;actor.position.set(q.x*shipScale,.02,q.y*shipScale);actor.rotation.y=q._faceX<0?Math.PI:0;actor.scale.setScalar(q.id===playerId?.0625:.06);if(actor.children[0]?.material?.color)actor.children[0].material.color.set(q.color||'#35a9d6')});
+ Object.values(gameState.players||{}).forEach(q=>{let actor=shipActors.get(q.id);if(!actor){actor=makeCrew3D(q);shipActors.set(q.id,actor);shipScene.add(actor)}actor.visible=!!q.alive;actor.position.set(q.x*shipScale,.02,q.y*shipScale);actor.rotation.y=q._faceX<0?Math.PI:0;actor.scale.setScalar(q.id===playerId?.015625:.015);if(actor.children[0]?.material?.color)actor.children[0].material.color.set(q.color||'#35a9d6')});
  const mePlayer=gameState.players?.[playerId],targetX=(mePlayer?.x??SPAWN_X)*shipScale,targetZ=(mePlayer?.y??SPAWN_Y)*shipScale;
  if(shipCameraX===null){shipCameraX=targetX;shipCameraZ=targetZ}
  // Seguimiento suave: la cámara acompaña al tripulante sin saltos bruscos.
  shipCameraX+=(targetX-shipCameraX)*.12;shipCameraZ+=(targetZ-shipCameraZ)*.12;
- shipCamera.position.set(shipCameraX,17,shipCameraZ+13);shipCamera.lookAt(shipCameraX,0,shipCameraZ);shipRenderer.render(shipScene,shipCamera)
+ shipCamera.position.set(shipCameraX,17,shipCameraZ+13);shipCamera.lookAt(shipCameraX,0,shipCameraZ);
+ // Carga diferida de salas: solo las que intersectan la vista más un margen de 10 m del mapa.
+ const margin=10*shipScale,halfW=shipCamera.right,halfH=shipCamera.top;
+ MAP.rooms.forEach(room=>{
+  const rx=room.x*shipScale,rz=room.y*shipScale,rw=room.w*shipScale,rd=room.h*shipScale;
+  const visible=rx+rw>=shipCameraX-halfW-margin&&rx<=shipCameraX+halfW+margin&&rz+rd>=shipCameraZ-halfH-margin&&rz<=shipCameraZ+halfH+margin;
+  let group=shipRoomGroups.get(room.name);
+  if(visible&&!group){group=new THREE.Group();group.userData.roomName=room.name;shipScene.add(group);shipRoomDecor(room,group);shipRoomGroups.set(room.name,group)}
+  else if(!visible&&group){shipScene.remove(group);group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material.dispose()}});shipRoomGroups.delete(room.name)}
+ });
+ shipRenderer.render(shipScene,shipCamera)
 }
 
 function draw(){if(window.THREE&&shipRenderer){try{drawShip3D();return}catch(e){console.warn('3D render fallback',e)}}if(!ctx||!canvas)return;try{const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width<1||canvas.height<1)return;if(w<2||h<2)return;const dpr=Math.min(window.devicePixelRatio||1,2);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';const p=gameState?.players?.[playerId],targetZ=Math.max(.1,Math.min(w/32,h/21));let z=targetZ,cx,cy;const focusX=p?.x??SPAWN_X,focusY=p?.y??SPAWN_Y;if(cameraIntro){const raw=Math.min(1,Math.max(0,(tsNow()-cameraIntro.start)/cameraIntro.duration)),ease=raw*raw*(3-2*raw),fitZ=Math.min(w/MAP.w,h/MAP.h)*.94;z=fitZ*Math.pow(targetZ/fitZ,ease);const fx=MAP.w/2+(focusX-MAP.w/2)*ease,fy=MAP.h/2+(focusY-MAP.h/2)*ease;cx=fx-w/z/2;cy=fy-h/z/2;if(raw>=1)cameraIntro=null}else{const vw=w/z,vh=h/z;cx=Math.max(0,Math.min(MAP.w-vw,focusX-vw/2));cy=Math.max(0,Math.min(MAP.h-vh,focusY-vh/2))}const vw=w/z,vh=h/z;ctx.clearRect(0,0,w,h);ctx.fillStyle='#020811';ctx.fillRect(0,0,w,h);ctx.save();ctx.scale(z,z);ctx.translate(-cx,-cy);
