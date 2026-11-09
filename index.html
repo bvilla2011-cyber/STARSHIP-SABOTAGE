@@ -634,19 +634,16 @@ function shipRoomDecor(room,g){
  shipBox(g,cx,-.12,cz,w,.16,d,floor);
  shipBox(g,cx,-.025,cz,w-.12,.025,d-.12,accent);
  // Cuatro paredes bajas con entradas anchas; el interior queda despejado.
- const H=.34,T=.12,gap=Math.min(1.18,Math.min(w,d)*.46),segW=(w-gap)/2,segD=(d-gap)/2;
- // Pared trasera y laterales: la pared cercana a cámara se omite para no tapar al jugador.
+ const H=.42,T=.14,gap=Math.min(1.18,Math.min(w,d)*.46),segW=(w-gap)/2;
+ // Solo pared del fondo, opuesta a la cámara. Sin pared frontal ni paredes laterales que corten la vista.
  shipBox(g,x+segW/2,H/2,z,segW,H,T,wall);shipBox(g,x+w-segW/2,H/2,z,segW,H,T,wall);
- for(const xx of [x,x+w]){shipBox(g,xx,H/2,z+segD/2,T,H,segD,wall);shipBox(g,xx,H/2,z+d-segD/2,T,H,segD,wall)}
- // Zócalos solo en paredes visibles; el lado frontal queda completamente abierto.
  shipBox(g,cx,.055,z,w-gap,.055,.045,trim);
- for(const xx of [x,x+w])shipBox(g,xx,.055,cz,.045,d-.12,.055,trim);
- // Marcos discretos en las entradas laterales y trasera; nunca delante de la cámara.
+ // Los techos no se crean: todas las habitaciones quedan abiertas desde arriba.
  // Equipamiento reconocible, bajo y pegado a los laterales para dejar libre el recorrido.
  const console=(px,pz,rot=0)=>{const base=shipBox(g,px,.22,pz,.72,.42,.34,wall);base.rotation.y=rot;const screen=shipBox(g,px,.46,pz-.19,.48,.22,.035,accent);screen.rotation.y=rot;shipBox(g,px,.12,pz,.78,.08,.4,trim).rotation.y=rot};
  if(room.kind==='cafe'){
   // Mesas circulares y asientos, como cafetería.
-  for(let row=0;row<2;row++)for(let col=0;col<2;col++){const px=x+w*(.32+col*.36),pz=z+d*(.36+row*.34);const table=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.09,20),shipMat(0x9cb8bb));table.position.set(px,.24,pz);g.add(table);for(let k=0;k<3;k++){const ang=k*Math.PI*2/3,seat=shipBox(g,px+Math.cos(ang)*.48,.13,pz+Math.sin(ang)*.48,.2,.2,.2,accent)}}
+  for(let row=0;row<2;row++)for(let col=0;col<2;col++){const px=x+w*(.32+col*.36),pz=z+d*(.36+row*.34);const table=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.09,32),shipMat(0x9cb8bb));table.position.set(px,.24,pz);g.add(table);for(let k=0;k<3;k++){const ang=k*Math.PI*2/3,seat=shipBox(g,px+Math.cos(ang)*.48,.13,pz+Math.sin(ang)*.48,.2,.2,.2,accent)}}
  }else if(room.kind==='reactor'){
   const core=new THREE.Mesh(new THREE.CylinderGeometry(.35,.42,.62,16),accent);core.position.set(cx,.34,cz);g.add(core);const ring=new THREE.Mesh(new THREE.TorusGeometry(.48,.055,8,24),shipMat(0x9edfff,.35,.2));ring.rotation.x=Math.PI/2;ring.position.set(cx,.38,cz);g.add(ring);
  }else if(room.kind==='engine'){
@@ -664,7 +661,7 @@ function shipRoomDecor(room,g){
  if(!window.THREE||shipRenderer)return;
  const arena=$('arena'),old=$('world');if(!arena||!old)return;
  const view=document.createElement('canvas');view.id='world3d';view.style.cssText='position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;touch-action:none';arena.insertBefore(view,old);old.style.opacity='0';old.style.pointerEvents='none';
- shipRenderer=new THREE.WebGLRenderer({canvas:view,antialias:false,alpha:false,powerPreference:'low-power'});shipRenderer.setPixelRatio(Math.min(devicePixelRatio||1,1.15));shipRenderer.shadowMap.enabled=false;shipRenderer.outputColorSpace=THREE.SRGBColorSpace;shipRenderer.toneMapping=THREE.ACESFilmicToneMapping;shipRenderer.toneMappingExposure=1.25;
+ shipRenderer=new THREE.WebGLRenderer({canvas:view,antialias:true,alpha:false,powerPreference:'low-power'});shipRenderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));shipRenderer.shadowMap.enabled=false;shipRenderer.outputColorSpace=THREE.SRGBColorSpace;shipRenderer.toneMapping=THREE.ACESFilmicToneMapping;shipRenderer.toneMappingExposure=1.25;
  shipScene=new THREE.Scene();shipScene.background=new THREE.Color(0x071321);shipScene.fog=null;
  shipCamera=new THREE.OrthographicCamera(-15,15,9,-9,.1,150);shipCamera.up.set(0,1,0);shipCamera.position.set(MAP.w*shipScale/2,24,MAP.h*shipScale/2+18);shipCamera.lookAt(MAP.w*shipScale/2,0,MAP.h*shipScale/2);
  shipScene.add(new THREE.HemisphereLight(0xa9eaff,0x253044,2.15));const key=new THREE.DirectionalLight(0xffe7c2,2.5);key.position.set(-18,32,22);key.castShadow=false;shipScene.add(key);
@@ -679,7 +676,7 @@ function shipRoomDecor(room,g){
  ship3d={view,arena,actors:shipActors};resizeShip3D();
 }
 function resizeShip3D(){if(!shipRenderer||!ship3d)return;const w=ship3d.arena.clientWidth,h=ship3d.arena.clientHeight;if(!w||!h)return;shipRenderer.setSize(w,h,false);const aspect=w/h,mapH=MAP.h*shipScale,mapW=MAP.w*shipScale;const span=Math.max(mapH*.36,mapW/Math.max(.5,aspect)*.46,1.65);shipCamera.left=-span*aspect/2;shipCamera.right=span*aspect/2;shipCamera.top=span/2;shipCamera.bottom=-span/2;shipCamera.updateProjectionMatrix();shipLastW=w;shipLastH=h}
-function makeCrew3D(q){const group=new THREE.Group(),base=shipMat(q.color||0x35a9d6,.42,.1),dark=shipMat(0x102536,.36,.2),glass=new THREE.MeshPhysicalMaterial({color:0x8edfff,metalness:.42,roughness:.12,clearcoat:1,clearcoatRoughness:.08});const body=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.55,6,12),base);body.position.y=.65;body.castShadow=true;group.add(body);const visor=new THREE.Mesh(new THREE.SphereGeometry(1,20,14),glass);visor.scale.set(.29,.19,.105);visor.position.set(.12,.86,.29);group.add(visor);const shine=new THREE.Mesh(new THREE.SphereGeometry(.045,8,8),shipMat(0xffffff,.15));shine.position.set(.04,.94,.385);group.add(shine);const pack=shipBox(group,-.31,.57,-.02,.19,.48,.36,dark);pack.rotation.z=-.06;const foot=shipBox(group,.12,.12,.02,.48,.18,.55,base);foot.material=base;const shadow=new THREE.Mesh(new THREE.CircleGeometry(.47,24),new THREE.MeshBasicMaterial({color:0x020913,transparent:true,opacity:.42}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.015;group.add(shadow);return group}
+function makeCrew3D(q){const group=new THREE.Group(),base=shipMat(q.color||0x35a9d6,.42,.1),dark=shipMat(0x102536,.36,.2),glass=new THREE.MeshPhysicalMaterial({color:0x8edfff,metalness:.42,roughness:.12,clearcoat:1,clearcoatRoughness:.08});const body=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.55,10,20),base);body.position.y=.65;body.castShadow=true;group.add(body);const visor=new THREE.Mesh(new THREE.SphereGeometry(1,28,20),glass);visor.scale.set(.29,.19,.105);visor.position.set(.12,.86,.29);group.add(visor);const shine=new THREE.Mesh(new THREE.SphereGeometry(.045,8,8),shipMat(0xffffff,.15));shine.position.set(.04,.94,.385);group.add(shine);const pack=shipBox(group,-.31,.57,-.02,.19,.48,.36,dark);pack.rotation.z=-.06;const foot=shipBox(group,.12,.12,.02,.48,.18,.55,base);foot.material=base;const shadow=new THREE.Mesh(new THREE.CircleGeometry(.47,24),new THREE.MeshBasicMaterial({color:0x020913,transparent:true,opacity:.42}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.015;group.add(shadow);return group}
 let shipCameraX=null,shipCameraZ=null;
 function drawShip3D(){
  if(!shipRenderer||!shipScene||!gameState)return;
