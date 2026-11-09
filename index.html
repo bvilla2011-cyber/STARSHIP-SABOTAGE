@@ -636,6 +636,49 @@ let ship3d=null,shipRenderer=null,shipCamera=null,shipScene=null,shipActors=new 
 const shipScale=.043;
 function shipMat(color,rough=.78,metal=.12){return new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal})}
 function shipBox(parent,x,y,z,w,h,d,mat,bevel=0){const geo=new THREE.BoxGeometry(w,h,d);const mesh=new THREE.Mesh(geo,mat);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh}
+// ARQUITECTURA PROCEDURAL: paredes, jambas y colisión independiente del render.
+const ARCH={wallHeight:3.65,wallThickness:.35,doorHeight:2.65,doorClearance:3.15,wallSegments:[],doorways:[]};
+function closestOnSegment(p,a,b){
+ const dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy,t=l?Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/l)):0;
+ const x=a[0]+dx*t,y=a[1]+dy*t;return {x,y,t,d:Math.hypot(p[0]-x,p[1]-y)};
+}
+function archWall(parent,a,b,room,opening=null){
+ const dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy);if(len<.08)return;
+ const ux=dx/len,uz=dy/len,th=ARCH.wallThickness;
+ const make=(from,to,kind='wall')=>{
+  if(to-from<.08)return;
+  const mid=(from+to)/2,mesh=shipBox(parent,((a[0]+ux*mid)*shipScale),ARCH.wallHeight*shipScale/2,((a[1]+uz*mid)*shipScale), (to-from)*shipScale,ARCH.wallHeight*shipScale,th*shipScale,shipMat(kind==='wall'?0x314d60:0x63899a,.62,.38));
+  mesh.rotation.y=-Math.atan2(uz,ux);mesh.userData.archWall=true;mesh.userData.mapMidZ=a[1]+uz*mid;
+  ARCH.wallSegments.push({a:[a[0]+ux*from,a[1]+uz*from],b:[a[0]+ux*to,a[1]+uz*to],room:room.name});
+  const cap=shipBox(parent,((a[0]+ux*mid)*shipScale),ARCH.wallHeight*shipScale+.018,((a[1]+uz*mid)*shipScale), (to-from)*shipScale+.025,.045,th*shipScale+.025,shipMat(0x79a9b8,.4,.55));
+  cap.rotation.y=-Math.atan2(uz,ux);
+ };
+ if(!opening){make(0,len);return}
+ const half=opening.width/2,center=opening.at;
+ make(0,Math.max(0,center-half));make(Math.min(len,center+half),len);
+ // Marco superior y jambas: las hojas se añaden en el siguiente nivel de puerta.
+ const frameMat=shipMat(0x769aaa,.38,.58),postW=.12;
+ for(const t of [Math.max(0,center-half),Math.min(len,center+half)]){
+  if(t<0||t>len)continue;
+  const px=(a[0]+ux*t)*shipScale,pz=(a[1]+uz*t)*shipScale;
+  const post=shipBox(parent,px,ARCH.doorHeight*shipScale/2,pz,postW*shipScale,ARCH.doorHeight*shipScale,th*1.12*shipScale,frameMat);post.rotation.y=-Math.atan2(uz,ux);
+ }
+ const lintel=shipBox(parent,((a[0]+ux*center)*shipScale),(ARCH.doorHeight+.12)*shipScale,((a[1]+uz*center)*shipScale),opening.width*shipScale,.18*shipScale,th*1.12*shipScale,frameMat);lintel.rotation.y=-Math.atan2(uz,ux);
+ ARCH.doorways.push({room:room.name,x:a[0]+ux*center,y:a[1]+uz*center,width:opening.width,open:true});
+}
+function buildRoomArchitecture(parent){
+ ARCH.wallSegments=[];ARCH.doorways=[];
+ const endpoints=MAP.corridors.flatMap(c=>[c.points[0],c.points[c.points.length-1]]);
+ MAP.rooms.forEach(room=>{
+  const poly=roomPolygon(room);
+  for(let i=0;i<poly.length;i++){
+   const a=poly[i],b=poly[(i+1)%poly.length],len=Math.hypot(b[0]-a[0],b[1]-a[1]);let best=null;
+   endpoints.forEach(p=>{const hit=closestOnSegment(p,a,b);if(hit.d<len*.0+Math.max(1.25,room.w*.025)&&(!best||hit.d<best.hit.d))best={hit,p}});
+   archWall(parent,a,b,room,best?{at:best.hit.t*len,width:Math.min(ARCH.doorClearance,Math.max(2.45,room.w*.045))}:null);
+  }
+ });
+}
+function segmentDistance(p,a,b){return closestOnSegment(p,a,b).d}
 function shipRoomDecor(room,g){
  const x=room.x*shipScale,z=room.y*shipScale,w=room.w*shipScale,d=room.h*shipScale,cx=x+w/2,cz=z+d/2;
  const colors={cafe:0x397b91,engine:0x9b603d,reactor:0x76539b,security:0x397d7c,medbay:0x438b91,electrical:0x9a7942,storage:0x77705a,admin:0x477d68,weapons:0x8d6447,nav:0x47749a,o2:0x438b79,shields:0x397c91,comms:0x735b91};
@@ -760,6 +803,8 @@ function shipRoomDecor(room,g){
  const floor=shipBox(shipScene,MAP.w*shipScale/2,-.42,MAP.h*shipScale/2,MAP.w*shipScale+5,.5,MAP.h*shipScale+5,shipMat(0x142c3e));floor.receiveShadow=true;
  // Sin rejilla global: deja que destaquen las plataformas, pasillos y objetos del mapa.
  MAP.corridors.forEach(c=>{for(let i=1;i<c.points.length;i++){const a=c.points[i-1],b=c.points[i],dx=(b[0]-a[0])*shipScale,dz=(b[1]-a[1])*shipScale,len=Math.hypot(dx,dz),midX=(a[0]+b[0])*shipScale/2,midZ=(a[1]+b[1])*shipScale/2;const deck=shipBox(shipScene,midX,-.08,midZ,len+.16,.16,c.width*shipScale,shipMat(0x3c6174));deck.rotation.y=-Math.atan2(dz,dx);shipBox(shipScene,midX,.015,midZ,len*.72,.025,.035,shipMat(0x8bd8e8,.35,.3)).rotation.y=-Math.atan2(dz,dx)}});
+ // Paredes perimetrales reales con huecos alineados a los extremos de corredores.
+ buildRoomArchitecture(shipScene);
  // Las salas se crean bajo demanda al entrar en el área visible de cámara.
  // Hull outline and animated hazard beacons.
  const hull=shipMat(0x294a60,.48,.48);shipBox(shipScene,MAP.w*shipScale/2,-.02,0,MAP.w*shipScale+2,.3,.32,hull);shipBox(shipScene,MAP.w*shipScale/2,-.02,MAP.h*shipScale,MAP.w*shipScale+2,.3,.32,hull);
@@ -867,7 +912,9 @@ function canWalk(x,y){
  // Radio real del cuerpo del tripulante en coordenadas del mapa (modelo 3D a escala .25).
  const radius=1.85;
  if(!inFloor(x,y))return false;
- // Mesas y botón de emergencia: colisión circular con margen para el cuerpo.
+ // Paredes arquitectónicas: collider independiente de los meshes visuales.
+ for(const wall of ARCH.wallSegments){if(segmentDistance([x,y],wall.a,wall.b)<radius+ARCH.wallThickness*.5)return false}
+ // Muebles y maquinaria sólida.
  if((MAP.obstacles||[]).some(o=>Math.hypot(x-o.x,y-o.y)<o.r+radius))return false;
  for(let i=0;i<12;i++){
   const a=i*Math.PI/6;
@@ -975,7 +1022,7 @@ if(!email||!/^\S+@\S+\.\S+$/.test(email))return authFeedback('Introduce un corre
 $('editProfile').onclick=async()=>{if(authUser){try{await getAccount().deleteSession({sessionId:'current'})}catch(e){}authUser=null;location.reload();return}$('profileGate').classList.add('visible')};}
 function setup(){initProfile();startShopTimer();const splash=$('introSplash');if(splash)setTimeout(()=>splash.remove(),3400);const j=$('joystick');let joyPointer=null;function joy(e){const r=j.getBoundingClientRect();if(!r.width||!r.height)return;let dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,l=Math.hypot(dx,dy),m=Math.min(r.width,r.height)*.34;if(l>m){dx*=m/l;dy*=m/l}move={x:dx/m,y:dy/m};$('stick').style.transform='translate('+dx+'px,'+dy+'px)'}j.style.touchAction='none';j.addEventListener('pointerdown',e=>{e.preventDefault();joyPointer=e.pointerId;j.setPointerCapture(e.pointerId);joy(e)});j.addEventListener('pointermove',e=>{if(e.pointerId===joyPointer){e.preventDefault();joy(e)}});function stopJoy(e){if(joyPointer!==null&&(e.pointerId===undefined||e.pointerId===joyPointer)){joyPointer=null;move={x:0,y:0};$('stick').style.transform='translate(0,0)'}}['pointerup','pointercancel','lostpointercapture'].forEach(n=>j.addEventListener(n,stopJoy));window.addEventListener('blur',()=>{keys={};move={x:0,y:0};joyPointer=null;$('stick').style.transform='translate(0,0)'});window.addEventListener('keydown',e=>{const target=e.target;const tag=target?.tagName?.toLowerCase();const typing=tag==='input'||tag==='textarea'||tag==='select'||target?.isContentEditable||e.isComposing||e.key==='Dead';if(typing)return;const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[k]=true;if(k==='e'&&!e.repeat)startTask()},{passive:false});window.addEventListener('keyup',e=>{const k=e.key.toLowerCase();delete keys[k];delete keys[e.key]});$('color').addEventListener('change',applyMonguitoColor);$('create').onclick=createRoom;$('join').onclick=joinRoom;$('explore').onclick=startExplore;$('shopOpen').onclick=openShop;$('shopClose').onclick=closeShop;$('customizeOpen').onclick=openCustomize;$('customizeClose').onclick=closeCustomize;$('customTabs').querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>{customCategory=b.dataset.category;renderCustomizer()});$('customDone').onclick=async()=>{saveEconomy();if(me){me.color=$('color').value;me.cosmetics=getLoadout();try{if(roomId&&playerId)await getDb().updateRow({databaseId:DB,tableId:PLAYERS,rowId:playerId,data:{color:me.color,tasks:JSON.stringify({cosmetics:me.cosmetics})}})}catch(e){console.warn('No se pudo sincronizar el aspecto en la sala',e)}}if(gameState?.players?.[playerId])gameState.players[playerId].cosmetics=getLoadout();renderLobby();closeCustomize();toast('Personaje guardado y sincronizado')};$('start').onclick=startMatch;$('taskToggle').onclick=()=>$('taskText').classList.toggle('hidden');$('mapBtn').onclick=()=>{const panel=$('mapPanel');panel.classList.toggle('hidden');$('moreMenu').classList.add('hidden');if(!panel.classList.contains('hidden'))drawMiniMap()};$('mapClose').onclick=()=>{$('mapPanel').classList.add('hidden')};$('moreBtn').onclick=()=>{$('moreMenu').classList.toggle('hidden');$('mapPanel').classList.add('hidden')};$('resumeBtn').onclick=()=>$('moreMenu').classList.add('hidden');$('leaveMatchBtn').onclick=async()=>{if(!confirm('¿Abandonar esta partida?'))return;clearInterval(poll);poll=null;try{if(!soloMode)await getDb().deleteRow({databaseId:DB,tableId:PLAYERS,rowId:playerId})}catch(e){}location.reload()};$('interact').onclick=()=>{const p=gameState?.players?.[playerId];if(!p)return;const t=MAP.tasks.map(x=>({...x,d:Math.hypot(p.x-x.x,p.y-x.y)})).filter(x=>x.d<0.85).sort((a,b)=>a.d-b.d)[0];if(gameState?.sabotage?.active&&p.role==='crew'){const repair=MAP.tasks.find(x=>x.id===gameState.sabotage.target);if(repair&&Math.hypot(p.x-repair.x,p.y-repair.y)<1.6){openMiniGame({id:'repair_'+gameState.sabotage.type,name:'REPARAR '+gameState.sabotage.type.toUpperCase(),room:repair.room},repair)}else toast('Sigue la flecha roja hasta el punto de reparación.')}else if(t&&p.role==='crew'&&p.tasks?.some(x=>x.id===t.id&&!p.done?.includes(x.id)))startTask();else {const body=Object.values(gameState.players||{}).some(q=>!q.alive&&Math.hypot(p.x-q.x,p.y-q.y)<1.5);$('contextHint').textContent=body?'REPORTAR':'REUNIÓN';meeting(body)}};$('report').onclick=()=>{const p=gameState?.players?.[playerId];if(!p)return;const body=Object.values(gameState.players||{}).some(q=>!q.alive&&q.id!==playerId&&Number.isFinite(q.x)&&Math.hypot(p.x-q.x,p.y-q.y)<1.8);if(body){meeting(true)}else toast('No hay ningún cuerpo cerca para reportar.')};$('emergency').onclick=()=>meeting(false);$('kill').onclick=eliminate;$('sabotage').onclick=()=>{const p=gameState?.players?.[playerId];if(!p||p.role!=='impostor'||!p.alive)return toast('Solo el impostor puede sabotear.');if(gameState.sabotage?.active)return toast('Ya hay un sabotaje activo.');$('sabotagePanel').classList.remove('hidden')};$('sabotageClose').onclick=()=>$('sabotagePanel').classList.add('hidden');$('sabotagePanel').querySelectorAll('[data-sab]').forEach(btn=>btn.onclick=async()=>{const p=gameState?.players?.[playerId];if(!p||p.role!=='impostor'||gameState.sabotage?.active)return;const type=btn.dataset.sab,target=({lights:'electrical_wires',reactor:'reactor_start',comms:'comms_fix',o2:'o2_filter',doors:'admin_card'})[type];gameState.sabotage={active:true,type,target,at:Date.now(),endsAt:Date.now()+(type==='reactor'||type==='o2'?45000:0)};$('sabotagePanel').classList.add('hidden');await saveRoomState(gameState);toast('SABOTAJE ACTIVADO · '+btn.querySelector('b').textContent)});$('leave').onclick=async()=>{clearInterval(poll);poll=null;try{await getDb().deleteRow({databaseId:DB,tableId:PLAYERS,rowId:playerId})}catch(e){}location.reload()};window.addEventListener('resize',resize)}
 window.addEventListener('error',e=>{console.error(e.error||e.message);if($('status'))say('Error del juego: '+(e.message||'error inesperado'),true);});
-const GAME_BUILD_VERSION='2026-11-09-skeld-crew-v12';
+const GAME_BUILD_VERSION='2026-11-09-skeld-architecture-v13';
 function notifyGamePatch(){const key='starship_seen_patch';try{const seen=localStorage.getItem(key);if(seen===GAME_BUILD_VERSION)return;localStorage.setItem(key,GAME_BUILD_VERSION);const n=$('patchNotice');if(!n)return;n.classList.remove('show');void n.offsetWidth;n.classList.add('show');clearTimeout(window.patchNoticeTimer);window.patchNoticeTimer=setTimeout(()=>n.classList.remove('show'),4800)}catch(e){console.warn('No se pudo mostrar el aviso de actualización',e)}}
 setup();notifyGamePatch();applyMonguitoColor();updatePreview();updateCoinUI();say(AppwriteSDK?'Appwrite disponible. Crea o únete a una sala.':'Modo exploración disponible; Appwrite no está conectado.');
 })();
