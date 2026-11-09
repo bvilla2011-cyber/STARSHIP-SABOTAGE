@@ -276,8 +276,8 @@ const MAP={w:112,h:66,rooms:[
 {name:'ADMINISTRACIÓN',x:30.5,y:25.1,w:10.9,h:5.8,color:'#45675e',kind:'admin',shape:'chamfer'},
 {name:'ESCUDOS',x:62,y:35.8,w:10,h:9,color:'#456d69',kind:'shields',shape:'shields'},
 {name:'COMUNICACIONES',x:58,y:46,w:12,h:11.8,color:'#405b6c',kind:'comms',shape:'chamfer'},
-{name:'ALMACÉN',x:42,y:28,w:14,h:14,color:'#58666a',kind:'storage',shape:'chamfer'},
-{name:'ELÉCTRICA',x:29,y:37,w:11,h:9,color:'#4c5d55',kind:'electrical',shape:'electrical'}
+{name:'ALMACÉN',x:49,y:39,w:31,h:23,color:'#58666a',kind:'storage',shape:'storage'},
+{name:'ELÉCTRICA',x:36,y:33,w:13,h:13,color:'#4c5d55',kind:'electrical',shape:'electrical'}
 ],corridors:[
 {name:'MOTOR SUPERIOR-CAFETERÍA',points:[[27,11.5],[40.6,11.5]],width:1.45},
 {name:'APERTURA A ENFERMERÍA',points:[[34,11.5],[34,13]],width:1.4},
@@ -286,15 +286,15 @@ const MAP={w:112,h:66,rooms:[
 {name:'O2-NAVEGACIÓN',points:[[69,20.5],[77.5,20.5]],width:1.45},
 {name:'RAMAL CENTRAL A ESCUDOS',points:[[73.25,20.5],[73.25,40.3],[67,40.3]],width:1.45},
 {name:'ESCUDOS-ALMACÉN',points:[[62,40.3],[56,35]],width:1.45},
-{name:'COMUNICACIONES',points:[[59,37.65],[59,46],[64,46]],width:1.4},
+{name:'COMUNICACIONES',points:[[71,45.8],[71,47]],width:1.4},
 {name:'CAFETERÍA-ALMACÉN',points:[[50.1,21],[50.1,28]],width:1.45},
 {name:'ADMINISTRACIÓN',points:[[41.4,28],[50.1,28]],width:1.4},
-{name:'ALMACÉN-MOTOR INFERIOR',points:[[42,35],[27,36.5]],width:1.4},
+{name:'PASILLO INFERIOR A ALMACÉN',points:[[27,44],[49,44]],width:1.4},
 {name:'TRONCAL MOTORES',points:[[21,17],[21,31]],width:1.45},
 {name:'REACTOR-PASILLO',points:[[11.5,26],[21,26]],width:1.4},
 {name:'SEGURIDAD-PASILLO',points:[[21,24.5],[21.8,24.5]],width:1.35},
-{name:'MOTOR INFERIOR-ELÉCTRICA',points:[[27,36.5],[29,41.5]],width:1.35},
-{name:'ELÉCTRICA-ALMACÉN',points:[[40,41.5],[42,35]],width:1.35}
+{name:'MOTOR INFERIOR-ELÉCTRICA',points:[[27,36.5],[36,39.5]],width:1.35},
+{name:'ELÉCTRICA-ALMACÉN',points:[[49,39.5],[49,44]],width:1.35}
 ],obstacles:[],tasks:[
 {id:'cafe_data',name:'Descargar datos',room:'CAFETERÍA',x:47,y:10,type:'upload'},
 {id:'weapons_aim',name:'Alinear armamento',room:'ARMAS',x:69,y:8,type:'sequence'},
@@ -302,9 +302,9 @@ const MAP={w:112,h:66,rooms:[
 {id:'nav_route',name:'Trazar ruta',room:'NAVEGACIÓN',x:82.5,y:20.5,type:'route'},
 {id:'admin_card',name:'Pasar tarjeta',room:'ADMINISTRACIÓN',x:36,y:28,type:'card'},
 {id:'shields',name:'Preparar escudos',room:'ESCUDOS',x:67,y:40.3,type:'sequence'},
-{id:'comms_fix',name:'Reparar comunicaciones',room:'COMUNICACIONES',x:64,y:52,type:'upload'},
-{id:'storage_fuel',name:'Recoger combustible',room:'ALMACÉN',x:49,y:35,type:'fuel'},
-{id:'electrical_wires',name:'Reparar cableado',room:'ELÉCTRICA',x:34.5,y:41.5,type:'wires'},
+{id:'comms_fix',name:'Reparar comunicaciones',room:'COMUNICACIONES',x:71,y:54,type:'upload'},
+{id:'storage_fuel',name:'Recoger combustible',room:'ALMACÉN',x:58,y:51,type:'fuel'},
+{id:'electrical_wires',name:'Reparar cableado',room:'ELÉCTRICA',x:42,y:39.5,type:'wires'},
 {id:'security_cams',name:'Revisar cámaras',room:'SEGURIDAD',x:25,y:24.5,type:'upload'},
 {id:'med_scan',name:'Enviar escaneo',room:'ENFERMERÍA',x:34,y:20,type:'scan'},
 {id:'upper_fuel',name:'Repostar motor superior',room:'MOTOR SUPERIOR',x:21,y:11.5,type:'fuel'},
@@ -335,7 +335,7 @@ async function meeting(isReport=false){if(!gameState||!gameState.players[playerI
 function drawGameAccessory(ctx,x,y,skin){ctx.save();ctx.translate(x,y);ctx.lineWidth=2;ctx.strokeStyle='#18202b';ctx.fillStyle='#f2c94c';if(skin==='crown'){ctx.beginPath();ctx.moveTo(-10,-2);ctx.lineTo(-9,-13);ctx.lineTo(-3,-7);ctx.lineTo(0,-16);ctx.lineTo(4,-7);ctx.lineTo(10,-13);ctx.lineTo(10,-2);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#e95d75';ctx.fillRect(-2,-5,4,3)}else if(skin==='antenna'){ctx.strokeStyle='#d7e8f2';ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-15);ctx.stroke();ctx.fillStyle='#ffd45c';ctx.beginPath();ctx.arc(0,-17,3.5,0,Math.PI*2);ctx.fill();ctx.stroke()}else if(skin==='halo'){ctx.strokeStyle='#ffe58a';ctx.lineWidth=3;ctx.shadowColor='#ffe58a';ctx.shadowBlur=8;ctx.beginPath();ctx.ellipse(0,-11,10,3.5,-.12,0,Math.PI*2);ctx.stroke()}else if(skin==='horns'){ctx.fillStyle='#d94b55';ctx.beginPath();ctx.moveTo(-9,-2);ctx.lineTo(-12,-14);ctx.lineTo(-3,-8);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(9,-2);ctx.lineTo(12,-14);ctx.lineTo(3,-8);ctx.closePath();ctx.fill();ctx.stroke()}else if(skin==='flower'){for(let i=0;i<5;i++){const a=i*Math.PI*2/5-Math.PI/2;ctx.fillStyle='#ff9fce';ctx.beginPath();ctx.arc(Math.cos(a)*5,-11+Math.sin(a)*5,4,0,Math.PI*2);ctx.fill();ctx.stroke()}ctx.fillStyle='#ffdc63';ctx.beginPath();ctx.arc(0,-11,3,0,Math.PI*2);ctx.fill()}else if(skin==='robot'){ctx.fillStyle='#8ed5e8';ctx.fillRect(8,-8,10,9);ctx.strokeRect(8,-8,10,9);ctx.fillStyle='#163b50';ctx.fillRect(10,-5,2,2);ctx.fillRect(14,-5,2,2);ctx.strokeStyle='#c8e5ef';ctx.beginPath();ctx.moveTo(13,-8);ctx.lineTo(13,-13);ctx.stroke();ctx.fillStyle='#ffdb70';ctx.beginPath();ctx.arc(13,-14,2,0,Math.PI*2);ctx.fill()}else if(skin==='star'){ctx.save();ctx.translate(0,-.30);ctx.rotate(-.12);ctx.shadowColor='#ffcf42';ctx.shadowBlur=.10;const path=()=>{ctx.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2?.115:.265,px=Math.cos(a)*r,py=Math.sin(a)*r;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath()};const gold=ctx.createLinearGradient(-.20,-.27,.22,.27);gold.addColorStop(0,'#fff8bd');gold.addColorStop(.28,'#ffe66b');gold.addColorStop(.62,'#f5b928');gold.addColorStop(1,'#b86b12');ctx.fillStyle=gold;path();ctx.fill();ctx.shadowBlur=0;ctx.lineWidth=.045;ctx.strokeStyle='#75430e';ctx.stroke();ctx.save();ctx.scale(.72,.72);ctx.translate(0,-.02);ctx.fillStyle='#fff4a6';path();ctx.fill();ctx.restore();ctx.fillStyle='#fffde1';ctx.beginPath();ctx.ellipse(-.055,-.125,.045,.09,-.35,0,Math.PI*2);ctx.fill();ctx.fillStyle='#e58b19';ctx.beginPath();ctx.arc(0,.025,.052,0,Math.PI*2);ctx.fill();ctx.restore()}else if(skin==='cap'){ctx.fillStyle='#d58a3b';ctx.beginPath();ctx.arc(0,-7,9,Math.PI,Math.PI*2);ctx.lineTo(10,-6);ctx.lineTo(-10,-6);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.ellipse(5,-5,7,2,0,0,Math.PI*2);ctx.fill();ctx.stroke()}ctx.restore()}
 function tsNow(){return typeof performance!=='undefined'?performance.now():Date.now()}
 function roundedRect(c,x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
-function roomPolygon(r){const P={octagon:[[.25,0],[.75,0],[1,.25],[1,.75],[.75,1],[.25,1],[0,.75],[0,.25]],chamfer:[[.18,0],[.82,0],[1,.18],[1,.82],[.82,1],[.18,1],[0,.82],[0,.18]],vertical:[[.22,0],[.78,0],[1,.12],[1,.88],[.78,1],[.22,1],[0,.88],[0,.12]],reactor:[[.35,0],[.82,.05],[1,.2],[1,.8],[.78,1],[.15,.94],[0,.72],[0,.22]],nav:[[.15,0],[.85,0],[1,.2],[1,.8],[.72,1],[.12,1],[0,.75],[0,.25]],shields:[[.2,0],[.85,0],[1,.22],[.88,.82],[.55,1],[.12,.88],[0,.28]],electrical:[[.08,0],[.92,0],[1,.18],[1,.7],[.72,1],[.08,1],[0,.82],[0,.18]]};const a=P[r.shape]||P.chamfer;return a.map(([x,y])=>[r.x+x*r.w,r.y+y*r.h])}
+function roomPolygon(r){const P={octagon:[[.25,0],[.75,0],[1,.25],[1,.75],[.75,1],[.25,1],[0,.75],[0,.25]],chamfer:[[.18,0],[.82,0],[1,.18],[1,.82],[.82,1],[.18,1],[0,.82],[0,.18]],vertical:[[.22,0],[.78,0],[1,.12],[1,.88],[.78,1],[.22,1],[0,.88],[0,.12]],reactor:[[.35,0],[.82,.05],[1,.2],[1,.8],[.78,1],[.15,.94],[0,.72],[0,.22]],nav:[[.15,0],[.85,0],[1,.2],[1,.8],[.72,1],[.12,1],[0,.75],[0,.25]],shields:[[.2,0],[.85,0],[1,.22],[.88,.82],[.55,1],[.12,.88],[0,.28]],electrical:[[.08,0],[.92,0],[1,.18],[1,.7],[.72,1],[.08,1],[0,.82],[0,.18]],storage:[[0,0],[1,0],[1,.72],[.87,.88],[.75,1],[.48,1],[.48,.35],[.94,.35],[.94,.88],[.85,1],[.2,1],[0,.72]]};const a=P[r.shape]||P.chamfer;return a.map(([x,y])=>[r.x+x*r.w,r.y+y*r.h])}
 function draw(){if(!ctx||!canvas)return;try{const w=canvas.clientWidth,h=canvas.clientHeight,p=gameState?.players?.[playerId],z=Math.min(w/32,h/21),vw=w/z,vh=h/z,cx=Math.max(0,Math.min(MAP.w-vw,(p?.x||52.5*MAP_SCALE)-vw/2)),cy=Math.max(0,Math.min(MAP.h-vh,(p?.y||11.5*MAP_SCALE)-vh/2));ctx.clearRect(0,0,w,h);ctx.fillStyle='#020811';ctx.fillRect(0,0,w,h);ctx.save();ctx.scale(z,z);ctx.translate(-cx,-cy);
 const poly=(pts)=>{ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath()};
 const gridRect=(x,y,ww,hh,step=1.1)=>{ctx.fillStyle='#263d4c';ctx.fillRect(x,y,ww,hh);ctx.strokeStyle='#a8d9e51b';ctx.lineWidth=.035;for(let xx=x+step;xx<x+ww;xx+=step){ctx.beginPath();ctx.moveTo(xx,y);ctx.lineTo(xx,y+hh);ctx.stroke()}for(let yy=y+step;yy<y+hh;yy+=step){ctx.beginPath();ctx.moveTo(x,yy);ctx.lineTo(x+ww,yy);ctx.stroke()}};
