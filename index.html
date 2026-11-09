@@ -166,11 +166,83 @@ function getDb(){
   return db;
 }
 const $=id=>document.getElementById(id);let roomId='',roomCode='',playerId='',hostId='',isHost=false,soloMode=false,me=null,players=[],gameState=null,poll=null,move={x:0,y:0},keys={},lastMove=0,canvas,ctx,raf=0;
-const MAP={w:1200,h:820,rooms:[
-{name:'CAFETERÍA',x:445,y:25,w:300,h:230,color:'#315d70',kind:'cafe'},{name:'ARMERÍA',x:820,y:70,w:145,h:135,color:'#425565',kind:'weapons'},{name:'O2',x:820,y:245,w:145,h:110,color:'#3e625e',kind:'o2'},{name:'NAVEGACIÓN',x:1000,y:245,w:165,h:150,color:'#3d586d',kind:'nav'},{name:'ESCUDOS',x:835,y:525,w:160,h:135,color:'#4a5f5e',kind:'shields'},{name:'COMUNICACIONES',x:610,y:665,w:180,h:125,color:'#3e5969',kind:'comms'},{name:'ALMACÉN',x:430,y:475,w:175,h:315,color:'#4b5d60',kind:'storage'},{name:'ADMINISTRACIÓN',x:610,y:365,w:180,h:170,color:'#3f615a',kind:'admin'},{name:'ELÉCTRICA',x:245,y:455,w:160,h:145,color:'#4a5a51',kind:'electrical'},{name:'SEGURIDAD',x:245,y:265,w:150,h:130,color:'#465d67',kind:'security'},{name:'ENFERMERÍA',x:65,y:265,w:150,h:130,color:'#496779',kind:'medbay'},{name:'REACTOR',x:25,y:475,w:180,h:185,color:'#48556d',kind:'reactor'},{name:'MOTOR SUPERIOR',x:65,y:55,w:155,h:145,color:'#5a5149',kind:'engine'},{name:'MOTOR INFERIOR',x:65,y:675,w:155,h:115,color:'#5a5149',kind:'engine'}],
-floors:[{x:385,y:105,w:65,h:90},{x:380,y:185,w:440,h:75},{x:740,y:130,w:100,h:60},{x:785,y:185,w:85,h:85},{x:950,y:285,w:65,h:65},{x:965,y:315,w:75,h:55},{x:790,y:345,w:100,h:65},{x:740,y:515,w:125,h:65},{x:780,y:560,w:90,h:85},{x:585,y:520,w:65,h:170},{x:565,y:635,w:90,h:75},{x:385,y:485,w:65,h:95},{x:205,y:510,w:70,h:85},{x:185,y:355,w:100,h:70},{x:210,y:310,w:75,h:75},{x:190,y:180,w:75,h:115},{x:135,y:195,w:95,h:75},{x:135,y:635,w:95,h:75},{x:205,y:700,w:260,h:65},{x:205,y:95,w:250,h:65}],
-obstacles:[{x:485,y:105,w:65,h:42,kind:'table'},{x:640,y:105,w:65,h:42,kind:'table'},{x:565,y:185,w:65,h:42,kind:'table'},{x:485,y:185,w:65,h:42,kind:'table'},{x:700,y:405,w:55,h:45,kind:'console'},{x:650,y:420,w:42,h:35,kind:'desk'},{x:270,y:485,w:45,h:65,kind:'console'},{x:95,y:300,w:65,h:40,kind:'bed'},{x:80,y:500,w:75,h:75,kind:'reactor'},{x:95,y:90,w:85,h:65,kind:'engine'},{x:95,y:705,w:85,h:45,kind:'engine'},{x:850,y:100,w:65,h:40,kind:'console'},{x:1040,y:285,w:75,h:45,kind:'console'},{x:875,y:570,w:65,h:45,kind:'console'},{x:665,y:700,w:70,h:35,kind:'console'},{x:470,y:560,w:60,h:55,kind:'crate'}],
-tasks:[{id:'wires',name:'Reparar cableado',room:'ELÉCTRICA',x:355,y:520,type:'wires'},{id:'reactor',name:'Estabilizar reactor',room:'REACTOR',x:120,y:570,type:'sequence'},{id:'card',name:'Pasar tarjeta',room:'ADMINISTRACIÓN',x:685,y:455,type:'card'},{id:'route',name:'Trazar ruta',room:'NAVEGACIÓN',x:1090,y:325,type:'route'},{id:'fuel',name:'Cargar motores',room:'MOTOR SUPERIOR',x:160,y:155,type:'fuel'},{id:'trash',name:'Vaciar conducto',room:'CAFETERÍA',x:700,y:220,type:'trash'},{id:'shields',name:'Alinear escudos',room:'ESCUDOS',x:925,y:610,type:'sequence'},{id:'comms',name:'Reiniciar comunicaciones',room:'COMUNICACIONES',x:700,y:735,type:'upload'},{id:'o2',name:'Limpiar filtro O2',room:'O2',x:865,y:310,type:'filter'},{id:'data',name:'Subir datos',room:'SEGURIDAD',x:340,y:345,type:'upload'}]};
+const MAP={w:84,h:64,rooms:[
+{name:'CAFETERÍA',x:34,y:4,w:16,h:12,color:'#3b687b',kind:'cafe'},
+{name:'ARMAS',x:55,y:4,w:10,h:8,color:'#465b70',kind:'weapons'},
+{name:'NAVEGACIÓN',x:69,y:12,w:10,h:9,color:'#405c70',kind:'nav'},
+{name:'O2',x:70,y:24,w:8,h:7,color:'#426d65',kind:'o2'},
+{name:'ESCUDOS',x:68,y:39,w:9,h:7,color:'#456d69',kind:'shields'},
+{name:'COMUNICACIONES',x:57,y:48,w:8,h:6,color:'#405b6c',kind:'comms'},
+{name:'ALMACÉN',x:35,y:39,w:15,h:10,color:'#58666a',kind:'storage'},
+{name:'ADMINISTRACIÓN',x:49,y:23,w:9,h:9,color:'#45675e',kind:'admin'},
+{name:'ELÉCTRICA',x:19,y:42,w:9,h:8,color:'#4c5d55',kind:'electrical'},
+{name:'SEGURIDAD',x:15,y:25,w:8,h:7,color:'#485d69',kind:'security'},
+{name:'ENFERMERÍA',x:18,y:13,w:9,h:8,color:'#557384',kind:'medbay'},
+{name:'MOTOR SUPERIOR',x:3,y:4,w:10,h:9,color:'#66594b',kind:'engine'},
+{name:'REACTOR',x:3,y:22,w:10,h:10,color:'#4e5871',kind:'reactor'},
+{name:'MOTOR INFERIOR',x:3,y:42,w:10,h:9,color:'#66594b',kind:'engine'}
+],
+corridors:[
+{name:'OESTE SUPERIOR',points:[[34,10],[30,10],[30,17],[27,17]],width:3},
+{name:'OESTE CENTRAL',points:[[22,21],[22,23],[19,23],[19,25]],width:2.5},
+{name:'OESTE INFERIOR',points:[[19,32],[19,36],[23,36],[23,42]],width:3},
+{name:'MOTORES',points:[[8,13],[8,22],[8,32],[8,42]],width:3},
+{name:'SUR CENTRAL',points:[[42,16],[42,19],[53,19],[53,23]],width:3},
+{name:'ADMIN-ALMACÉN',points:[[53,32],[53,35],[42,35],[42,39]],width:3},
+{name:'ALMACÉN-ELECTRICIDAD',points:[[35,44],[32,44],[32,46],[28,46]],width:3},
+{name:'ESTE SUPERIOR',points:[[50,10],[52,10],[52,8],[55,8]],width:3},
+{name:'ARMAS-NAVEGACIÓN',points:[[65,8],[67,8],[67,16],[69,16]],width:3},
+{name:'NAVEGACIÓN-O2',points:[[74,21],[74,24]],width:2.5},
+{name:'O2-ESCUDOS',points:[[74,31],[74,34],[72,34],[72,39]],width:3},
+{name:'ALMACÉN-COMUNICACIONES',points:[[50,44],[53,44],[53,51],[57,51]],width:3},
+{name:'SEGURIDAD-REACTOR',points:[[15,28.5],[13,28.5]],width:2.5},
+{name:'MOTOR-REACTOR',points:[[8,13],[8,22]],width:3},
+{name:'CAFETERIA-ADMIN',points:[[42,16],[42,19],[53,19],[53,23]],width:3}
+],
+obstacles:[],tasks:[],vents:[]}; 
+const roomByName=n=>MAP.rooms.find(r=>r.name===n);
+const local=(room,x,y)=>{const r=roomByName(room);return {x:r.x+r.w*x,y:r.y+r.h*y}};
+const addObj=(room,x,y,w,h,kind,extra={})=>{const p=local(room,x,y);MAP.obstacles.push({x:p.x-w/2,y:p.y-h/2,w,h,kind,...extra})};
+const addTask=(id,name,room,x,y,type)=>{const p=local(room,x,y);MAP.tasks.push({id,name,room,x:p.x,y:p.y,type})};
+// Furnish each room with its own identity and clear walking lanes
+for(const [x,y] of [[.27,.30],[.73,.30],[.5,.52],[.27,.76],[.73,.76]])addObj('CAFETERÍA',x,y,1.8,1.8,'table');
+addObj('CAFETERÍA',.5,.52,.65,.65,'emergency');
+addObj('CAFETERÍA',.18,.25,1.1,.55,'console');addObj('CAFETERÍA',.82,.20,1.0,.65,'trash');
+addObj('ARMAS',.22,.55,1.3,.65,'console');addObj('ARMAS',.76,.2,1.4,.6,'cannon');addObj('ARMAS',.78,.72,1,.5,'console');
+addObj('NAVEGACIÓN',.25,.28,1.5,.65,'console');addObj('NAVEGACIÓN',.72,.28,1.5,.65,'console');addObj('NAVEGACIÓN',.25,.76,1.3,.55,'console');
+addObj('O2',.78,.22,1.1,.55,'filter');addObj('O2',.28,.52,1.2,.55,'console');addObj('O2',.5,.82,1.1,.6,'trash');
+addObj('ESCUDOS',.5,.30,1.7,.7,'shield');addObj('ESCUDOS',.8,.72,1.2,.55,'console');
+addObj('COMUNICACIONES',.5,.30,1.5,.65,'console');addObj('COMUNICACIONES',.5,.68,1.4,.55,'radio');
+for(const [x,y] of [[.2,.3],[.8,.3],[.2,.7],[.8,.7]])addObj('ALMACÉN',x,y,1.4,1.2,'crate');
+addObj('ALMACÉN',.5,.25,1.2,.8,'fuel');addObj('ALMACÉN',.15,.5,1.1,.5,'console');addObj('ALMACÉN',.8,.85,1.1,.6,'trash');
+addObj('ADMINISTRACIÓN',.5,.5,3.5,2.5,'adminTable');addObj('ADMINISTRACIÓN',.25,.2,1.1,.5,'card');addObj('ADMINISTRACIÓN',.8,.3,1.1,.55,'console');addObj('ADMINISTRACIÓN',.8,.8,1,.5,'keypad');
+addObj('ELÉCTRICA',.2,.25,1.2,.5,'console');addObj('ELÉCTRICA',.5,.5,1.4,.65,'power');addObj('ELÉCTRICA',.8,.25,1.2,.5,'console');addObj('ELÉCTRICA',.2,.75,1.2,.5,'console');
+addObj('SEGURIDAD',.5,.3,2.5,.7,'securityDesk');addObj('SEGURIDAD',.5,.7,1.2,.5,'console');
+addObj('ENFERMERÍA',.5,.55,2.2,1.1,'bed');addObj('ENFERMERÍA',.8,.2,1.1,.5,'console');addObj('ENFERMERÍA',.2,.78,1,.5,'scanner');
+for(const room of ['MOTOR SUPERIOR','MOTOR INFERIOR']){addObj(room,.5,.48,3.5,2.5,'engine');addObj(room,.7,.5,1.2,.55,'console');addObj(room,.25,.8,1.2,.55,'fuel')}
+addObj('REACTOR',.5,.48,3,3,'reactor');addObj('REACTOR',.25,.3,1.1,.6,'console');addObj('REACTOR',.75,.3,1.1,.6,'console');addObj('REACTOR',.25,.8,1,.55,'keypad');addObj('REACTOR',.75,.8,1,.55,'keypad');
+// Fixed task stations in each room, with multi-stage objectives represented at their physical locations
+addTask('caf_data','Descargar datos','CAFETERÍA',.18,.25,'upload');addTask('caf_trash','Vaciar basura','CAFETERÍA',.82,.2,'trash');addTask('caf_wires','Reparar cableado','CAFETERÍA',.9,.55,'wires');
+addTask('asteroids','Destruir asteroides','ARMAS',.75,.2,'asteroids');addTask('weapons_data','Descargar datos','ARMAS',.2,.45,'upload');
+addTask('route','Trazar ruta','NAVEGACIÓN',.25,.25,'route');addTask('steer','Estabilizar dirección','NAVEGACIÓN',.7,.25,'sequence');addTask('nav_data','Descargar datos','NAVEGACIÓN',.25,.75,'upload');
+addTask('filter','Limpiar filtro O2','O2',.8,.2,'filter');addTask('o2_code','Código de emergencia','O2',.3,.5,'sequence');
+addTask('shields','Preparar escudos','ESCUDOS',.5,.3,'sequence');
+addTask('comms','Reparar comunicaciones','COMUNICACIONES',.5,.65,'upload');
+addTask('fuel_pickup','Recoger combustible','ALMACÉN',.5,.25,'fuel');addTask('storage_wires','Reparar cableado','ALMACÉN',.15,.5,'wires');addTask('storage_trash','Vaciar basura','ALMACÉN',.8,.85,'trash');
+addTask('card','Pasar tarjeta','ADMINISTRACIÓN',.25,.2,'card');addTask('admin_data','Subir datos','ADMINISTRACIÓN',.8,.3,'upload');addTask('admin_code','Código O2','ADMINISTRACIÓN',.8,.8,'sequence');
+addTask('wires','Reparar cableado','ELÉCTRICA',.2,.25,'wires');addTask('calibrate','Calibrar distribuidor','ELÉCTRICA',.5,.5,'sequence');addTask('divert','Desviar energía','ELÉCTRICA',.8,.25,'sequence');
+addTask('cams','Revisar cámaras','SEGURIDAD',.5,.3,'upload');
+addTask('scan','Enviar escaneo','ENFERMERÍA',.5,.55,'scan');addTask('samples','Inspeccionar muestras','ENFERMERÍA',.8,.2,'sequence');
+addTask('upper_align','Alinear motor','MOTOR SUPERIOR',.7,.5,'sequence');addTask('upper_fuel','Repostar motor superior','MOTOR SUPERIOR',.25,.8,'fuel');
+addTask('reactor_start','Iniciar reactor','REACTOR',.5,.3,'sequence');addTask('collectors','Desbloquear colectores','REACTOR',.5,.8,'sequence');
+addTask('lower_align','Alinear motor','MOTOR INFERIOR',.7,.5,'sequence');addTask('lower_fuel','Repostar motor inferior','MOTOR INFERIOR',.25,.8,'fuel');
+// Four isolated vent networks (node names and edges are explicit)
+MAP.vents=[
+{id:'upperEngine',room:'MOTOR SUPERIOR',x:11,y:11,links:['reactorUpper']},{id:'reactorUpper',room:'REACTOR',x:11,y:24,links:['upperEngine','reactorLower']},{id:'reactorLower',room:'REACTOR',x:5,y:30,links:['reactorUpper','lowerEngine']},{id:'lowerEngine',room:'MOTOR INFERIOR',x:11,y:49,links:['reactorLower']},
+{id:'medbay',room:'ENFERMERÍA',x:25,y:19,links:['security']},{id:'security',room:'SEGURIDAD',x:21,y:30,links:['medbay','electrical']},{id:'electrical',room:'ELÉCTRICA',x:25,y:48,links:['security']},
+{id:'cafeteria',room:'CAFETERÍA',x:42,y:15,links:['admin']},{id:'admin',room:'ADMINISTRACIÓN',x:56,y:30,links:['cafeteria','eastHall']},{id:'eastHall',room:'PASILLO ESTE',x:64,y:34,links:['admin']},
+{id:'weapons',room:'ARMAS',x:63,y:11,links:['navUpper']},{id:'navUpper',room:'NAVEGACIÓN',x:71,y:14,links:['weapons','navLower']},{id:'navLower',room:'NAVEGACIÓN',x:77,y:19,links:['navUpper','shields']},{id:'shields',room:'ESCUDOS',x:75,y:43,links:['navLower']}
+];
 const perms=[Permission.read(Role.any()),Permission.update(Role.any()),Permission.delete(Role.any())];
 const randCode=()=>Array.from({length:6},()=> 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('');
 const say=(t,bad=false)=>{$('status').textContent=t;$('status').style.borderColor=bad?'#a64b59':'#31536b'};
