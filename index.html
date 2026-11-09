@@ -550,11 +550,12 @@ const MAP_SCALE=1.65;for(const r of MAP.rooms){r.x*=MAP_SCALE;r.y*=MAP_SCALE;r.w
 // Obstáculos físicos de cafetería: coordenadas de mapa, alineadas con el mobiliario 3D.
 const cafeRoom=MAP.rooms.find(r=>r.kind==='cafe');
 MAP.obstacles=cafeRoom?[
- {x:cafeRoom.x+cafeRoom.w*.27,y:cafeRoom.y+cafeRoom.h*.31,r:1.55,type:'table'},
- {x:cafeRoom.x+cafeRoom.w*.73,y:cafeRoom.y+cafeRoom.h*.31,r:1.55,type:'table'},
- {x:cafeRoom.x+cafeRoom.w*.27,y:cafeRoom.y+cafeRoom.h*.72,r:1.55,type:'table'},
- {x:cafeRoom.x+cafeRoom.w*.73,y:cafeRoom.y+cafeRoom.h*.72,r:1.55,type:'table'},
- {x:cafeRoom.x+cafeRoom.w*.5,y:cafeRoom.y+cafeRoom.h*.5,r:2.5,type:'emergency-button'}
+ // Radio total de cada conjunto: tablero + sillas. El margen del jugador se añade en canWalk().
+ {x:cafeRoom.x+cafeRoom.w*.27,y:cafeRoom.y+cafeRoom.h*.31,r:3.45,type:'table'},
+ {x:cafeRoom.x+cafeRoom.w*.73,y:cafeRoom.y+cafeRoom.h*.31,r:3.45,type:'table'},
+ {x:cafeRoom.x+cafeRoom.w*.27,y:cafeRoom.y+cafeRoom.h*.72,r:3.45,type:'table'},
+ {x:cafeRoom.x+cafeRoom.w*.73,y:cafeRoom.y+cafeRoom.h*.72,r:3.45,type:'table'},
+ {x:cafeRoom.x+cafeRoom.w*.5,y:cafeRoom.y+cafeRoom.h*.5,r:3.25,type:'emergency-button'}
 ]:[];
 const SPAWN_X=MX(280)*MAP_SCALE,SPAWN_Y=MY(176)*MAP_SCALE;
 let cameraIntro=null,cameraIntroPlayed=false;
@@ -640,8 +641,12 @@ function shipRoomDecor(room,g){
  const colors={cafe:0x397b91,engine:0x9b603d,reactor:0x76539b,security:0x397d7c,medbay:0x438b91,electrical:0x9a7942,storage:0x77705a,admin:0x477d68,weapons:0x8d6447,nav:0x47749a,o2:0x438b79,shields:0x397c91,comms:0x735b91};
  const accent=shipMat(colors[room.kind]||0x477d91,.72,.08),wall=shipMat(0x18354a,.82,.08),trim=shipMat(0x39748b,.7,.12),floor=shipMat(0x29485b,.9,.02);
  // Suelo amplio y continuo: nada de rejillas brillantes que parezcan placas electrónicas.
- shipBox(g,cx,-.12,cz,w,.16,d,floor);
- shipBox(g,cx,-.025,cz,w-.12,.025,d-.12,accent);
+ // Suelo con el perímetro octogonal real de la habitación: nunca invade pasillos ni salas vecinas.
+ const outline=roomPolygon(room),shape=new THREE.Shape();
+ outline.forEach((p,i)=>{const px=(p[0]-room.x)*shipScale,pz=(p[1]-room.y)*shipScale;if(i===0)shape.moveTo(px,pz);else shape.lineTo(px,pz)});shape.closePath();
+ const floorMesh=new THREE.Mesh(new THREE.ShapeGeometry(shape),floor);floorMesh.rotation.x=-Math.PI/2;floorMesh.position.set(x,-.12,z);floorMesh.receiveShadow=true;g.add(floorMesh);
+ const borderPts=outline.map(p=>new THREE.Vector3((p[0]-room.x)*shipScale,-.105,(p[1]-room.y)*shipScale));borderPts.push(borderPts[0].clone());
+ const borderGeo=new THREE.BufferGeometry().setFromPoints(borderPts);const borderLine=new THREE.Line(borderGeo,new THREE.LineBasicMaterial({color:colors[room.kind]||0x477d91,transparent:true,opacity:.9}));g.add(borderLine);
  // Salas completamente abiertas: sin techos ni paredes verticales que tapen la vista.
  // Equipamiento bajo, contenido dentro de cada estancia.
  const console=(px,pz,rot=0)=>{const base=shipBox(g,px,.22,pz,.72,.42,.34,wall);base.rotation.y=rot;const screen=shipBox(g,px,.46,pz-.19,.48,.22,.035,accent);screen.rotation.y=rot;shipBox(g,px,.12,pz,.78,.08,.4,trim).rotation.y=rot};
@@ -690,13 +695,13 @@ function shipRoomDecor(room,g){
   const positions=[[x+w*.27,z+d*.31],[x+w*.73,z+d*.31],[x+w*.27,z+d*.72],[x+w*.73,z+d*.72]];
   positions.forEach(([px,pz],i)=>{
    roundTable(px,pz,.055,false);for(let n=0;n<4;n++)chair(px,pz,n*Math.PI/2+Math.PI/4);
-   // Bandeja central con vasos, platos y pequeños detalles para que cada mesa tenga vida.
-   cyl(g,px,.414,pz,.065,.065,.018,edge,24);
-   cyl(g,px,.426,pz,.045,.045,.012,tableTop,24);
+   // Objetos de sobremesa proporcionados al diámetro real de la mesa.
+   cyl(g,px,.414,pz,.024,.024,.012,edge,20);
+   cyl(g,px,.423,pz,.017,.017,.008,tableTop,20);
    for(let k=0;k<2;k++){
-    const vx=px+(k?1:-1)*.105,vz=pz+(i%2?.045:-.045);
-    cyl(g,vx,.445,vz,.022,.026,.045,tableTop,16);
-    cyl(g,vx,.472,vz,.017,.017,.01,shipMat(k?0x70c9d2:0xe6a66f,.3,.08),16);
+    const vx=px+(k?1:-1)*.027,vz=pz+(i%2?.012:-.012);
+    cyl(g,vx,.438,vz,.008,.009,.022,tableTop,12);
+    cyl(g,vx,.451,vz,.006,.006,.004,shipMat(k?0x70c9d2:0xe6a66f,.3,.08),12);
    }
   });
   // Mesa central de emergencia, mayor y con el botón rojo protagonista.
@@ -755,11 +760,24 @@ function shipRoomDecor(room,g){
  ship3d={view,arena,actors:shipActors};resizeShip3D();
 }
 function resizeShip3D(){if(!shipRenderer||!ship3d)return;const w=ship3d.arena.clientWidth,h=ship3d.arena.clientHeight;if(!w||!h)return;shipRenderer.setSize(w,h,false);const aspect=w/h,mapH=MAP.h*shipScale,mapW=MAP.w*shipScale;const span=Math.max(mapH*.25,mapW/Math.max(.5,aspect)*.31,1.02);shipCamera.left=-span*aspect/2;shipCamera.right=span*aspect/2;shipCamera.top=span/2;shipCamera.bottom=-span/2;shipCamera.updateProjectionMatrix();shipLastW=w;shipLastH=h}
-function makeCrew3D(q){const group=new THREE.Group(),base=shipMat(q.color||0x35a9d6,.42,.1),dark=shipMat(0x102536,.36,.2),glass=new THREE.MeshPhysicalMaterial({color:0x8edfff,metalness:.42,roughness:.12,clearcoat:1,clearcoatRoughness:.08});const body=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.55,10,20),base);body.position.y=.65;body.castShadow=true;group.add(body);const visor=new THREE.Mesh(new THREE.SphereGeometry(1,28,20),glass);visor.scale.set(.29,.19,.105);visor.position.set(.12,.86,.29);group.add(visor);const shine=new THREE.Mesh(new THREE.SphereGeometry(.045,8,8),shipMat(0xffffff,.15));shine.position.set(.04,.94,.385);group.add(shine);const pack=shipBox(group,-.31,.57,-.02,.19,.48,.36,dark);pack.rotation.z=-.06;const foot=shipBox(group,.12,.12,.02,.48,.18,.55,base);foot.material=base;const shadow=new THREE.Mesh(new THREE.CircleGeometry(.47,24),new THREE.MeshBasicMaterial({color:0x020913,transparent:true,opacity:.42}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.015;group.add(shadow);return group}
+function makeCrew3D(q){
+ const group=new THREE.Group();
+ const suit=shipMat(q.color||0x35a9d6,.38,.08),dark=shipMat(0x102536,.42,.22),sole=shipMat(0x142b3b,.55,.18);
+ const glass=new THREE.MeshPhysicalMaterial({color:0x9be8ff,metalness:.28,roughness:.13,clearcoat:1,clearcoatRoughness:.06});
+ // Silueta de tripulante compacta: cuerpo redondeado, mochila integrada y dos botas separadas.
+ const body=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.43,12,24),suit);body.position.set(0,.57,0);body.castShadow=true;body.receiveShadow=true;group.add(body);
+ const pack=new THREE.Mesh(new THREE.BoxGeometry(.22,.43,.31),dark);pack.position.set(-.30,.55,-.035);pack.rotation.z=-.035;pack.castShadow=true;group.add(pack);
+ const visor=new THREE.Mesh(new THREE.SphereGeometry(1,32,24),glass);visor.scale.set(.255,.17,.105);visor.position.set(.105,.75,.285);visor.castShadow=true;group.add(visor);
+ const visorRim=new THREE.Mesh(new THREE.SphereGeometry(1,32,24),shipMat(0x1b3548,.32,.35));visorRim.scale.set(.27,.184,.075);visorRim.position.set(.105,.75,.245);group.add(visorRim);
+ const shine=new THREE.Mesh(new THREE.SphereGeometry(.032,12,10),new THREE.MeshBasicMaterial({color:0xffffff}));shine.position.set(.035,.815,.377);group.add(shine);
+ for(const side of [-1,1]){const boot=new THREE.Mesh(new THREE.CapsuleGeometry(.105,.13,6,12),suit);boot.scale.set(1,.72,1.25);boot.position.set(side*.16,.105,.025);boot.castShadow=true;group.add(boot);const soleMesh=shipBox(group,side*.16,.035,.035,.18,.035,.25,sole);}
+ const shadow=new THREE.Mesh(new THREE.CircleGeometry(.39,24),new THREE.MeshBasicMaterial({color:0x020913,transparent:true,opacity:.34,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.012;group.add(shadow);
+ return group;
+}
 let shipCameraX=null,shipCameraZ=null;
 function drawShip3D(){
  if(!shipRenderer||!shipScene||!gameState)return;
- Object.values(gameState.players||{}).forEach(q=>{let actor=shipActors.get(q.id);if(!actor){actor=makeCrew3D(q);shipActors.set(q.id,actor);shipScene.add(actor)}actor.visible=!!q.alive;actor.position.set(q.x*shipScale,.02,q.y*shipScale);actor.rotation.y=q._faceX<0?Math.PI:0;actor.scale.setScalar(q.id===playerId?.14:.14);if(actor.children[0]?.material?.color)actor.children[0].material.color.set(q.color||'#35a9d6')});
+ Object.values(gameState.players||{}).forEach(q=>{let actor=shipActors.get(q.id);if(!actor){actor=makeCrew3D(q);shipActors.set(q.id,actor);shipScene.add(actor)}actor.visible=!!q.alive;actor.position.set(q.x*shipScale,.02,q.y*shipScale);actor.rotation.y=q._faceX<0?Math.PI:0;actor.scale.setScalar(q.id===playerId?.25:.25);if(actor.children[0]?.material?.color)actor.children[0].material.color.set(q.color||'#35a9d6')});
  const mePlayer=gameState.players?.[playerId],targetX=(mePlayer?.x??SPAWN_X)*shipScale,targetZ=(mePlayer?.y??SPAWN_Y)*shipScale;
  if(shipCameraX===null){shipCameraX=targetX;shipCameraZ=targetZ}
  // Seguimiento suave: la cámara acompaña al tripulante sin saltos bruscos.
@@ -838,7 +856,7 @@ function inFloor(x,y){return MAP.rooms.some(r=>pointInPoly(x,y,roomPolygon(r)))|
 function blocked(x,y){return !inFloor(x,y)}
 // Colisión circular del tripulante: evita que el centro pase pegado al borde de paredes.
 function canWalk(x,y){
- const radius=.72;
+ const radius=1.35;
  if(!inFloor(x,y))return false;
  // Mesas y botón de emergencia: colisión circular con margen para el cuerpo.
  if((MAP.obstacles||[]).some(o=>Math.hypot(x-o.x,y-o.y)<o.r+radius))return false;
@@ -948,7 +966,7 @@ if(!email||!/^\S+@\S+\.\S+$/.test(email))return authFeedback('Introduce un corre
 $('editProfile').onclick=async()=>{if(authUser){try{await getAccount().deleteSession({sessionId:'current'})}catch(e){}authUser=null;location.reload();return}$('profileGate').classList.add('visible')};}
 function setup(){initProfile();startShopTimer();const splash=$('introSplash');if(splash)setTimeout(()=>splash.remove(),3400);const j=$('joystick');let joyPointer=null;function joy(e){const r=j.getBoundingClientRect();if(!r.width||!r.height)return;let dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,l=Math.hypot(dx,dy),m=Math.min(r.width,r.height)*.34;if(l>m){dx*=m/l;dy*=m/l}move={x:dx/m,y:dy/m};$('stick').style.transform='translate('+dx+'px,'+dy+'px)'}j.style.touchAction='none';j.addEventListener('pointerdown',e=>{e.preventDefault();joyPointer=e.pointerId;j.setPointerCapture(e.pointerId);joy(e)});j.addEventListener('pointermove',e=>{if(e.pointerId===joyPointer){e.preventDefault();joy(e)}});function stopJoy(e){if(joyPointer!==null&&(e.pointerId===undefined||e.pointerId===joyPointer)){joyPointer=null;move={x:0,y:0};$('stick').style.transform='translate(0,0)'}}['pointerup','pointercancel','lostpointercapture'].forEach(n=>j.addEventListener(n,stopJoy));window.addEventListener('blur',()=>{keys={};move={x:0,y:0};joyPointer=null;$('stick').style.transform='translate(0,0)'});window.addEventListener('keydown',e=>{const target=e.target;const tag=target?.tagName?.toLowerCase();const typing=tag==='input'||tag==='textarea'||tag==='select'||target?.isContentEditable||e.isComposing||e.key==='Dead';if(typing)return;const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[k]=true;if(k==='e'&&!e.repeat)startTask()},{passive:false});window.addEventListener('keyup',e=>{const k=e.key.toLowerCase();delete keys[k];delete keys[e.key]});$('color').addEventListener('change',applyMonguitoColor);$('create').onclick=createRoom;$('join').onclick=joinRoom;$('explore').onclick=startExplore;$('shopOpen').onclick=openShop;$('shopClose').onclick=closeShop;$('customizeOpen').onclick=openCustomize;$('customizeClose').onclick=closeCustomize;$('customTabs').querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>{customCategory=b.dataset.category;renderCustomizer()});$('customDone').onclick=async()=>{saveEconomy();if(me){me.color=$('color').value;me.cosmetics=getLoadout();try{if(roomId&&playerId)await getDb().updateRow({databaseId:DB,tableId:PLAYERS,rowId:playerId,data:{color:me.color,tasks:JSON.stringify({cosmetics:me.cosmetics})}})}catch(e){console.warn('No se pudo sincronizar el aspecto en la sala',e)}}if(gameState?.players?.[playerId])gameState.players[playerId].cosmetics=getLoadout();renderLobby();closeCustomize();toast('Personaje guardado y sincronizado')};$('start').onclick=startMatch;$('taskToggle').onclick=()=>$('taskText').classList.toggle('hidden');$('mapBtn').onclick=()=>{const panel=$('mapPanel');panel.classList.toggle('hidden');$('moreMenu').classList.add('hidden');if(!panel.classList.contains('hidden'))drawMiniMap()};$('mapClose').onclick=()=>{$('mapPanel').classList.add('hidden')};$('moreBtn').onclick=()=>{$('moreMenu').classList.toggle('hidden');$('mapPanel').classList.add('hidden')};$('resumeBtn').onclick=()=>$('moreMenu').classList.add('hidden');$('leaveMatchBtn').onclick=async()=>{if(!confirm('¿Abandonar esta partida?'))return;clearInterval(poll);poll=null;try{if(!soloMode)await getDb().deleteRow({databaseId:DB,tableId:PLAYERS,rowId:playerId})}catch(e){}location.reload()};$('interact').onclick=()=>{const p=gameState?.players?.[playerId];if(!p)return;const t=MAP.tasks.map(x=>({...x,d:Math.hypot(p.x-x.x,p.y-x.y)})).filter(x=>x.d<0.85).sort((a,b)=>a.d-b.d)[0];if(gameState?.sabotage?.active&&p.role==='crew'){const repair=MAP.tasks.find(x=>x.id===gameState.sabotage.target);if(repair&&Math.hypot(p.x-repair.x,p.y-repair.y)<1.6){openMiniGame({id:'repair_'+gameState.sabotage.type,name:'REPARAR '+gameState.sabotage.type.toUpperCase(),room:repair.room},repair)}else toast('Sigue la flecha roja hasta el punto de reparación.')}else if(t&&p.role==='crew'&&p.tasks?.some(x=>x.id===t.id&&!p.done?.includes(x.id)))startTask();else {const body=Object.values(gameState.players||{}).some(q=>!q.alive&&Math.hypot(p.x-q.x,p.y-q.y)<1.5);$('contextHint').textContent=body?'REPORTAR':'REUNIÓN';meeting(body)}};$('report').onclick=()=>{const p=gameState?.players?.[playerId];if(!p)return;const body=Object.values(gameState.players||{}).some(q=>!q.alive&&q.id!==playerId&&Number.isFinite(q.x)&&Math.hypot(p.x-q.x,p.y-q.y)<1.8);if(body){meeting(true)}else toast('No hay ningún cuerpo cerca para reportar.')};$('emergency').onclick=()=>meeting(false);$('kill').onclick=eliminate;$('sabotage').onclick=()=>{const p=gameState?.players?.[playerId];if(!p||p.role!=='impostor'||!p.alive)return toast('Solo el impostor puede sabotear.');if(gameState.sabotage?.active)return toast('Ya hay un sabotaje activo.');$('sabotagePanel').classList.remove('hidden')};$('sabotageClose').onclick=()=>$('sabotagePanel').classList.add('hidden');$('sabotagePanel').querySelectorAll('[data-sab]').forEach(btn=>btn.onclick=async()=>{const p=gameState?.players?.[playerId];if(!p||p.role!=='impostor'||gameState.sabotage?.active)return;const type=btn.dataset.sab,target=({lights:'electrical_wires',reactor:'reactor_start',comms:'comms_fix',o2:'o2_filter',doors:'admin_card'})[type];gameState.sabotage={active:true,type,target,at:Date.now(),endsAt:Date.now()+(type==='reactor'||type==='o2'?45000:0)};$('sabotagePanel').classList.add('hidden');await saveRoomState(gameState);toast('SABOTAJE ACTIVADO · '+btn.querySelector('b').textContent)});$('leave').onclick=async()=>{clearInterval(poll);poll=null;try{await getDb().deleteRow({databaseId:DB,tableId:PLAYERS,rowId:playerId})}catch(e){}location.reload()};window.addEventListener('resize',resize)}
 window.addEventListener('error',e=>{console.error(e.error||e.message);if($('status'))say('Error del juego: '+(e.message||'error inesperado'),true);});
-const GAME_BUILD_VERSION='2026-11-09-isometric-3d-v7';
+const GAME_BUILD_VERSION='2026-11-09-map-rebuild-v8';
 function notifyGamePatch(){const key='starship_seen_patch';try{const seen=localStorage.getItem(key);if(seen===GAME_BUILD_VERSION)return;localStorage.setItem(key,GAME_BUILD_VERSION);const n=$('patchNotice');if(!n)return;n.classList.remove('show');void n.offsetWidth;n.classList.add('show');clearTimeout(window.patchNoticeTimer);window.patchNoticeTimer=setTimeout(()=>n.classList.remove('show'),4800)}catch(e){console.warn('No se pudo mostrar el aviso de actualización',e)}}
 setup();notifyGamePatch();applyMonguitoColor();updatePreview();updateCoinUI();say(AppwriteSDK?'Appwrite disponible. Crea o únete a una sala.':'Modo exploración disponible; Appwrite no está conectado.');
 })();
