@@ -634,15 +634,14 @@ function shipRoomDecor(room,g){
  shipBox(g,cx,-.12,cz,w,.16,d,floor);
  shipBox(g,cx,-.025,cz,w-.12,.025,d-.12,accent);
  // Cuatro paredes bajas con entradas anchas; el interior queda despejado.
- const H=.43,T=.14,gap=Math.min(1.12,Math.min(w,d)*.42),segW=(w-gap)/2,segD=(d-gap)/2;
- for(const zz of [z,z+d]){shipBox(g,x+segW/2,H/2,zz,segW,H,T,wall);shipBox(g,x+w-segW/2,H/2,zz,segW,H,T,wall)}
+ const H=.34,T=.12,gap=Math.min(1.18,Math.min(w,d)*.46),segW=(w-gap)/2,segD=(d-gap)/2;
+ // Pared trasera y laterales: la pared cercana a cámara se omite para no tapar al jugador.
+ shipBox(g,x+segW/2,H/2,z,segW,H,T,wall);shipBox(g,x+w-segW/2,H/2,z,segW,H,T,wall);
  for(const xx of [x,x+w]){shipBox(g,xx,H/2,z+segD/2,T,H,segD,wall);shipBox(g,xx,H/2,z+d-segD/2,T,H,segD,wall)}
- // Zócalo luminoso discreto y marcos de puerta, sin barrotes cruzando las entradas.
- for(const zz of [z,z+d])shipBox(g,cx,.055,zz,w-gap,.055,.045,trim);
- for(const xx of [x,x+w])shipBox(g,xx,.055,cz,.045,d-gap,.055,trim);
- for(const [dx,dz,vertical] of [[cx,z,false],[cx,z+d,false],[x,cz,true],[x+w,cz,true]]){
-  const len=gap/2;shipBox(g,vertical?dx:dx-len,.25,vertical?dz-len:dz,.07,.5,.08,accent);shipBox(g,vertical?dx:dx+len,.25,vertical?dz+len:dz,.07,.5,.08,accent);
- }
+ // Zócalos solo en paredes visibles; el lado frontal queda completamente abierto.
+ shipBox(g,cx,.055,z,w-gap,.055,.045,trim);
+ for(const xx of [x,x+w])shipBox(g,xx,.055,cz,.045,d-.12,.055,trim);
+ // Marcos discretos en las entradas laterales y trasera; nunca delante de la cámara.
  // Equipamiento reconocible, bajo y pegado a los laterales para dejar libre el recorrido.
  const console=(px,pz,rot=0)=>{const base=shipBox(g,px,.22,pz,.72,.42,.34,wall);base.rotation.y=rot;const screen=shipBox(g,px,.46,pz-.19,.48,.22,.035,accent);screen.rotation.y=rot;shipBox(g,px,.12,pz,.78,.08,.4,trim).rotation.y=rot};
  if(room.kind==='cafe'){
@@ -679,17 +678,17 @@ function shipRoomDecor(room,g){
  const beaconMat=new THREE.MeshStandardMaterial({color:0xff334e,emissive:0x8c1024,emissiveIntensity:1.4});for(let k=0;k<8;k++){const b=new THREE.Mesh(new THREE.SphereGeometry(.09,12,8),beaconMat);b.position.set((k+.5)*MAP.w*shipScale/8,.2,.08);shipScene.add(b)}
  ship3d={view,arena,actors:shipActors};resizeShip3D();
 }
-function resizeShip3D(){if(!shipRenderer||!ship3d)return;const w=ship3d.arena.clientWidth,h=ship3d.arena.clientHeight;if(!w||!h)return;shipRenderer.setSize(w,h,false);const aspect=w/h,mapH=MAP.h*shipScale,mapW=MAP.w*shipScale;const span=Math.max(mapH*.58,mapW/Math.max(.5,aspect)*.68,2.8);shipCamera.left=-span*aspect/2;shipCamera.right=span*aspect/2;shipCamera.top=span/2;shipCamera.bottom=-span/2;shipCamera.updateProjectionMatrix();shipLastW=w;shipLastH=h}
+function resizeShip3D(){if(!shipRenderer||!ship3d)return;const w=ship3d.arena.clientWidth,h=ship3d.arena.clientHeight;if(!w||!h)return;shipRenderer.setSize(w,h,false);const aspect=w/h,mapH=MAP.h*shipScale,mapW=MAP.w*shipScale;const span=Math.max(mapH*.36,mapW/Math.max(.5,aspect)*.46,1.65);shipCamera.left=-span*aspect/2;shipCamera.right=span*aspect/2;shipCamera.top=span/2;shipCamera.bottom=-span/2;shipCamera.updateProjectionMatrix();shipLastW=w;shipLastH=h}
 function makeCrew3D(q){const group=new THREE.Group(),base=shipMat(q.color||0x35a9d6,.42,.1),dark=shipMat(0x102536,.36,.2),glass=new THREE.MeshPhysicalMaterial({color:0x8edfff,metalness:.42,roughness:.12,clearcoat:1,clearcoatRoughness:.08});const body=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.55,6,12),base);body.position.y=.65;body.castShadow=true;group.add(body);const visor=new THREE.Mesh(new THREE.SphereGeometry(1,20,14),glass);visor.scale.set(.29,.19,.105);visor.position.set(.12,.86,.29);group.add(visor);const shine=new THREE.Mesh(new THREE.SphereGeometry(.045,8,8),shipMat(0xffffff,.15));shine.position.set(.04,.94,.385);group.add(shine);const pack=shipBox(group,-.31,.57,-.02,.19,.48,.36,dark);pack.rotation.z=-.06;const foot=shipBox(group,.12,.12,.02,.48,.18,.55,base);foot.material=base;const shadow=new THREE.Mesh(new THREE.CircleGeometry(.47,24),new THREE.MeshBasicMaterial({color:0x020913,transparent:true,opacity:.42}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.015;group.add(shadow);return group}
 let shipCameraX=null,shipCameraZ=null;
 function drawShip3D(){
  if(!shipRenderer||!shipScene||!gameState)return;
- Object.values(gameState.players||{}).forEach(q=>{let actor=shipActors.get(q.id);if(!actor){actor=makeCrew3D(q);shipActors.set(q.id,actor);shipScene.add(actor)}actor.visible=!!q.alive;actor.position.set(q.x*shipScale,.02,q.y*shipScale);actor.rotation.y=q._faceX<0?Math.PI:0;actor.scale.setScalar(q.id===playerId?.40:.39);if(actor.children[0]?.material?.color)actor.children[0].material.color.set(q.color||'#35a9d6')});
+ Object.values(gameState.players||{}).forEach(q=>{let actor=shipActors.get(q.id);if(!actor){actor=makeCrew3D(q);shipActors.set(q.id,actor);shipScene.add(actor)}actor.visible=!!q.alive;actor.position.set(q.x*shipScale,.02,q.y*shipScale);actor.rotation.y=q._faceX<0?Math.PI:0;actor.scale.setScalar(q.id===playerId?.25:.24);if(actor.children[0]?.material?.color)actor.children[0].material.color.set(q.color||'#35a9d6')});
  const mePlayer=gameState.players?.[playerId],targetX=(mePlayer?.x??SPAWN_X)*shipScale,targetZ=(mePlayer?.y??SPAWN_Y)*shipScale;
  if(shipCameraX===null){shipCameraX=targetX;shipCameraZ=targetZ}
  // Seguimiento suave: la cámara acompaña al tripulante sin saltos bruscos.
  shipCameraX+=(targetX-shipCameraX)*.12;shipCameraZ+=(targetZ-shipCameraZ)*.12;
- shipCamera.position.set(shipCameraX,24,shipCameraZ+18);shipCamera.lookAt(shipCameraX,0,shipCameraZ);shipRenderer.render(shipScene,shipCamera)
+ shipCamera.position.set(shipCameraX,17,shipCameraZ+13);shipCamera.lookAt(shipCameraX,0,shipCameraZ);shipRenderer.render(shipScene,shipCamera)
 }
 
 function draw(){if(window.THREE&&shipRenderer){try{drawShip3D();return}catch(e){console.warn('3D render fallback',e)}}if(!ctx||!canvas)return;try{const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width<1||canvas.height<1)return;if(w<2||h<2)return;const dpr=Math.min(window.devicePixelRatio||1,2);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';const p=gameState?.players?.[playerId],targetZ=Math.max(.1,Math.min(w/32,h/21));let z=targetZ,cx,cy;const focusX=p?.x??SPAWN_X,focusY=p?.y??SPAWN_Y;if(cameraIntro){const raw=Math.min(1,Math.max(0,(tsNow()-cameraIntro.start)/cameraIntro.duration)),ease=raw*raw*(3-2*raw),fitZ=Math.min(w/MAP.w,h/MAP.h)*.94;z=fitZ*Math.pow(targetZ/fitZ,ease);const fx=MAP.w/2+(focusX-MAP.w/2)*ease,fy=MAP.h/2+(focusY-MAP.h/2)*ease;cx=fx-w/z/2;cy=fy-h/z/2;if(raw>=1)cameraIntro=null}else{const vw=w/z,vh=h/z;cx=Math.max(0,Math.min(MAP.w-vw,focusX-vw/2));cy=Math.max(0,Math.min(MAP.h-vh,focusY-vh/2))}const vw=w/z,vh=h/z;ctx.clearRect(0,0,w,h);ctx.fillStyle='#020811';ctx.fillRect(0,0,w,h);ctx.save();ctx.scale(z,z);ctx.translate(-cx,-cy);
