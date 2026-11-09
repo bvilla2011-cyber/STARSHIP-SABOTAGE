@@ -642,8 +642,63 @@ function shipRoomDecor(room,g){
  // Equipamiento reconocible, bajo y pegado a los laterales para dejar libre el recorrido.
  const console=(px,pz,rot=0)=>{const base=shipBox(g,px,.22,pz,.72,.42,.34,wall);base.rotation.y=rot;const screen=shipBox(g,px,.46,pz-.19,.48,.22,.035,accent);screen.rotation.y=rot;shipBox(g,px,.12,pz,.78,.08,.4,trim).rotation.y=rot};
  if(room.kind==='cafe'){
-  // Mesas circulares y asientos, como cafetería.
-  for(let row=0;row<2;row++)for(let col=0;col<2;col++){const px=x+w*(.32+col*.36),pz=z+d*(.36+row*.34);const table=new THREE.Mesh(new THREE.CylinderGeometry(.19,.19,.07,32),shipMat(0x9cb8bb));table.position.set(px,.24,pz);g.add(table);for(let k=0;k<3;k++){const ang=k*Math.PI*2/3,seat=shipBox(g,px+Math.cos(ang)*.29,.09,pz+Math.sin(ang)*.29,.13,.13,.13,accent)}}
+  // CAFETERÍA: mobiliario modelado pieza a pieza, con siluetas claras desde la cámara isométrica.
+  const metal=shipMat(0x263f50,.42,.62),edge=shipMat(0x668b98,.48,.42),tableTop=shipMat(0xc3d2d0,.38,.22),tableInset=shipMat(0x829fa5,.48,.28),seatMat=shipMat(0x477b8d,.55,.2),seatPad=shipMat(0x9bb8ba,.58,.08),red=shipMat(0xe84c50,.32,.25),redGlow=new THREE.MeshBasicMaterial({color:0xff3948});
+  const cyl=(parent,px,py,pz,rt,rb,h,mat,seg=32)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),mat);m.position.set(px,py,pz);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m};
+  const sphere=(parent,px,py,pz,sx,sy,sz,mat)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),mat);m.position.set(px,py,pz);m.scale.set(sx,sy,sz);m.castShadow=true;parent.add(m);return m};
+  const chair=(px,pz,a)=>{
+   const dx=Math.cos(a),dz=Math.sin(a),sx=px+dx*.43,sz=pz+dz*.43;
+   // base giratoria, columna, cojín y respaldo curvado visualmente
+   cyl(g,sx,.105,sz,.105,.12,.07,metal,20);
+   cyl(g,sx,.19,sz,.045,.055,.13,metal,16);
+   const cushion=shipBox(g,sx,.285,sz,.29,.12,.29,seatPad);cushion.rotation.y=-a;
+   const back=shipBox(g,sx-dx*.105,.43,sz-dz*.105,.29,.25,.09,seatMat);back.rotation.y=-a;
+   const seam=shipBox(g,sx-dx*.105,.44,sz-dz*.105,.20,.018,.095,edge);seam.rotation.y=-a;
+   for(const side of [-1,1]){const arm=shipBox(g,sx-dx*.04+Math.cos(a+Math.PI/2)*side*.16,.34,sz-dz*.04+Math.sin(a+Math.PI/2)*side*.16,.055,.13,.055,metal)}
+  };
+  const roundTable=(px,pz,r,emergency=false)=>{
+   // pie pesado y columna central
+   cyl(g,px,.075,pz,r*.68,r*.78,.12,metal);
+   cyl(g,px,.19,pz,r*.17,r*.21,.18,edge,24);
+   cyl(g,px,.285,pz,r*.96,r*.9,.105,metal);
+   cyl(g,px,.35,pz,r*.91,r*.91,.055,tableTop);
+   cyl(g,px,.381,pz,r*.76,r*.76,.012,tableInset);
+   // aro perimetral y cuatro pequeños remaches
+   const ring=new THREE.Mesh(new THREE.TorusGeometry(r*.87,.018,8,40),edge);ring.rotation.x=Math.PI/2;ring.position.set(px,.385,pz);g.add(ring);
+   for(let n=0;n<4;n++){const a=n*Math.PI/2; sphere(g,px+Math.cos(a)*r*.78,.394,pz+Math.sin(a)*r*.78,.025,.012,.025,metal)}
+   if(emergency){
+    // botón rojo de emergencia con base, aro metálico, cristal y luz
+    cyl(g,px,.425,pz,r*.37,r*.39,.055,metal);
+    cyl(g,px,.47,pz,r*.29,r*.31,.065,red);
+    const dome=sphere(g,px,.515,pz,r*.245,.075,r*.245,redGlow);
+    const halo=new THREE.Mesh(new THREE.TorusGeometry(r*.34,.025,8,32),shipMat(0xffa0a4,.25,.15));halo.rotation.x=Math.PI/2;halo.position.set(px,.48,pz);g.add(halo);
+    shipBox(g,px,.405,pz+r*.55,r*.62,.025,.08,metal);
+   }
+  };
+  // Tres mesas de reunión distribuidas dejando un pasillo central amplio.
+  const positions=[[x+w*.27,z+d*.31],[x+w*.73,z+d*.31],[x+w*.27,z+d*.72],[x+w*.73,z+d*.72]];
+  positions.forEach(([px,pz],i)=>{roundTable(px,pz,.43,false);for(let n=0;n<4;n++)chair(px,pz,n*Math.PI/2+Math.PI/4)});
+  // Mesa central de emergencia, mayor y con el botón rojo protagonista.
+  const ex=cx,ez=cz;roundTable(ex,ez,.57,true);
+  for(let n=0;n<4;n++)chair(ex,ez,n*Math.PI/2);
+  // Terminal de tareas junto al lateral: monitor inclinado, teclado, lector y luces de estado.
+  const tx=x+w*.87,tz=z+d*.52;
+  shipBox(g,tx,.20,tz,.16,.38,.62,metal);
+  const monitor=shipBox(g,tx-.012,.47,tz-.04,.045,.29,.48,shipMat(0x142c3b,.3,.35));monitor.rotation.x=-.12;
+  shipBox(g,tx-.04,.48,tz-.045,.018,.22,.39,shipMat(0x50b8c4,.28,.2));
+  shipBox(g,tx-.11,.13,tz+.35,.34,.045,.24,edge);
+  for(let n=0;n<5;n++)shipBox(g,tx-.22+n*.055,.17,tz+.35,.035,.025,.13,tableTop);
+  for(let n=0;n<3;n++)sphere(g,tx-.025,.31,tz-.25+n*.12,.025,.025,.025,n===0?redGlow:shipMat(0x62d7a5,.3,.1));
+  // Dispensador de bebidas y pequeños vasos sobre una repisa en la pared.
+  const dx=x+w*.12,dz=z+d*.5;
+  shipBox(g,dx,.28,dz,.38,.52,.32,wall);
+  shipBox(g,dx,.56,dz-.17,.31,.16,.035,shipMat(0x72b7c5,.3,.25));
+  for(let n=0;n<3;n++){cyl(g,dx-.1+n*.1,.67,dz-.18,.035,.04,.08,tableTop,16);cyl(g,dx-.1+n*.1,.715,dz-.18,.025,.025,.012,shipMat(0x65c6cf,.25,.1),16)}
+  // Luminarias circulares empotradas y marcas de suelo alrededor del mobiliario.
+  for(const [lx,lz] of [[x+w*.5,z+d*.12],[x+w*.5,z+d*.88]]){
+   cyl(g,lx,.012,lz,.22,.22,.018,edge,32);
+   cyl(g,lx,.024,lz,.16,.16,.012,shipMat(0x8bdce4,.25,.1),32);
+  }
  }else if(room.kind==='reactor'){
   const core=new THREE.Mesh(new THREE.CylinderGeometry(.35,.42,.62,16),accent);core.position.set(cx,.34,cz);g.add(core);const ring=new THREE.Mesh(new THREE.TorusGeometry(.48,.055,8,24),shipMat(0x9edfff,.35,.2));ring.rotation.x=Math.PI/2;ring.position.set(cx,.38,cz);g.add(ring);
  }else if(room.kind==='engine'){
@@ -680,7 +735,7 @@ function makeCrew3D(q){const group=new THREE.Group(),base=shipMat(q.color||0x35a
 let shipCameraX=null,shipCameraZ=null;
 function drawShip3D(){
  if(!shipRenderer||!shipScene||!gameState)return;
- Object.values(gameState.players||{}).forEach(q=>{let actor=shipActors.get(q.id);if(!actor){actor=makeCrew3D(q);shipActors.set(q.id,actor);shipScene.add(actor)}actor.visible=!!q.alive;actor.position.set(q.x*shipScale,.02,q.y*shipScale);actor.rotation.y=q._faceX<0?Math.PI:0;actor.scale.setScalar(q.id===playerId?.015625:.015);if(actor.children[0]?.material?.color)actor.children[0].material.color.set(q.color||'#35a9d6')});
+ Object.values(gameState.players||{}).forEach(q=>{let actor=shipActors.get(q.id);if(!actor){actor=makeCrew3D(q);shipActors.set(q.id,actor);shipScene.add(actor)}actor.visible=!!q.alive;actor.position.set(q.x*shipScale,.02,q.y*shipScale);actor.rotation.y=q._faceX<0?Math.PI:0;actor.scale.setScalar(q.id===playerId?.0625:.06);if(actor.children[0]?.material?.color)actor.children[0].material.color.set(q.color||'#35a9d6')});
  const mePlayer=gameState.players?.[playerId],targetX=(mePlayer?.x??SPAWN_X)*shipScale,targetZ=(mePlayer?.y??SPAWN_Y)*shipScale;
  if(shipCameraX===null){shipCameraX=targetX;shipCameraZ=targetZ}
  // Seguimiento suave: la cámara acompaña al tripulante sin saltos bruscos.
