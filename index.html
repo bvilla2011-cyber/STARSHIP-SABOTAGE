@@ -667,17 +667,34 @@ function shipRoomDecor(room,g){
    const ring=new THREE.Mesh(new THREE.TorusGeometry(r*.87,.018,8,40),edge);ring.rotation.x=Math.PI/2;ring.position.set(px,.385,pz);g.add(ring);
    for(let n=0;n<4;n++){const a=n*Math.PI/2; sphere(g,px+Math.cos(a)*r*.78,.394,pz+Math.sin(a)*r*.78,.025,.012,.025,metal)}
    if(emergency){
-    // botón rojo de emergencia con base, aro metálico, cristal y luz
-    cyl(g,px,.425,pz,r*.37,r*.39,.055,metal);
-    cyl(g,px,.47,pz,r*.29,r*.31,.065,red);
-    const dome=sphere(g,px,.515,pz,r*.245,.075,r*.245,redGlow);
-    const halo=new THREE.Mesh(new THREE.TorusGeometry(r*.34,.025,8,32),shipMat(0xffa0a4,.25,.15));halo.rotation.x=Math.PI/2;halo.position.set(px,.48,pz);g.add(halo);
+    // Consola central de emergencia: carcasa, pulsador rojo, aro luminoso y tres controles auxiliares.
+    shipBox(g,px,.414,pz,r*.78,.045,r*.66,metal);
+    cyl(g,px,.455,pz,r*.37,r*.39,.055,metal);
+    cyl(g,px,.495,pz,r*.29,r*.31,.065,red);
+    sphere(g,px,.535,pz,r*.245,.075,r*.245,redGlow);
+    const halo=new THREE.Mesh(new THREE.TorusGeometry(r*.34,.025,8,32),shipMat(0xffa0a4,.25,.15));halo.rotation.x=Math.PI/2;halo.position.set(px,.50,pz);g.add(halo);
+    // Botones auxiliares con bisel y luz de estado.
+    [[-.31,.08,0x39c6a0],[.31,.08,0x54bce8],[0,-.29,0xf2bd4b]].forEach(([ox,oz,col])=>{
+     cyl(g,px+ox*r,.455,pz+oz*r,r*.105,r*.12,.045,metal,20);
+     cyl(g,px+ox*r,.482,pz+oz*r,r*.075,r*.085,.035,shipMat(col,.28,.2),20);
+     sphere(g,px+ox*r,.505,pz+oz*r,r*.045,.018,r*.045,new THREE.MeshBasicMaterial({color:col}));
+    });
     shipBox(g,px,.405,pz+r*.55,r*.62,.025,.08,metal);
    }
   };
   // Tres mesas de reunión distribuidas dejando un pasillo central amplio.
   const positions=[[x+w*.27,z+d*.31],[x+w*.73,z+d*.31],[x+w*.27,z+d*.72],[x+w*.73,z+d*.72]];
-  positions.forEach(([px,pz],i)=>{roundTable(px,pz,.43,false);for(let n=0;n<4;n++)chair(px,pz,n*Math.PI/2+Math.PI/4)});
+  positions.forEach(([px,pz],i)=>{
+   roundTable(px,pz,.43,false);for(let n=0;n<4;n++)chair(px,pz,n*Math.PI/2+Math.PI/4);
+   // Bandeja central con vasos, platos y pequeños detalles para que cada mesa tenga vida.
+   cyl(g,px,.414,pz,.115,.115,.018,edge,24);
+   cyl(g,px,.426,pz,.082,.082,.012,tableTop,24);
+   for(let k=0;k<2;k++){
+    const vx=px+(k?1:-1)*.19,vz=pz+(i%2?.07:-.07);
+    cyl(g,vx,.445,vz,.035,.042,.065,tableTop,16);
+    cyl(g,vx,.48,vz,.026,.026,.012,shipMat(k?0x70c9d2:0xe6a66f,.3,.08),16);
+   }
+  });
   // Mesa central de emergencia, mayor y con el botón rojo protagonista.
   const ex=cx,ez=cz;roundTable(ex,ez,.57,true);
   for(let n=0;n<4;n++)chair(ex,ez,n*Math.PI/2);
@@ -694,7 +711,11 @@ function shipRoomDecor(room,g){
   shipBox(g,dx,.28,dz,.38,.52,.32,wall);
   shipBox(g,dx,.56,dz-.17,.31,.16,.035,shipMat(0x72b7c5,.3,.25));
   for(let n=0;n<3;n++){cyl(g,dx-.1+n*.1,.67,dz-.18,.035,.04,.08,tableTop,16);cyl(g,dx-.1+n*.1,.715,dz-.18,.025,.025,.012,shipMat(0x65c6cf,.25,.1),16)}
-  // Luminarias circulares empotradas y marcas de suelo alrededor del mobiliario.
+  // Luminarias circulares empotradas, señalización de suelo y pequeños indicadores de zona.
+  for(let k=0;k<4;k++){
+   const px=x+w*(.18+k*.215),pz=z+d*.91;
+   shipBox(g,px,.008,pz,.13,.012,.035,shipMat(k%2?0x55b9c7:0xe6b85c,.45,.1));
+  }
   for(const [lx,lz] of [[x+w*.5,z+d*.12],[x+w*.5,z+d*.88]]){
    cyl(g,lx,.012,lz,.22,.22,.018,edge,32);
    cyl(g,lx,.024,lz,.16,.16,.012,shipMat(0x8bdce4,.25,.1),32);
@@ -735,7 +756,7 @@ function makeCrew3D(q){const group=new THREE.Group(),base=shipMat(q.color||0x35a
 let shipCameraX=null,shipCameraZ=null;
 function drawShip3D(){
  if(!shipRenderer||!shipScene||!gameState)return;
- Object.values(gameState.players||{}).forEach(q=>{let actor=shipActors.get(q.id);if(!actor){actor=makeCrew3D(q);shipActors.set(q.id,actor);shipScene.add(actor)}actor.visible=!!q.alive;actor.position.set(q.x*shipScale,.02,q.y*shipScale);actor.rotation.y=q._faceX<0?Math.PI:0;actor.scale.setScalar(q.id===playerId?.0625:.06);if(actor.children[0]?.material?.color)actor.children[0].material.color.set(q.color||'#35a9d6')});
+ Object.values(gameState.players||{}).forEach(q=>{let actor=shipActors.get(q.id);if(!actor){actor=makeCrew3D(q);shipActors.set(q.id,actor);shipScene.add(actor)}actor.visible=!!q.alive;actor.position.set(q.x*shipScale,.02,q.y*shipScale);actor.rotation.y=q._faceX<0?Math.PI:0;actor.scale.setScalar(q.id===playerId?.25:.24);if(actor.children[0]?.material?.color)actor.children[0].material.color.set(q.color||'#35a9d6')});
  const mePlayer=gameState.players?.[playerId],targetX=(mePlayer?.x??SPAWN_X)*shipScale,targetZ=(mePlayer?.y??SPAWN_Y)*shipScale;
  if(shipCameraX===null){shipCameraX=targetX;shipCameraZ=targetZ}
  // Seguimiento suave: la cámara acompaña al tripulante sin saltos bruscos.
