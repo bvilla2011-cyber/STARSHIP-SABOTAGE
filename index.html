@@ -275,9 +275,9 @@ const MAP={w:112,h:66,rooms:[
 {name:'NAVEGACIÓN',x:94,y:14,w:10,h:10,color:'#405c70',kind:'nav'},
 {name:'ADMINISTRACIÓN',x:65,y:26,w:12,h:11,color:'#45675e',kind:'admin'},
 {name:'ESCUDOS',x:84,y:40,w:10,h:9,color:'#456d69',kind:'shields'},
-{name:'COMUNICACIONES',x:68,y:45.4,w:12,h:12,color:'#405b6c',kind:'comms'},
+{name:'COMUNICACIONES',x:68,y:45.6,w:12,h:11.8,color:'#405b6c',kind:'comms'},
 {name:'ALMACÉN',x:51,y:40,w:17,h:17,color:'#58666a',kind:'storage'},
-{name:'ELÉCTRICA',x:36,y:38,w:11,h:11,color:'#4c5d55',kind:'electrical'}
+{name:'ELÉCTRICA',x:36,y:38.6,w:11,h:11,color:'#4c5d55',kind:'electrical'}
 ],corridors:[
 {name:'MOTOR SUPERIOR-CAFETERÍA',points:[[27,11],[43,11]],width:3.2},
 {name:'RAMAL ENFERMERÍA',points:[[35,11],[35,13]],width:2.8},
@@ -294,7 +294,7 @@ const MAP={w:112,h:66,rooms:[
 {name:'ENTRADA ESCUDOS',points:[[89,36],[89,40]],width:2.8},
 {name:'ESCUDOS-ALMACÉN',points:[[84,44],[68,44]],width:3.2},
 
-{name:'SALIDA INFERIOR ELÉCTRICA',points:[[41.5,49],[41.5,51]],width:2.8},
+
 {name:'ALMACÉN-MOTOR INFERIOR',points:[[51,51],[27,51]],width:3.2},
 {name:'PASILLO VERTICAL IZQUIERDO',points:[[21,17],[21,48]],width:3.2},
 {name:'SALIDA REACTOR',points:[[13,29],[21,29]],width:2.8},
@@ -343,7 +343,7 @@ function draw(){if(!ctx||!canvas)return;try{const w=canvas.clientWidth,h=canvas.
 const poly=(pts)=>{ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath()};
 const gridRect=(x,y,ww,hh,step=1.1)=>{ctx.fillStyle='#263d4c';ctx.fillRect(x,y,ww,hh);ctx.strokeStyle='#a8d9e51b';ctx.lineWidth=.035;for(let xx=x+step;xx<x+ww;xx+=step){ctx.beginPath();ctx.moveTo(xx,y);ctx.lineTo(xx,y+hh);ctx.stroke()}for(let yy=y+step;yy<y+hh;yy+=step){ctx.beginPath();ctx.moveTo(x,yy);ctx.lineTo(x+ww,yy);ctx.stroke()}};
 MAP.corridors.forEach(c=>{ctx.lineCap='square';ctx.lineJoin='miter';ctx.strokeStyle='#172c3a';ctx.lineWidth=c.width+.42;ctx.beginPath();c.points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.strokeStyle='#304b5b';ctx.lineWidth=c.width;ctx.stroke();ctx.strokeStyle='#b5dce51b';ctx.lineWidth=.045;ctx.setLineDash([.35,.65]);ctx.beginPath();c.points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.setLineDash([])});
-MAP.rooms.forEach(r=>{ctx.save();if(r.kind==='cafe'){const pts=[[r.x+4.75,r.y],[r.x+r.w-4.75,r.y],[r.x+r.w,r.y+4.75],[r.x+r.w,r.y+r.h-4.75],[r.x+r.w-4.75,r.y+r.h],[r.x+4.75,r.y+r.h],[r.x,r.y+r.h-4.75],[r.x,r.y+4.75]];poly(pts);ctx.fillStyle='#263d4c';ctx.fill();ctx.save();poly(pts);ctx.clip();ctx.strokeStyle='#b8e2ef20';ctx.lineWidth=.04;for(let xx=r.x+1;xx<r.x+r.w;xx+=1){ctx.beginPath();ctx.moveTo(xx,r.y);ctx.lineTo(xx,r.y+r.h);ctx.stroke()}for(let yy=r.y+1;yy<r.y+r.h;yy+=1){ctx.beginPath();ctx.moveTo(r.x,yy);ctx.lineTo(r.x+r.w,yy);ctx.stroke()}ctx.restore();ctx.globalAlpha=.35;poly(pts);ctx.fillStyle=r.color;ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle='#d9f5ff';ctx.lineWidth=.22;poly(pts);ctx.stroke();}else{gridRect(r.x,r.y,r.w,r.h);ctx.globalAlpha=.24;ctx.fillStyle=r.color;ctx.fillRect(r.x+.08,r.y+.08,r.w-.16,r.h-.16);ctx.globalAlpha=1;ctx.strokeStyle='#d9f5ff';ctx.lineWidth=.18;ctx.strokeRect(r.x,r.y,r.w,r.h)}
+MAP.rooms.forEach(r=>{ctx.save();if(r.kind==='cafe'){const pts=[[r.x+4.75,r.y],[r.x+r.w-4.75,r.y],[r.x+r.w,r.y+4.75],[r.x+r.w,r.y+r.h-4.75],[r.x+r.w-4.75,r.y+r.h],[r.x+4.75,r.y+r.h],[r.x,r.y+r.h-4.75],[r.x,r.y+4.75]];poly(pts);ctx.fillStyle='#263d4c';ctx.fill();ctx.save();poly(pts);ctx.clip();ctx.strokeStyle='#b8e2ef20';ctx.lineWidth=.04;for(let xx=r.x+1;xx<r.x+r.w;xx+=1){ctx.beginPath();ctx.moveTo(xx,r.y);ctx.lineTo(xx,r.y+r.h);ctx.stroke()}for(let yy=r.y+1;yy<r.y+r.h;yy+=1){ctx.beginPath();ctx.moveTo(r.x,yy);ctx.lineTo(r.x+r.w,yy);ctx.stroke()}ctx.restore();ctx.globalAlpha=.35;poly(pts);ctx.fillStyle=r.color;ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle='#d9f5ff';ctx.lineWidth=.22;poly(pts);ctx.stroke();}else{gridRect(r.x,r.y,r.w,r.h);ctx.globalAlpha=.24;ctx.fillStyle=r.color;ctx.fillRect(r.x+.08,r.y+.08,r.w-.16,r.h-.16);ctx.globalAlpha=1;ctx.strokeStyle='#d9f5ff';ctx.lineWidth=.18;ctx.strokeRect(r.x,r.y,r.w,r.h);if(r.kind==='comms'||r.kind==='electrical'){const yy=r.kind==='comms'?r.y:r.y+r.h;ctx.strokeStyle='#263d4c';ctx.lineWidth=.34;ctx.beginPath();ctx.moveTo(r.x+4.6,yy);ctx.lineTo(r.x+7.4,yy);ctx.stroke();ctx.strokeStyle='#f5d76e';ctx.lineWidth=.09;ctx.beginPath();ctx.moveTo(r.x+4.6,yy+(r.kind==='comms'?.08:-.08));ctx.lineTo(r.x+7.4,yy+(r.kind==='comms'?.08:-.08));ctx.stroke()}}
 ctx.fillStyle='#f2fbff';ctx.font='bold .62px system-ui';ctx.textAlign='center';ctx.shadowColor='#06111b';ctx.shadowBlur=.18;ctx.fillText(r.name,r.x+r.w/2,r.y+1.05);if(r.kind==='comms'){ctx.fillStyle='#142b3a';ctx.fillRect(r.x+5.15,r.y-.12,1.7,.32);ctx.strokeStyle='#7fe6ed';ctx.lineWidth=.08;ctx.strokeRect(r.x+5.15,r.y-.12,1.7,.32);ctx.fillStyle='#b7faff';ctx.fillRect(r.x+6.55,r.y+.02,.12,.12)}ctx.restore()});
 // Raised perimeter wall only. Interior room/corridor transitions remain completely open.
 const hull=MAP.hull;ctx.save();ctx.lineJoin='bevel';ctx.lineWidth=.18;ctx.strokeStyle='#d6f4ff';ctx.shadowColor='#59c9e8';ctx.shadowBlur=.22;ctx.beginPath();hull.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.stroke();ctx.shadowBlur=0;for(let i=0;i<hull.length;i++){const a=hull[i],b=hull[(i+1)%hull.length];ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.lineTo(b[0],b[1]+.9);ctx.lineTo(a[0],a[1]+.9);ctx.closePath();ctx.fillStyle='rgba(8,24,37,.78)';ctx.fill();ctx.strokeStyle='#6b9caf';ctx.lineWidth=.07;ctx.stroke()}ctx.restore();
