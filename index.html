@@ -790,6 +790,66 @@ function shipRoomDecor(room,g){
    cyl(g,lx,.012,lz,.22,.22,.018,edge,32);
    cyl(g,lx,.024,lz,.16,.16,.012,shipMat(0x8bdce4,.25,.1),32);
   }
+ }else if(room.kind==='weapons'){
+  // Cañón de asteroides: bancada, torreta giratoria, tubo, boca y anillos.
+  const metal=shipMat(0x526b7b,.42,.62),darkMetal=shipMat(0x172e40,.5,.48),glow=shipMat(0x54c9ed,.28,.35);
+  const base=shipBox(g,cx,.16,cz,.58,.22,.58,metal);base.rotation.y=.18;
+  const turret=new THREE.Mesh(new THREE.CylinderGeometry(.24,.29,.22,12),darkMetal);turret.position.set(cx,.34,cz);g.add(turret);
+  const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.105,.15,.62,16),metal);barrel.rotation.x=Math.PI/2;barrel.position.set(cx,.42,cz-.22);g.add(barrel);
+  const muzzle=new THREE.Mesh(new THREE.TorusGeometry(.12,.035,10,24),glow);muzzle.rotation.x=Math.PI/2;muzzle.position.set(cx,.42,cz-.535);g.add(muzzle);
+  const sight=shipBox(g,cx,.58,cz+.08,.22,.12,.24,accent);
+  console(cx+w*.30,cz+d*.27); 
+ }else if(room.kind==='nav'){
+  // Puesto de pilotaje con consola curva, radar y ventanal panorámico.
+  const metal=shipMat(0x263f53,.45,.55),screen=shipMat(0x38b9d4,.25,.25);
+  shipBox(g,cx,.22,cz+.12,.72,.38,.30,metal);
+  shipBox(g,cx,.46,cz-.04,.62,.22,.045,screen);
+  const wheel=new THREE.Mesh(new THREE.TorusGeometry(.16,.025,8,28),metal);wheel.position.set(cx,.58,cz+.22);g.add(wheel);
+  const radar=new THREE.Mesh(new THREE.CircleGeometry(.13,32),shipMat(0x0c2638,.25,.2));radar.rotation.x=-Math.PI/2;radar.position.set(cx,.59,cz-.02);g.add(radar);
+  console(cx-w*.28,cz-d*.25);
+ }else if(room.kind==='o2'){
+  // Generador de oxígeno con depósitos, tuberías y panel de presión.
+  const tankMat=shipMat(0x7896a0,.38,.55),pipe=shipMat(0x42c4c4,.3,.55);
+  for(let k=0;k<2;k++){const px=cx+(k?1:-1)*w*.24;const tank=new THREE.Mesh(new THREE.CylinderGeometry(.105,.12,.58,16),tankMat);tank.position.set(px,.34,cz-.12);g.add(tank);const cap=new THREE.Mesh(new THREE.SphereGeometry(.11,16,10),accent);cap.position.set(px,.64,cz-.12);g.add(cap);const gauge=new THREE.Mesh(new THREE.TorusGeometry(.045,.012,8,20),pipe);gauge.position.set(px,.42,cz+.02);g.add(gauge)}
+  console(cx,cz+d*.30);
+ }else if(room.kind==='shields'){
+  // Tres generadores circulares con núcleos luminosos y anillos concéntricos.
+  const energy=new THREE.MeshBasicMaterial({color:0xff5362});
+  for(let k=0;k<3;k++){const px=x+w*(.25+k*.25),pz=cz;const plinth=new THREE.Mesh(new THREE.CylinderGeometry(.13,.17,.16,12),dark);plinth.position.set(px,.12,pz);g.add(plinth);const ring=new THREE.Mesh(new THREE.TorusGeometry(.13,.025,8,24),accent);ring.position.set(px,.29,pz);g.add(ring);const core=new THREE.Mesh(new THREE.SphereGeometry(.075,16,12),energy);core.position.set(px,.29,pz);g.add(core)}
+  console(cx,cz+d*.30);
+ }else if(room.kind==='storage'){
+  // Carga: cajas de distintos tamaños, bidones y contenedores; dejan un corredor central.
+  const crateMats=[0x7b8d91,0x9a8058,0x526c7b].map(c=>shipMat(c,.72,.32));
+  [[.22,.24,.22,.26,.22],[.25,.48,.18,.20,.28],[.76,.24,.24,.28,.22],[.78,.48,.17,.19,.24],[.18,.73,.22,.22,.20]].forEach((v,i)=>{const [px,pz,sx,sy,sz]=v;const crate=shipBox(g,x+w*px,sy/2,z+d*pz,sx,sy,sz,crateMats[i%3]);shipBox(g,x+w*px,sy*.52,z+d*pz,sx*.88,.025,sz*.88,trim)});
+  const drum=new THREE.Mesh(new THREE.CylinderGeometry(.095,.095,.34,16),shipMat(0xb17a43,.55,.42));drum.position.set(cx,.18,cz+d*.30);g.add(drum);
+ }else if(room.kind==='admin'){
+  // Mesa de administración con patas, sobremesa, lector de tarjeta y pantallas.
+  const top=shipMat(0x9aaeb1,.45,.25),legs=shipMat(0x263f50,.5,.5);
+  shipBox(g,cx,.42,cz,.68,.09,.42,top);for(const sx of [-1,1])for(const sz of [-1,1])shipBox(g,cx+sx*.29,.21,cz+sz*.17,.045,.38,.045,legs);
+  shipBox(g,cx,.56,cz-.12,.34,.16,.035,accent);shipBox(g,cx+.22,.49,cz+.09,.12,.025,.10,glow);
+  console(cx+w*.30,cz-d*.30);
+ }else if(room.kind==='comms'){
+  // Bastidor de radio, antenas, módulos apilados y cableado visible.
+  const rack=shipMat(0x263d50,.48,.5),wire=shipMat(0x4ccbd0,.32,.35);
+  for(let k=0;k<2;k++){const px=cx+(k?1:-1)*w*.27;shipBox(g,px,.35,cz,.22,.68,.28,rack);for(let n=0;n<3;n++){shipBox(g,px,.48-n*.15,cz+.15,.15,.065,.018,accent)}const mast=new THREE.Mesh(new THREE.CylinderGeometry(.012,.018,.48,8),wire);mast.position.set(px,.91,cz-.06);g.add(mast);const tip=new THREE.Mesh(new THREE.SphereGeometry(.035,10,8),glow);tip.position.set(px,1.16,cz-.06);g.add(tip)}
+ }else if(room.kind==='electrical'){
+  // Armarios eléctricos con fusibles, cables y luces de peligro.
+  const cabinet=shipMat(0x273747,.52,.5),cable=shipMat(0xe2b34e,.42,.25);
+  for(let k=0;k<3;k++){const px=x+w*(.22+k*.28);shipBox(g,px,.43,cz-.12,.23,.82,.32,cabinet);for(let n=0;n<4;n++){shipBox(g,px-.065+(n%2)*.13,.55-Math.floor(n/2)*.18,cz+.055,.045,.065,.025,n%2?accent:glow)}}
+  for(let k=0;k<3;k++){const tube=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.48,8),cable);tube.rotation.z=Math.PI/2;tube.position.set(cx,.93,cz+.22+k*.07);g.add(tube)}
+ }else if(room.kind==='security'){
+  // Banco de vigilancia con pared de monitores orientados hacia la consola.
+  const monitorFrame=shipMat(0x172c3e,.4,.55),display=new THREE.MeshBasicMaterial({color:0x45b9d1});
+  for(let k=0;k<4;k++){const px=x+w*(.18+k*.21);shipBox(g,px,.78,z+d*.18,.18,.25,.045,monitorFrame);shipBox(g,px,.79,z+d*.18+.026,.145,.19,.012,display)}
+  shipBox(g,cx,.34,cz+.18,.58,.34,.30,wall);shipBox(g,cx,.54,cz+.02,.48,.12,.035,accent);
+  const chair=new THREE.Mesh(new THREE.CylinderGeometry(.10,.13,.12,12),trim);chair.position.set(cx,.28,cz+.53);g.add(chair);
+ }else if(room.kind==='medbay'){
+  // Escáner médico: plataforma, aro elevado, emisores y panel clínico.
+  const bed=shipMat(0xb8d0d2,.48,.16),light=shipMat(0x6be4ed,.24,.22);
+  shipBox(g,cx,.18,cz+.12,.72,.22,.42,bed);
+  const scanRing=new THREE.Mesh(new THREE.TorusGeometry(.29,.035,10,40),light);scanRing.position.set(cx,.84,cz+.12);g.add(scanRing);
+  for(let k=0;k<4;k++){const a=k*Math.PI/2,beam=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.72,8),accent);beam.position.set(cx+Math.cos(a)*.29,.48,cz+.12+Math.sin(a)*.29);g.add(beam)}
+  console(cx+w*.30,cz-d*.30);
  }else if(room.kind==='reactor'){
   const core=new THREE.Mesh(new THREE.CylinderGeometry(.35,.42,.62,16),accent);core.position.set(cx,.34,cz);g.add(core);const ring=new THREE.Mesh(new THREE.TorusGeometry(.48,.055,8,24),shipMat(0x9edfff,.35,.2));ring.rotation.x=Math.PI/2;ring.position.set(cx,.38,cz);g.add(ring);
  }else if(room.kind==='engine'){
@@ -1032,7 +1092,7 @@ if(!email||!/^\S+@\S+\.\S+$/.test(email))return authFeedback('Introduce un corre
 $('editProfile').onclick=async()=>{if(authUser){try{await getAccount().deleteSession({sessionId:'current'})}catch(e){}authUser=null;location.reload();return}$('profileGate').classList.add('visible')};}
 function setup(){initProfile();startShopTimer();const splash=$('introSplash');if(splash)setTimeout(()=>splash.remove(),3400);const j=$('joystick');let joyPointer=null;function joy(e){const r=j.getBoundingClientRect();if(!r.width||!r.height)return;let dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,l=Math.hypot(dx,dy),m=Math.min(r.width,r.height)*.34;if(l>m){dx*=m/l;dy*=m/l}move={x:dx/m,y:dy/m};$('stick').style.transform='translate('+dx+'px,'+dy+'px)'}j.style.touchAction='none';j.addEventListener('pointerdown',e=>{e.preventDefault();joyPointer=e.pointerId;j.setPointerCapture(e.pointerId);joy(e)});j.addEventListener('pointermove',e=>{if(e.pointerId===joyPointer){e.preventDefault();joy(e)}});function stopJoy(e){if(joyPointer!==null&&(e.pointerId===undefined||e.pointerId===joyPointer)){joyPointer=null;move={x:0,y:0};$('stick').style.transform='translate(0,0)'}}['pointerup','pointercancel','lostpointercapture'].forEach(n=>j.addEventListener(n,stopJoy));window.addEventListener('blur',()=>{keys={};move={x:0,y:0};joyPointer=null;$('stick').style.transform='translate(0,0)'});window.addEventListener('keydown',e=>{const target=e.target;const tag=target?.tagName?.toLowerCase();const typing=tag==='input'||tag==='textarea'||tag==='select'||target?.isContentEditable||e.isComposing||e.key==='Dead';if(typing)return;const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();keys[k]=true;if(k==='e'&&!e.repeat)startTask()},{passive:false});window.addEventListener('keyup',e=>{const k=e.key.toLowerCase();delete keys[k];delete keys[e.key]});$('color').addEventListener('change',applyMonguitoColor);$('create').onclick=createRoom;$('join').onclick=joinRoom;$('explore').onclick=startExplore;$('shopOpen').onclick=openShop;$('shopClose').onclick=closeShop;$('customizeOpen').onclick=openCustomize;$('customizeClose').onclick=closeCustomize;$('customTabs').querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>{customCategory=b.dataset.category;renderCustomizer()});$('customDone').onclick=async()=>{saveEconomy();if(me){me.color=$('color').value;me.cosmetics=getLoadout();try{if(roomId&&playerId)await getDb().updateRow({databaseId:DB,tableId:PLAYERS,rowId:playerId,data:{color:me.color,tasks:JSON.stringify({cosmetics:me.cosmetics})}})}catch(e){console.warn('No se pudo sincronizar el aspecto en la sala',e)}}if(gameState?.players?.[playerId])gameState.players[playerId].cosmetics=getLoadout();renderLobby();closeCustomize();toast('Personaje guardado y sincronizado')};$('start').onclick=startMatch;$('taskToggle').onclick=()=>$('taskText').classList.toggle('hidden');$('mapBtn').onclick=()=>{const panel=$('mapPanel');panel.classList.toggle('hidden');$('moreMenu').classList.add('hidden');if(!panel.classList.contains('hidden'))drawMiniMap()};$('mapClose').onclick=()=>{$('mapPanel').classList.add('hidden')};$('moreBtn').onclick=()=>{$('moreMenu').classList.toggle('hidden');$('mapPanel').classList.add('hidden')};$('resumeBtn').onclick=()=>$('moreMenu').classList.add('hidden');$('leaveMatchBtn').onclick=async()=>{if(!confirm('¿Abandonar esta partida?'))return;clearInterval(poll);poll=null;try{if(!soloMode)await getDb().deleteRow({databaseId:DB,tableId:PLAYERS,rowId:playerId})}catch(e){}location.reload()};$('interact').onclick=()=>{const p=gameState?.players?.[playerId];if(!p)return;const t=MAP.tasks.map(x=>({...x,d:Math.hypot(p.x-x.x,p.y-x.y)})).filter(x=>x.d<0.85).sort((a,b)=>a.d-b.d)[0];if(gameState?.sabotage?.active&&p.role==='crew'){const repair=MAP.tasks.find(x=>x.id===gameState.sabotage.target);if(repair&&Math.hypot(p.x-repair.x,p.y-repair.y)<1.6){openMiniGame({id:'repair_'+gameState.sabotage.type,name:'REPARAR '+gameState.sabotage.type.toUpperCase(),room:repair.room},repair)}else toast('Sigue la flecha roja hasta el punto de reparación.')}else if(t&&p.role==='crew'&&p.tasks?.some(x=>x.id===t.id&&!p.done?.includes(x.id)))startTask();else {const body=Object.values(gameState.players||{}).some(q=>!q.alive&&Math.hypot(p.x-q.x,p.y-q.y)<1.5);$('contextHint').textContent=body?'REPORTAR':'REUNIÓN';meeting(body)}};$('report').onclick=()=>{const p=gameState?.players?.[playerId];if(!p)return;const body=Object.values(gameState.players||{}).some(q=>!q.alive&&q.id!==playerId&&Number.isFinite(q.x)&&Math.hypot(p.x-q.x,p.y-q.y)<1.8);if(body){meeting(true)}else toast('No hay ningún cuerpo cerca para reportar.')};$('emergency').onclick=()=>meeting(false);$('kill').onclick=eliminate;$('sabotage').onclick=()=>{const p=gameState?.players?.[playerId];if(!p||p.role!=='impostor'||!p.alive)return toast('Solo el impostor puede sabotear.');if(gameState.sabotage?.active)return toast('Ya hay un sabotaje activo.');$('sabotagePanel').classList.remove('hidden')};$('sabotageClose').onclick=()=>$('sabotagePanel').classList.add('hidden');$('sabotagePanel').querySelectorAll('[data-sab]').forEach(btn=>btn.onclick=async()=>{const p=gameState?.players?.[playerId];if(!p||p.role!=='impostor'||gameState.sabotage?.active)return;const type=btn.dataset.sab,target=({lights:'electrical_wires',reactor:'reactor_start',comms:'comms_fix',o2:'o2_filter',doors:'admin_card'})[type];gameState.sabotage={active:true,type,target,at:Date.now(),endsAt:Date.now()+(type==='reactor'||type==='o2'?45000:0)};$('sabotagePanel').classList.add('hidden');await saveRoomState(gameState);toast('SABOTAJE ACTIVADO · '+btn.querySelector('b').textContent)});$('leave').onclick=async()=>{clearInterval(poll);poll=null;try{await getDb().deleteRow({databaseId:DB,tableId:PLAYERS,rowId:playerId})}catch(e){}location.reload()};window.addEventListener('resize',resize)}
 window.addEventListener('error',e=>{console.error(e.error||e.message);if($('status'))say('Error del juego: '+(e.message||'error inesperado'),true);});
-const GAME_BUILD_VERSION='2026-11-09-skeld-metric-v15';
+const GAME_BUILD_VERSION='2026-11-09-skeld-room-detail-v16';
 function notifyGamePatch(){const key='starship_seen_patch';try{const seen=localStorage.getItem(key);if(seen===GAME_BUILD_VERSION)return;localStorage.setItem(key,GAME_BUILD_VERSION);const n=$('patchNotice');if(!n)return;n.classList.remove('show');void n.offsetWidth;n.classList.add('show');clearTimeout(window.patchNoticeTimer);window.patchNoticeTimer=setTimeout(()=>n.classList.remove('show'),4800)}catch(e){console.warn('No se pudo mostrar el aviso de actualización',e)}}
 setup();notifyGamePatch();applyMonguitoColor();updatePreview();updateCoinUI();say(AppwriteSDK?'Appwrite disponible. Crea o únete a una sala.':'Modo exploración disponible; Appwrite no está conectado.');
 })();
