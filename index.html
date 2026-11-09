@@ -305,7 +305,7 @@ ROOM('MOTOR INFERIOR',230,282,100,32,'#596b72','engine')
 {id:'med_scan',name:'Enviar escaneo',room:'ENFERMERÍA',x:MX(150),y:MY(166),type:'scan'},
 {id:'electrical_wires',name:'Reparar cableado',room:'ELÉCTRICA',x:MX(50),y:MY(250),type:'wires'},
 {id:'storage_fuel',name:'Recoger combustible',room:'ALMACÉN',x:MX(150),y:MY(250),type:'fuel'},
-{id:'cafe_data',name:'Descargar datos',room:'CAFETERÍA',x:MX(280),y:MY(156),type:'upload'},
+{id:'cafe_data',name:'Descargar datos',room:'CAFETERÍA',x:MX(310),y:MY(156),type:'upload'},
 {id:'admin_card',name:'Pasar tarjeta',room:'ADMINISTRACIÓN',x:MX(280),y:MY(248),type:'card'},
 {id:'weapons_aim',name:'Alinear armamento',room:'ARMAS',x:MX(412),y:MY(84),type:'sequence'},
 {id:'nav_route',name:'Trazar ruta',room:'NAVEGACIÓN',x:MX(512),y:MY(84),type:'route'},
@@ -315,7 +315,7 @@ ROOM('MOTOR INFERIOR',230,282,100,32,'#596b72','engine')
 {id:'lower_fuel',name:'Repostar motor inferior',room:'MOTOR INFERIOR',x:MX(280),y:MY(298),type:'fuel'}
 ]};
 const MAP_SCALE=1.65;for(const r of MAP.rooms){r.x*=MAP_SCALE;r.y*=MAP_SCALE;r.w*=MAP_SCALE;r.h*=MAP_SCALE}for(const c of MAP.corridors){c.width*=MAP_SCALE;c.points=c.points.map(([x,y])=>[x*MAP_SCALE,y*MAP_SCALE])}for(const t of MAP.tasks){t.x*=MAP_SCALE;t.y*=MAP_SCALE}MAP.w*=MAP_SCALE;MAP.h*=MAP_SCALE;
-const SPAWN_X=MX(280)*MAP_SCALE,SPAWN_Y=MY(156)*MAP_SCALE;
+const SPAWN_X=MX(280)*MAP_SCALE,SPAWN_Y=MY(176)*MAP_SCALE;
 let cameraIntro=null,cameraIntroPlayed=false;
 function beginCameraIntro(){if(cameraIntroPlayed)return;cameraIntroPlayed=true;cameraIntro={start:tsNow(),duration:2600};}
 const perms=Permission&&Role?[Permission.read(Role.any()),Permission.update(Role.any()),Permission.delete(Role.any())]:[];
