@@ -277,7 +277,7 @@ const MAP={w:112,h:66,rooms:[
 {name:'ESCUDOS',x:84,y:35.8,w:10,h:9,color:'#456d69',kind:'shields'},
 {name:'COMUNICACIONES',x:68,y:45.6,w:12,h:11.8,color:'#405b6c',kind:'comms'},
 {name:'ALMACÉN',x:51,y:26.7,w:17,h:17,color:'#58666a',kind:'storage'},
-{name:'ELÉCTRICA',x:36,y:38.6,w:11,h:11,color:'#4c5d55',kind:'electrical'}
+{name:'ELÉCTRICA',x:36,y:33,w:11,h:11,color:'#4c5d55',kind:'electrical'}
 ],corridors:[
 {name:'MOTOR SUPERIOR-CAFETERÍA',points:[[27,11],[43,11]],width:3.2},
 {name:'RAMAL ENFERMERÍA',points:[[35,11],[35,13]],width:2.8},
@@ -291,7 +291,7 @@ const MAP={w:112,h:66,rooms:[
 {name:'ZIGZAG ESTE 4',points:[[79,33.6],[89,33.6]],width:2.8},
 {name:'ENTRADA ESCUDOS',points:[[89,33.6],[89,35.8]],width:2.8},
 {name:'ESCUDOS-ALMACÉN',points:[[84,40.3],[68,40.3]],width:3.2},
-{name:'ALMACÉN-MOTOR INFERIOR',points:[[51,37],[27,43]],width:3.2},
+{name:'ALMACÉN-MOTOR INFERIOR',points:[[51,45],[27,45]],width:3.2},
 {name:'PASILLO VERTICAL IZQUIERDO',points:[[21,17],[21,38]],width:3.2}
 ],obstacles:[],tasks:[],vents:[],tasks:[
 {id:'cafe_data',name:'Descargar datos',room:'CAFETERÍA',x:47,y:10,type:'upload'},
@@ -302,7 +302,7 @@ const MAP={w:112,h:66,rooms:[
 {id:'shields',name:'Preparar escudos',room:'ESCUDOS',x:88,y:40,type:'sequence'},
 {id:'comms_fix',name:'Reparar comunicaciones',room:'COMUNICACIONES',x:74,y:50,type:'upload'},
 {id:'storage_fuel',name:'Recoger combustible',room:'ALMACÉN',x:55,y:34,type:'fuel'},
-{id:'electrical_wires',name:'Reparar cableado',room:'ELÉCTRICA',x:38,y:42,type:'wires'},
+{id:'electrical_wires',name:'Reparar cableado',room:'ELÉCTRICA',x:38,y:38,type:'wires'},
 {id:'security_cams',name:'Revisar cámaras',room:'SEGURIDAD',x:25,y:28,type:'upload'},
 {id:'med_scan',name:'Enviar escaneo',room:'ENFERMERÍA',x:35,y:18,type:'scan'},
 {id:'upper_fuel',name:'Repostar motor superior',room:'MOTOR SUPERIOR',x:22,y:14,type:'fuel'},
