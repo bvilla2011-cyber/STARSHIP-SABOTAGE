@@ -513,23 +513,23 @@ ROOM('ESCUDOS',480,137,65,58,'#456d69','shields'),
 ROOM('COMUNICACIONES',380,218,65,65,'#405b6c','comms'),
 ROOM('MOTOR INFERIOR',230,282,100,32,'#596b72','engine')
 ],corridors:[
-{name:'EJE MOTOR SUPERIOR–CAFETERÍA',points:[PT(280,50),PT(280,112)],width:9.5},
-{name:'EJE CAFETERÍA–ADMINISTRACIÓN',points:[PT(280,200),PT(280,220)],width:9.5},
-{name:'EJE ADMINISTRACIÓN–MOTOR INFERIOR',points:[PT(280,275),PT(280,282)],width:9.5},
-{name:'ESPINA OESTE',points:[PT(95,84),PT(95,250)],width:9.5},
-{name:'ESPINA ESTE',points:[PT(464,84),PT(464,250)],width:9.5},
-{name:'CONEXIÓN OESTE–CAFETERÍA',points:[PT(95,156),PT(220,156)],width:9.5},
-{name:'CONEXIÓN CAFETERÍA–ESTE',points:[PT(340,156),PT(464,156)],width:9.5},
-{name:'REACTOR',points:[PT(83,152),PT(95,152)],width:9.5},
-{name:'SEGURIDAD',points:[PT(95,84),PT(112,84)],width:9.5},
-{name:'ENFERMERÍA',points:[PT(95,166),PT(112,166)],width:9.5},
-{name:'ELÉCTRICA',points:[PT(83,250),PT(95,250)],width:9.5},
-{name:'ALMACÉN',points:[PT(95,250),PT(112,250)],width:9.5},
-{name:'ARMAS',points:[PT(445,84),PT(464,84)],width:9.5},
-{name:'NAVEGACIÓN',points:[PT(464,84),PT(480,84)],width:9.5},
-{name:'O2',points:[PT(445,166),PT(464,166)],width:9.5},
-{name:'ESCUDOS',points:[PT(464,166),PT(480,166)],width:9.5},
-{name:'COMUNICACIONES',points:[PT(445,250),PT(464,250)],width:9.5}
+{name:'EJE MOTOR SUPERIOR–CAFETERÍA',points:[PT(280,50),PT(280,112)],width:6.5},
+{name:'EJE CAFETERÍA–ADMINISTRACIÓN',points:[PT(280,200),PT(280,220)],width:6.5},
+{name:'EJE ADMINISTRACIÓN–MOTOR INFERIOR',points:[PT(280,275),PT(280,282)],width:6.5},
+{name:'ESPINA OESTE',points:[PT(95,84),PT(95,250)],width:6.5},
+{name:'ESPINA ESTE',points:[PT(464,84),PT(464,250)],width:6.5},
+{name:'CONEXIÓN OESTE–CAFETERÍA',points:[PT(95,156),PT(220,156)],width:6.5},
+{name:'CONEXIÓN CAFETERÍA–ESTE',points:[PT(340,156),PT(464,156)],width:6.5},
+{name:'REACTOR',points:[PT(83,152),PT(95,152)],width:6.5},
+{name:'SEGURIDAD',points:[PT(95,84),PT(112,84)],width:6.5},
+{name:'ENFERMERÍA',points:[PT(95,166),PT(112,166)],width:6.5},
+{name:'ELÉCTRICA',points:[PT(83,250),PT(95,250)],width:6.5},
+{name:'ALMACÉN',points:[PT(95,250),PT(112,250)],width:6.5},
+{name:'ARMAS',points:[PT(445,84),PT(464,84)],width:6.5},
+{name:'NAVEGACIÓN',points:[PT(464,84),PT(480,84)],width:6.5},
+{name:'O2',points:[PT(445,166),PT(464,166)],width:6.5},
+{name:'ESCUDOS',points:[PT(464,166),PT(480,166)],width:6.5},
+{name:'COMUNICACIONES',points:[PT(445,250),PT(464,250)],width:6.5}
 ],obstacles:[],tasks:[
 {id:'upper_fuel',name:'Repostar motor superior',room:'MOTOR SUPERIOR',x:MX(280),y:MY(30),type:'fuel'},
 {id:'reactor_start',name:'Iniciar reactor',room:'REACTOR',x:MX(50),y:MY(152),type:'sequence'},
@@ -647,14 +647,14 @@ function shipRoomDecor(room,g){
   const cyl=(parent,px,py,pz,rt,rb,h,mat,seg=32)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),mat);m.position.set(px,py,pz);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m};
   const sphere=(parent,px,py,pz,sx,sy,sz,mat)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),mat);m.position.set(px,py,pz);m.scale.set(sx,sy,sz);m.castShadow=true;parent.add(m);return m};
   const chair=(px,pz,a)=>{
-   const dx=Math.cos(a),dz=Math.sin(a),sx=px+dx*.43,sz=pz+dz*.43;
+   const dx=Math.cos(a),dz=Math.sin(a),sx=px+dx*.235,sz=pz+dz*.235;
    // base giratoria, columna, cojín y respaldo curvado visualmente
    cyl(g,sx,.105,sz,.105,.12,.07,metal,20);
    cyl(g,sx,.19,sz,.045,.055,.13,metal,16);
-   const cushion=shipBox(g,sx,.285,sz,.29,.12,.29,seatPad);cushion.rotation.y=-a;
-   const back=shipBox(g,sx-dx*.105,.43,sz-dz*.105,.29,.25,.09,seatMat);back.rotation.y=-a;
-   const seam=shipBox(g,sx-dx*.105,.44,sz-dz*.105,.20,.018,.095,edge);seam.rotation.y=-a;
-   for(const side of [-1,1]){const arm=shipBox(g,sx-dx*.04+Math.cos(a+Math.PI/2)*side*.16,.34,sz-dz*.04+Math.sin(a+Math.PI/2)*side*.16,.055,.13,.055,metal)}
+   const cushion=shipBox(g,sx,.255,sz,.17,.075,.17,seatPad);cushion.rotation.y=-a;
+   const back=shipBox(g,sx-dx*.065,.36,sz-dz*.065,.17,.16,.055,seatMat);back.rotation.y=-a;
+   const seam=shipBox(g,sx-dx*.065,.37,sz-dz*.065,.12,.012,.058,edge);seam.rotation.y=-a;
+   for(const side of [-1,1]){const arm=shipBox(g,sx-dx*.04+Math.cos(a+Math.PI/2)*side*.095,.34,sz-dz*.04+Math.sin(a+Math.PI/2)*side*.095,.035,.08,.035,metal)}
   };
   const roundTable=(px,pz,r,emergency=false)=>{
    // pie pesado y columna central
@@ -685,18 +685,18 @@ function shipRoomDecor(room,g){
   // Tres mesas de reunión distribuidas dejando un pasillo central amplio.
   const positions=[[x+w*.27,z+d*.31],[x+w*.73,z+d*.31],[x+w*.27,z+d*.72],[x+w*.73,z+d*.72]];
   positions.forEach(([px,pz],i)=>{
-   roundTable(px,pz,.43,false);for(let n=0;n<4;n++)chair(px,pz,n*Math.PI/2+Math.PI/4);
+   roundTable(px,pz,.205,false);for(let n=0;n<4;n++)chair(px,pz,n*Math.PI/2+Math.PI/4);
    // Bandeja central con vasos, platos y pequeños detalles para que cada mesa tenga vida.
-   cyl(g,px,.414,pz,.115,.115,.018,edge,24);
-   cyl(g,px,.426,pz,.082,.082,.012,tableTop,24);
+   cyl(g,px,.414,pz,.065,.065,.018,edge,24);
+   cyl(g,px,.426,pz,.045,.045,.012,tableTop,24);
    for(let k=0;k<2;k++){
-    const vx=px+(k?1:-1)*.19,vz=pz+(i%2?.07:-.07);
-    cyl(g,vx,.445,vz,.035,.042,.065,tableTop,16);
-    cyl(g,vx,.48,vz,.026,.026,.012,shipMat(k?0x70c9d2:0xe6a66f,.3,.08),16);
+    const vx=px+(k?1:-1)*.105,vz=pz+(i%2?.045:-.045);
+    cyl(g,vx,.445,vz,.022,.026,.045,tableTop,16);
+    cyl(g,vx,.472,vz,.017,.017,.01,shipMat(k?0x70c9d2:0xe6a66f,.3,.08),16);
    }
   });
   // Mesa central de emergencia, mayor y con el botón rojo protagonista.
-  const ex=cx,ez=cz;roundTable(ex,ez,.57,true);
+  const ex=cx,ez=cz;roundTable(ex,ez,.285,true);
   for(let n=0;n<4;n++)chair(ex,ez,n*Math.PI/2);
   // Terminal de tareas junto al lateral: monitor inclinado, teclado, lector y luces de estado.
   const tx=x+w*.87,tz=z+d*.52;
@@ -833,7 +833,16 @@ function pointInPoly(x,y,pts){let inside=false;for(let i=0,j=pts.length-1;i<pts.
 function corridorContains(x,y,c){const half=c.width/2+.08;for(let i=1;i<c.points.length;i++){const a=c.points[i-1],b=c.points[i],dx=b[0]-a[0],dy=b[1]-a[1],len2=dx*dx+dy*dy,t=len2?Math.max(0,Math.min(1,((x-a[0])*dx+(y-a[1])*dy)/len2)):0,px=a[0]+t*dx,py=a[1]+t*dy;if(Math.hypot(x-px,y-py)<=half)return true}return false}
 function inFloor(x,y){return MAP.rooms.some(r=>pointInPoly(x,y,roomPolygon(r)))||MAP.corridors.some(c=>corridorContains(x,y,c))}
 function blocked(x,y){return !inFloor(x,y)}
-function canWalk(x,y){return inFloor(x,y)}
+// Colisión circular del tripulante: evita que el centro pase pegado al borde de paredes.
+function canWalk(x,y){
+ const radius=.78;
+ if(!inFloor(x,y))return false;
+ for(let i=0;i<12;i++){
+  const a=i*Math.PI/6;
+  if(!inFloor(x+Math.cos(a)*radius,y+Math.sin(a)*radius))return false;
+ }
+ return true;
+}
 function updateRepairArrow(){const el=$('repairArrow'),p=gameState?.players?.[playerId],sab=gameState?.sabotage;if(!el)return;if(!p||p.role!=='crew'||!p.alive||!sab?.active){el.classList.add('hidden');return}const target=MAP.tasks.find(t=>t.id===sab.target);if(!target){el.classList.add('hidden');return}const angle=Math.atan2(target.y-p.y,target.x-p.x)*180/Math.PI;el.style.transform='translateX(-50%) rotate('+(angle-90)+'deg)';el.classList.remove('hidden');el.querySelector('small').textContent='REPARAR · '+String(sab.type||'AVERÍA').toUpperCase()}
 $('endContinue').onclick=()=>{if(soloMode){location.reload();return}$('end').classList.add('hidden');$('moreMenu').classList.remove('hidden')};
 let previousFrame=0,monguitoWalkPhase=0;
