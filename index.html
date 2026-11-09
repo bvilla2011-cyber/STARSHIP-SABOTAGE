@@ -264,56 +264,61 @@ function getDb(){
 }
 const $=id=>document.getElementById(id);let roomId='',roomCode='',playerId='',hostId='',isHost=false,soloMode=false,me=null,players=[],gameState=null,poll=null,move={x:0,y:0},keys={},lastMove=0,canvas,ctx,raf=0;
 const MX=x=>x*112/559,MY=y=>y*66/314,PT=(x,y)=>[MX(x),MY(y)];
+const ROOM=(name,x,y,w,h,color,kind)=>({name,x:MX(x),y:MY(y),w:MX(w),h:MY(h),color,kind,poly:[[.12,0],[.88,0],[1,.12],[1,.88],[.88,1],[.12,1],[0,.88],[0,.12]]});
 const MAP={w:112,h:66,rooms:[
-{name:'MOTOR SUPERIOR',x:MX(72),y:MY(48),w:MX(130)-MX(72),h:MY(114)-MY(48),color:'#596b72',kind:'engine',poly:[[.08,0],[.91,0],[1,.12],[1,.83],[.82,1],[0,1],[0,.18]]},
-{name:'REACTOR',x:MX(23),y:MY(113),w:MX(92)-MX(23),h:MY(202)-MY(113),color:'#555c79',kind:'reactor',poly:[[.34,0],[.82,.02],[1,.18],[1,.78],[.72,1],[.13,.94],[0,.78],[0,.22]]},
-{name:'MOTOR INFERIOR',x:MX(72),y:MY(211),w:MX(130)-MX(72),h:MY(260)-MY(211),color:'#596b72',kind:'engine',poly:[[0,0],[.82,0],[1,.17],[1,.83],[.83,1],[.16,1],[0,.82]]},
-{name:'SEGURIDAD',x:MX(121),y:MY(119),w:MX(165)-MX(121),h:MY(181)-MY(119),color:'#416b61',kind:'security',poly:[[.2,0],[.76,0],[1,.2],[1,.8],[.78,1],[.18,1],[0,.82],[0,.2]]},
-{name:'ENFERMERÍA',x:MX(166),y:MY(87),w:MX(246)-MX(166),h:MY(164)-MY(87),color:'#587889',kind:'medbay',poly:[[.12,0],[.88,0],[1,.16],[1,.72],[.82,1],[.12,1],[0,.78],[0,.15]]},
-{name:'CAFETERÍA',x:MX(230),y:MY(11),w:MX(367)-MX(230),h:MY(148)-MY(11),color:'#3b687b',kind:'cafe',poly:[[.2,0],[.74,0],[1,.2],[1,.78],[.8,1],[.2,1],[0,.78],[0,.2]]},
-{name:'ARMAS',x:MX(390),y:MY(39),w:MX(444)-MX(390),h:MY(113)-MY(39),color:'#465b70',kind:'weapons',poly:[[0,0],[.72,0],[1,.22],[1,.9],[.84,1],[0,1]]},
-{name:'O2',x:MX(364),y:MY(115),w:MX(417)-MX(364),h:MY(155)-MY(115),color:'#426d65',kind:'o2',poly:[[.15,0],[.82,0],[1,.18],[1,.72],[.78,1],[0,1],[0,.2]]},
-{name:'NAVEGACIÓN',x:MX(475),y:MY(114),w:MX(536)-MX(475),h:MY(173)-MY(114),color:'#405c70',kind:'nav',poly:[[.16,0],[.78,0],[1,.25],[1,.75],[.7,1],[.14,1],[0,.72],[0,.24]]},
-{name:'ADMINISTRACIÓN',x:MX(320),y:MY(162),w:MX(391)-MX(320),h:MY(220)-MY(162),color:'#45675e',kind:'admin',poly:[[.12,0],[.9,0],[1,.16],[1,.82],[.82,1],[.12,1],[0,.82],[0,.16]]},
-{name:'ESCUDOS',x:MX(389),y:MY(224),w:MX(450)-MX(389),h:MY(273)-MY(224),color:'#456d69',kind:'shields',poly:[[.12,0],[.88,0],[1,.22],[.92,.78],[.68,1],[.18,1],[0,.75],[0,.22]]},
-{name:'COMUNICACIONES',x:MX(320),y:MY(245),w:MX(385)-MX(320),h:MY(303)-MY(245),color:'#405b6c',kind:'comms',poly:[[.12,0],[.88,0],[1,.18],[1,.78],[.78,1],[.18,1],[0,.78],[0,.18]]},
-{name:'ALMACÉN',x:MX(245),y:MY(202),w:MX(319)-MX(245),h:MY(303)-MY(202),color:'#58666a',kind:'storage',poly:[[.2,0],[.8,0],[1,.12],[1,1],[.28,1],[0,.78],[0,.18]]},
-{name:'ELÉCTRICA',x:MX(181),y:MY(176),w:MX(245)-MX(181),h:MY(247)-MY(176),color:'#4c5d55',kind:'electrical',poly:[[.08,0],[.98,0],[1,.15],[1,.75],[.72,1],[.08,1],[0,.8],[0,.18]]}
+ROOM('MOTOR SUPERIOR',230,8,100,42,'#596b72','engine'),
+ROOM('REACTOR',18,85,75,55,'#555c79','reactor'),
+ROOM('SEGURIDAD',112,65,75,55,'#416b61','security'),
+ROOM('ENFERMERÍA',112,145,75,55,'#587889','medbay'),
+ROOM('ELÉCTRICA',18,205,75,55,'#4c5d55','electrical'),
+ROOM('ALMACÉN',112,225,75,55,'#58666a','storage'),
+ROOM('CAFETERÍA',220,112,120,88,'#3b687b','cafe'),
+ROOM('ADMINISTRACIÓN',220,220,100,52,'#45675e','admin'),
+ROOM('ARMAS',370,65,75,55,'#465b70','weapons'),
+ROOM('NAVEGACIÓN',465,65,78,55,'#405c70','nav'),
+ROOM('O2',370,145,75,55,'#426d65','o2'),
+ROOM('ESCUDOS',465,145,78,55,'#456d69','shields'),
+ROOM('COMUNICACIONES',370,225,75,55,'#405b6c','comms'),
+ROOM('MOTOR INFERIOR',230,282,100,27,'#596b72','engine')
 ],corridors:[
-{name:'1 CAFETERÍA-ALMACÉN',points:[PT(279,148),PT(279,202)],width:1.65},
-{name:'2 CAFETERÍA-ARMAS',points:[PT(367,87),PT(390,87)],width:1.55},
-{name:'3 ARMAS-PASILLO O2-NAVEGACIÓN',points:[PT(417,113),PT(417,139),PT(475,139)],width:1.6},
-{name:'4 RAMAL CENTRAL A ESCUDOS',points:[PT(448,139),PT(448,246)],width:1.6},
-{name:'5 ESCUDOS-ALMACÉN',points:[PT(389,246),PT(319,246)],width:1.6},
-{name:'6 ALMACÉN-MOTOR INFERIOR',points:[PT(245,260),PT(181,260),PT(181,246),PT(130,246)],width:1.6},
-{name:'7 MOTOR INFERIOR-SUPERIOR',points:[PT(121,95),PT(121,207),PT(126,216)],width:1.6},
-{name:'8 MOTOR SUPERIOR-CAFETERÍA',points:[PT(130,88),PT(230,88)],width:1.6},
-{name:'RESORTE REACTOR',points:[PT(92,156),PT(121,156)],width:1.35},
-{name:'RESORTE SEGURIDAD',points:[PT(121,141),PT(130,141)],width:1.3},
-{name:'RESORTE ENFERMERÍA',points:[PT(181,88),PT(181,87)],width:1.25},
-{name:'RESORTE O2',points:[PT(417,139),PT(417,133)],width:1.3},
-{name:'RESORTE NAVEGACIÓN',points:[PT(475,139),PT(475,143)],width:1.3},
-{name:'RESORTE ADMINISTRACIÓN',points:[PT(279,191),PT(320,191)],width:1.35},
-{name:'RESORTE ELÉCTRICA',points:[PT(245,212),PT(253,212)],width:1.3},
-{name:'RESORTE COMUNICACIONES',points:[PT(326,246),PT(324,250)],width:1.35},
-
+{name:'EJE MOTOR SUPERIOR — CAFETERÍA',points:[PT(280,50),PT(280,112)],width:8},
+{name:'EJE CAFETERÍA — ADMINISTRACIÓN',points:[PT(280,200),PT(280,220)],width:8},
+{name:'EJE ADMINISTRACIÓN — MOTOR INFERIOR',points:[PT(280,272),PT(280,282)],width:8},
+{name:'PASILLO CENTRAL OESTE',points:[PT(100,90),PT(100,250)],width:8},
+{name:'PASILLO CENTRAL ESTE',points:[PT(455,90),PT(455,250)],width:8},
+{name:'CRUCE CENTRAL OESTE',points:[PT(100,156),PT(220,156)],width:8},
+{name:'CRUCE CENTRAL ESTE',points:[PT(340,156),PT(455,156)],width:8},
+{name:'REACTOR — PASILLO OESTE',points:[PT(93,112),PT(100,112)],width:8},
+{name:'SEGURIDAD — PASILLO OESTE',points:[PT(112,92),PT(100,92)],width:8},
+{name:'ENFERMERÍA — PASILLO OESTE',points:[PT(112,170),PT(100,170)],width:8},
+{name:'ELÉCTRICA — PASILLO OESTE',points:[PT(93,230),PT(100,230)],width:8},
+{name:'ALMACÉN — PASILLO OESTE',points:[PT(112,250),PT(100,250)],width:8},
+{name:'ARMAS — PASILLO ESTE',points:[PT(445,92),PT(455,92)],width:8},
+{name:'NAVEGACIÓN — PASILLO ESTE',points:[PT(465,92),PT(455,92)],width:8},
+{name:'O2 — PASILLO ESTE',points:[PT(445,170),PT(455,170)],width:8},
+{name:'ESCUDOS — PASILLO ESTE',points:[PT(465,170),PT(455,170)],width:8},
+{name:'COMUNICACIONES — PASILLO ESTE',points:[PT(445,250),PT(455,250)],width:8},
+{name:'ANILLO SUPERIOR OESTE',points:[PT(100,90),PT(100,58),PT(455,58),PT(455,90)],width:7},
+{name:'ANILLO INFERIOR OESTE',points:[PT(100,250),PT(100,290),PT(230,290)],width:7},
+{name:'ANILLO INFERIOR ESTE',points:[PT(330,295),PT(455,290),PT(455,250)],width:7}
 ],obstacles:[],tasks:[
-{id:'cafe_data',name:'Descargar datos',room:'CAFETERÍA',x:MX(295),y:MY(90),type:'upload'},
-{id:'weapons_aim',name:'Alinear armamento',room:'ARMAS',x:MX(417),y:MY(76),type:'sequence'},
-{id:'o2_filter',name:'Limpiar filtro O2',room:'O2',x:MX(390),y:MY(150),type:'filter'},
-{id:'nav_route',name:'Trazar ruta',room:'NAVEGACIÓN',x:MX(506),y:MY(145),type:'route'},
-{id:'admin_card',name:'Pasar tarjeta',room:'ADMINISTRACIÓN',x:MX(356),y:MY(191),type:'card'},
-{id:'shields',name:'Preparar escudos',room:'ESCUDOS',x:MX(420),y:MY(250),type:'sequence'},
-{id:'comms_fix',name:'Reparar comunicaciones',room:'COMUNICACIONES',x:MX(352),y:MY(277),type:'upload'},
-{id:'storage_fuel',name:'Recoger combustible',room:'ALMACÉN',x:MX(292),y:MY(252),type:'fuel'},
-{id:'electrical_wires',name:'Reparar cableado',room:'ELÉCTRICA',x:MX(214),y:MY(210),type:'wires'},
-{id:'security_cams',name:'Revisar cámaras',room:'SEGURIDAD',x:MX(143),y:MY(150),type:'upload'},
-{id:'med_scan',name:'Enviar escaneo',room:'ENFERMERÍA',x:MX(210),y:MY(130),type:'scan'},
-{id:'upper_fuel',name:'Repostar motor superior',room:'MOTOR SUPERIOR',x:MX(101),y:MY(80),type:'fuel'},
-{id:'reactor_start',name:'Iniciar reactor',room:'REACTOR',x:MX(56),y:MY(156),type:'sequence'},
-{id:'lower_fuel',name:'Repostar motor inferior',room:'MOTOR INFERIOR',x:MX(101),y:MY(235),type:'fuel'}
+{id:'upper_fuel',name:'Repostar motor superior',room:'MOTOR SUPERIOR',x:MX(280),y:MY(29),type:'fuel'},
+{id:'reactor_start',name:'Iniciar reactor',room:'REACTOR',x:MX(55),y:MY(112),type:'sequence'},
+{id:'security_cams',name:'Revisar cámaras',room:'SEGURIDAD',x:MX(150),y:MY(92),type:'upload'},
+{id:'med_scan',name:'Enviar escaneo',room:'ENFERMERÍA',x:MX(150),y:MY(172),type:'scan'},
+{id:'electrical_wires',name:'Reparar cableado',room:'ELÉCTRICA',x:MX(55),y:MY(232),type:'wires'},
+{id:'storage_fuel',name:'Recoger combustible',room:'ALMACÉN',x:MX(150),y:MY(252),type:'fuel'},
+{id:'cafe_data',name:'Descargar datos',room:'CAFETERÍA',x:MX(280),y:MY(155),type:'upload'},
+{id:'admin_card',name:'Pasar tarjeta',room:'ADMINISTRACIÓN',x:MX(270),y:MY(246),type:'card'},
+{id:'weapons_aim',name:'Alinear armamento',room:'ARMAS',x:MX(407),y:MY(92),type:'sequence'},
+{id:'nav_route',name:'Trazar ruta',room:'NAVEGACIÓN',x:MX(505),y:MY(92),type:'route'},
+{id:'o2_filter',name:'Limpiar filtro O2',room:'O2',x:MX(407),y:MY(170),type:'filter'},
+{id:'shields',name:'Preparar escudos',room:'ESCUDOS',x:MX(505),y:MY(170),type:'sequence'},
+{id:'comms_fix',name:'Reparar comunicaciones',room:'COMUNICACIONES',x:MX(407),y:MY(250),type:'upload'},
+{id:'lower_fuel',name:'Repostar motor inferior',room:'MOTOR INFERIOR',x:MX(280),y:MY(295),type:'fuel'}
 ]};
 const MAP_SCALE=1.65;for(const r of MAP.rooms){r.x*=MAP_SCALE;r.y*=MAP_SCALE;r.w*=MAP_SCALE;r.h*=MAP_SCALE}for(const c of MAP.corridors){c.width*=MAP_SCALE;c.points=c.points.map(([x,y])=>[x*MAP_SCALE,y*MAP_SCALE])}for(const t of MAP.tasks){t.x*=MAP_SCALE;t.y*=MAP_SCALE}MAP.w*=MAP_SCALE;MAP.h*=MAP_SCALE;
+const SPAWN_X=MX(280)*MAP_SCALE,SPAWN_Y=MY(155)*MAP_SCALE;
 const perms=Permission&&Role?[Permission.read(Role.any()),Permission.update(Role.any()),Permission.delete(Role.any())]:[];
 const randCode=()=>Array.from({length:6},()=> 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('');
 const say=(t,bad=false)=>{$('status').textContent=t;$('status').style.borderColor=bad?'#a64b59':'#31536b'};
@@ -321,12 +326,12 @@ const toast=t=>{$('toast').textContent=t;$('toast').style.display='block';setTim
 const clean=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function createRoom(){try{if(!me)makeMe();roomCode=randCode();roomId=roomCode;hostId=playerId;isHost=true;const data={code:roomCode,hostId,status:'waiting',maxPlayers:+$('max').value,settings:JSON.stringify({phase:'lobby'}),createdAt:new Date().toISOString()};await getDb().createRow({databaseId:DB,tableId:ROOMS,rowId:roomId,data,permissions:[...perms,Permission.create(Role.any())]});await enterRoom()}catch(e){say('No se pudo crear la sala: '+e.message,true)}}
 async function joinRoom(){try{if(!me)makeMe();roomCode=$('code').value.trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(roomCode))throw Error('Introduce un código de 6 caracteres.');roomId=roomCode;const r=await getDb().getRow({databaseId:DB,tableId:ROOMS,rowId:roomId});if(r.status!=='waiting')throw Error('La partida ya ha comenzado.');const current=await getDb().listRows({databaseId:DB,tableId:PLAYERS,queries:[Query.equal('roomId',roomId),Query.limit(100)]});if(current.rows.length>=Number(r.maxPlayers||15))throw Error('La sala está completa.');hostId=r.hostId;isHost=false;await enterRoom()}catch(e){say('No se pudo entrar: '+e.message,true)}}
-function makeMe(){applyMonguitoColor();playerId=ID?.unique?ID.unique():'solo-'+Math.random().toString(36).slice(2,14);me={id:playerId,name:$('name').value.trim().slice(0,16)||'Tripulante',color:$('color').value,x:52.5*MAP_SCALE,y:11.5*MAP_SCALE,alive:true,ready:true,role:'crew',done:[]}}
+function makeMe(){applyMonguitoColor();playerId=ID?.unique?ID.unique():'solo-'+Math.random().toString(36).slice(2,14);me={id:playerId,name:$('name').value.trim().slice(0,16)||'Tripulante',color:$('color').value,x:SPAWN_X,y:SPAWN_Y,alive:true,ready:true,role:'crew',done:[]}}
 async function enterRoom(){await getDb().createRow({databaseId:DB,tableId:PLAYERS,rowId:playerId,data:{roomId,nickname:me.name,color:me.color,x:me.x,y:me.y,alive:true,ready:true,lastSeen:new Date().toISOString(),tasks:'[]'},permissions:[...perms,Permission.create(Role.any())]});$('connect').classList.add('hidden');$('lobby').classList.remove('hidden');$('roomCode').textContent=roomCode;await pollRoom();poll=setInterval(pollRoom,650)}
 async function pollRoom(){try{const [r,p]=await Promise.all([db.getRow({databaseId:DB,tableId:ROOMS,rowId:roomId}),db.listRows({databaseId:DB,tableId:PLAYERS,queries:[Query.equal('roomId',roomId),Query.limit(100)]})]);players=p.rows.map(x=>({id:x.$id,name:x.nickname,color:x.color,x:x.x,y:x.y,alive:x.alive,ready:x.ready,tasks:JSON.parse(x.tasks||'[]')}));if(r.hostId!==hostId){hostId=r.hostId;isHost=hostId===playerId}if(r.settings){const s=JSON.parse(r.settings);if(s.phase==='playing'||s.phase==='ended'){gameState=s;startGameUI()}}if(gameState&&gameState.phase==='playing'){players.forEach(q=>{const target=gameState.players?.[q.id];if(target)Object.assign(target,{name:q.name,color:q.color,x:q.x,y:q.y,alive:q.alive})});if(isHost)await syncGame()}else renderLobby();if(gameState?.phase==='ended')finishMatch(gameState.winner||'crew');if(gameState)draw()}catch(e){console.warn(e)}}
 function renderLobby(){$('lobbyList').innerHTML=players.map(p=>'<div class="pill"><span style="color:'+p.color+'">●</span> '+clean(p.name)+(p.id===hostId?' 👑':'')+'</div>').join('');const d=LANG[gameLang]||LANG.es;$('lobbyStatus').textContent=players.length+' / '+$('max').value+' '+(gameLang==='es'?'jugadores':gameLang==='fr'?'joueurs':'players')+' · '+(isHost?(gameLang==='es'?'Eres el anfitrión':gameLang==='fr'?'Vous êtes l’hôte':'You are the host'):d.waiting);$('start').disabled=!isHost||players.length<4}
 async function saveRoomState(s,status='playing'){const r=await getDb().getRow({databaseId:DB,tableId:ROOMS,rowId:roomId});await getDb().updateRow({databaseId:DB,tableId:ROOMS,rowId:roomId,data:{status,settings:JSON.stringify(s)}})}
-async function startMatch(){if(!isHost||players.length<4)return toast('Se necesitan al menos 4 jugadores.');const count=Math.min(3,Math.max(1,+$('imps').value)),shuffled=[...players].sort(()=>Math.random()-.5),roster={},crew=shuffled.slice(count),pool=[...MAP.tasks].sort(()=>Math.random()-.5),assign={};if(crew.length>10){crew.forEach((p,i)=>assign[p.id]=pool.filter((t,j)=>j%crew.length===i).map(t=>({id:t.id,name:t.name,room:t.room})));}else{crew.forEach(p=>{const n=3+Math.floor(Math.random()*3),take=pool.splice(0,Math.min(n,pool.length));assign[p.id]=take.map(t=>({id:t.id,name:t.name,room:t.room}));});}shuffled.forEach((p,i)=>{const role=i<count?'impostor':'crew';roster[p.id]={...p,role,x:52.5*MAP_SCALE,y:11.5*MAP_SCALE,alive:true,done:[],tasks:role==='crew'?(assign[p.id]||[]):[],lastKill:0}});const required=Object.values(roster).reduce((n,p)=>n+(p.tasks?.length||0),0);gameState={phase:'playing',players:roster,meeting:null,completed:0,required,createdAt:Date.now()};await saveRoomState(gameState);startGameUI()}
+async function startMatch(){if(!isHost||players.length<4)return toast('Se necesitan al menos 4 jugadores.');const count=Math.min(3,Math.max(1,+$('imps').value)),shuffled=[...players].sort(()=>Math.random()-.5),roster={},crew=shuffled.slice(count),pool=[...MAP.tasks].sort(()=>Math.random()-.5),assign={};if(crew.length>10){crew.forEach((p,i)=>assign[p.id]=pool.filter((t,j)=>j%crew.length===i).map(t=>({id:t.id,name:t.name,room:t.room})));}else{crew.forEach(p=>{const n=3+Math.floor(Math.random()*3),take=pool.splice(0,Math.min(n,pool.length));assign[p.id]=take.map(t=>({id:t.id,name:t.name,room:t.room}));});}shuffled.forEach((p,i)=>{const role=i<count?'impostor':'crew';roster[p.id]={...p,role,x:SPAWN_X,y:SPAWN_Y,alive:true,done:[],tasks:role==='crew'?(assign[p.id]||[]):[],lastKill:0}});const required=Object.values(roster).reduce((n,p)=>n+(p.tasks?.length||0),0);gameState={phase:'playing',players:roster,meeting:null,completed:0,required,createdAt:Date.now()};await saveRoomState(gameState);startGameUI()}
 function startGameUI(){const joystick=$('joystick');const touchDevice=(navigator.maxTouchPoints||0)>0||('ontouchstart' in window);if(joystick&&touchDevice){joystick.style.cssText='display:block!important;visibility:visible!important;opacity:1!important;position:fixed!important;left:max(22px,env(safe-area-inset-left))!important;bottom:max(22px,env(safe-area-inset-bottom))!important;top:auto!important;right:auto!important;width:140px!important;height:140px!important;z-index:2147483000!important;pointer-events:auto!important;touch-action:none!important;';const knob=$('stick');if(knob)knob.style.cssText='position:absolute;width:48px;height:48px;left:44px;top:44px;pointer-events:none;'}$('lobby').classList.add('hidden');$('game').classList.remove('hidden');$('game').style.display='flex';$('game').style.height='100dvh';$('arena').style.cssText='position:relative;display:block;flex:1 1 auto;min-width:0;min-height:0;width:100%;height:100%;overflow:hidden';$('world').style.cssText='position:absolute;inset:0;display:block;width:100%;height:100%;min-width:1px;min-height:1px;touch-action:none';$('kill').classList.toggle('hidden',gameState?.players?.[playerId]?.role!=='impostor');$('sabotage').classList.toggle('hidden',gameState?.players?.[playerId]?.role!=='impostor');requestAnimationFrame(()=>{resize();drawMapFallback();if(joystick&&touchDevice){joystick.style.display='block';joystick.style.visibility='visible';joystick.style.opacity='1'}requestAnimationFrame(()=>{resize();drawMapFallback();draw()})});resize();drawMapFallback();if(!raf)raf=requestAnimationFrame(loop);updateTasks();try{drawMiniMap()}catch(e){console.warn(e)}}
 function finishMatch(winner){if(!gameState)return;gameState.phase='ended';gameState.winner=winner;const meState=gameState.players?.[playerId];if(meState&&meState.role===winner&&!gameState.rewarded?.[playerId]){gameState.rewarded=gameState.rewarded||{};gameState.rewarded[playerId]=true;awardCoins(getWinReward(winner),'victoria de '+(winner==='crew'?'tripulación':'impostores'));}if($('end')){$('end').classList.remove('hidden');$('end').textContent=winner==='crew'?'¡TRIPULACIÓN VICTORIOSA!':'¡LOS IMPOSTORES HAN GANADO!';}if(isHost)saveRoomState(gameState,'ended');}
 function updateTasks(){const p=gameState?.players?.[playerId];if(!p)return;const doneIds=new Set(Object.values(gameState.players||{}).flatMap(x=>x.done||[])),total=gameState.required??MAP.tasks.length,done=Math.min(total,doneIds.size);$('taskText').innerHTML=p.role==='impostor'?'Tu objetivo: sabotear y pasar desapercibido.':(p.tasks||[]).map(t=>'<div class="task-line '+(p.done?.includes(t.id)?'task-done':'')+'">'+(p.done?.includes(t.id)?'✓':'○')+' '+clean(t.name)+'<small>'+clean(t.room)+'</small></div>').join('');$('taskProgress').textContent='';$('taskFill').style.width=(total?done/total*100:0)+'%'}
@@ -339,11 +344,26 @@ function drawGameAccessory(ctx,x,y,skin){ctx.save();ctx.translate(x,y);ctx.lineW
 function tsNow(){return typeof performance!=='undefined'?performance.now():Date.now()}
 function roundedRect(c,x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
 function roomPolygon(r){return r.poly.map(([x,y])=>[r.x+x*r.w,r.y+y*r.h])}
-function draw(){if(!ctx||!canvas)return;try{const w=canvas.clientWidth,h=canvas.clientHeight,p=gameState?.players?.[playerId],z=Math.min(w/32,h/21),vw=w/z,vh=h/z,cx=Math.max(0,Math.min(MAP.w-vw,(p?.x||52.5*MAP_SCALE)-vw/2)),cy=Math.max(0,Math.min(MAP.h-vh,(p?.y||11.5*MAP_SCALE)-vh/2));ctx.clearRect(0,0,w,h);ctx.fillStyle='#020811';ctx.fillRect(0,0,w,h);ctx.save();ctx.scale(z,z);ctx.translate(-cx,-cy);
+function draw(){if(!ctx||!canvas)return;try{const w=canvas.clientWidth,h=canvas.clientHeight,p=gameState?.players?.[playerId],z=Math.min(w/32,h/21),vw=w/z,vh=h/z,cx=Math.max(0,Math.min(MAP.w-vw,(p?.x||SPAWN_X)-vw/2)),cy=Math.max(0,Math.min(MAP.h-vh,(p?.y||SPAWN_Y)-vh/2));ctx.clearRect(0,0,w,h);ctx.fillStyle='#020811';ctx.fillRect(0,0,w,h);ctx.save();ctx.scale(z,z);ctx.translate(-cx,-cy);
 const poly=(pts)=>{ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath()};
+
+// Geometría 2.5D: zócalo desplazado y caras laterales bajo cada módulo de sala.
+MAP.rooms.forEach(r=>{const pts=roomPolygon(r),lower=pts.map(([x,y])=>[x+.72,y+.92]);ctx.save();poly(lower);ctx.fillStyle='#020914';ctx.shadowColor='#000';ctx.shadowBlur=.75;ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#020711';ctx.lineWidth=.42;ctx.stroke();ctx.restore()});
 const gridRect=(x,y,ww,hh,step=1.1)=>{ctx.fillStyle='#263d4c';ctx.fillRect(x,y,ww,hh);ctx.strokeStyle='#a8d9e51b';ctx.lineWidth=.035;for(let xx=x+step;xx<x+ww;xx+=step){ctx.beginPath();ctx.moveTo(xx,y);ctx.lineTo(xx,y+hh);ctx.stroke()}for(let yy=y+step;yy<y+hh;yy+=step){ctx.beginPath();ctx.moveTo(x,yy);ctx.lineTo(x+ww,yy);ctx.stroke()}};
 MAP.rooms.forEach(r=>{ctx.save();const pts=roomPolygon(r);poly(pts);ctx.fillStyle='#263d4c';ctx.fill();ctx.save();poly(pts);ctx.clip();ctx.fillStyle='#263d4c';ctx.fillRect(r.x,r.y,r.w,r.h);ctx.strokeStyle='#b8e2ef20';ctx.lineWidth=.04;for(let xx=r.x+1;xx<r.x+r.w;xx+=1){ctx.beginPath();ctx.moveTo(xx,r.y);ctx.lineTo(xx,r.y+r.h);ctx.stroke()}for(let yy=r.y+1;yy<r.y+r.h;yy+=1){ctx.beginPath();ctx.moveTo(r.x,yy);ctx.lineTo(r.x+r.w,yy);ctx.stroke()}ctx.globalAlpha=.32;ctx.fillStyle=r.color;ctx.fillRect(r.x,r.y,r.w,r.h);ctx.restore();ctx.strokeStyle='#d9f5ff';ctx.lineWidth=.18;poly(pts);ctx.stroke();if(r.kind==='o2'||r.kind==='comms'||r.kind==='electrical'){const yy=r.kind==='electrical'?r.y+r.h:r.y;ctx.strokeStyle='#263d4c';ctx.lineWidth=.34;ctx.beginPath();ctx.moveTo(r.x+1.6,yy);ctx.lineTo(r.x+4.4,yy);ctx.stroke();ctx.strokeStyle='#f5d76e';ctx.lineWidth=.09;ctx.beginPath();ctx.moveTo(r.x+1.6,yy+(r.kind==='electrical'?-.08:.08));ctx.lineTo(r.x+4.4,yy+(r.kind==='electrical'?-.08:.08));ctx.stroke()}ctx.fillStyle='#f2fbff';ctx.font='bold .62px system-ui';ctx.textAlign='center';ctx.shadowColor='#06111b';ctx.shadowBlur=.18;ctx.fillText(r.name,r.x+r.w/2,r.y+1.05);if(r.kind==='comms'){ctx.fillStyle='#142b3a';ctx.fillRect(r.x+5.15,r.y-.12,1.7,.32);ctx.strokeStyle='#7fe6ed';ctx.lineWidth=.08;ctx.strokeRect(r.x+5.15,r.y-.12,1.7,.32);ctx.fillStyle='#b7faff';ctx.fillRect(r.x+6.55,r.y+.02,.12,.12)}ctx.restore()});
 MAP.corridors.forEach(c=>{ctx.lineCap='square';ctx.lineJoin='miter';ctx.strokeStyle='#172c3a';ctx.lineWidth=c.width+.42;ctx.beginPath();c.points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.strokeStyle='#304b5b';ctx.lineWidth=c.width;ctx.stroke();ctx.strokeStyle='#b5dce51b';ctx.lineWidth=.045;ctx.setLineDash([.35,.65]);ctx.beginPath();c.points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.setLineDash([])});
+
+
+// Mobiliario de escala y lectura espacial: mesas, consolas y maquinaria por tipo de sala.
+MAP.rooms.forEach(r=>{const cx=r.x+r.w/2,cy=r.y+r.h/2;ctx.save();ctx.shadowColor='#0009';ctx.shadowBlur=.28;ctx.fillStyle='#091724';ctx.strokeStyle='#8dd9e566';ctx.lineWidth=.09;
+const panel=(x,y,w,h,color='#25485a')=>{ctx.fillStyle='#071522';ctx.fillRect(x+.12,y+.16,w,h);ctx.fillStyle=color;ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h);ctx.fillStyle='#9cf5ff';ctx.fillRect(x+.14,y+.12,Math.max(.12,w*.22),.07)};
+if(r.kind==='cafe'){[-1,1].forEach((v)=>{ctx.fillStyle='#163c54';ctx.beginPath();ctx.ellipse(cx+v*2.2,cy,.82,.52,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#6ecbdc';ctx.beginPath();ctx.arc(cx+v*2.2,cy,.12,0,Math.PI*2);ctx.fill()});panel(cx-1.2,cy-2.1,2.4,.55,'#326a7a')}
+else if(r.kind==='engine'){for(let i=-1;i<=1;i++){ctx.fillStyle='#142d42';ctx.fillRect(cx+i*1.25-.42,cy-.75,.84,1.5);ctx.fillStyle='#ff596c';ctx.shadowColor='#ff344e';ctx.shadowBlur=.3;ctx.beginPath();ctx.arc(cx+i*1.25,cy+.35,.25,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0}}
+else if(r.kind==='reactor'){panel(cx-1.05,cy-1.1,2.1,2.2,'#39446a');ctx.strokeStyle='#f0c86d';ctx.lineWidth=.12;ctx.beginPath();ctx.arc(cx,cy,.62,0,Math.PI*2);ctx.stroke()}
+else if(r.kind==='weapons'||r.kind==='security'||r.kind==='nav'||r.kind==='admin'||r.kind==='comms'){panel(cx-1.65,cy-1.0,3.3,.7,'#24576a');panel(cx-1.25,cy+.55,2.5,.42,'#1b4054')}
+else if(r.kind==='o2'||r.kind==='shields'){panel(cx-1.1,cy-1.15,2.2,2.3,r.kind==='o2'?'#1d6b68':'#235c75');ctx.fillStyle=r.kind==='o2'?'#63e4c6':'#69dfff';ctx.beginPath();ctx.arc(cx,cy,.4,0,Math.PI*2);ctx.fill()}
+else{panel(cx-1.25,cy-.8,2.5,1.6,'#294b59');panel(cx-2.1,cy+.95,1.2,.45,'#1b3546')}
+ctx.restore()});
 
 // No continuous outer hull outline: only room and corridor walls define the playable architecture.
 MAP.tasks.forEach(t=>{const done=gameState?.players?.[playerId]?.done?.includes(t.id);ctx.save();ctx.fillStyle=done?'#48d39c':'#ffd36b';ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=.22;ctx.beginPath();ctx.arc(t.x,t.y,.19,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#132331';ctx.lineWidth=.055;ctx.stroke();ctx.restore()});
