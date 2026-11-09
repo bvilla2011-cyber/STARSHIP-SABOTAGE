@@ -547,6 +547,15 @@ ROOM('MOTOR INFERIOR',230,282,100,32,'#596b72','engine')
 {id:'lower_fuel',name:'Repostar motor inferior',room:'MOTOR INFERIOR',x:MX(280),y:MY(298),type:'fuel'}
 ]};
 const MAP_SCALE=1.65;for(const r of MAP.rooms){r.x*=MAP_SCALE;r.y*=MAP_SCALE;r.w*=MAP_SCALE;r.h*=MAP_SCALE}for(const c of MAP.corridors){c.width*=MAP_SCALE;c.points=c.points.map(([x,y])=>[x*MAP_SCALE,y*MAP_SCALE])}for(const t of MAP.tasks){t.x*=MAP_SCALE;t.y*=MAP_SCALE}MAP.w*=MAP_SCALE;MAP.h*=MAP_SCALE;
+// Obstáculos físicos de cafetería: coordenadas de mapa, alineadas con el mobiliario 3D.
+const cafeRoom=MAP.rooms.find(r=>r.kind==='cafe');
+MAP.obstacles=cafeRoom?[
+ {x:cafeRoom.x+cafeRoom.w*.27,y:cafeRoom.y+cafeRoom.h*.31,r:1.55,type:'table'},
+ {x:cafeRoom.x+cafeRoom.w*.73,y:cafeRoom.y+cafeRoom.h*.31,r:1.55,type:'table'},
+ {x:cafeRoom.x+cafeRoom.w*.27,y:cafeRoom.y+cafeRoom.h*.72,r:1.55,type:'table'},
+ {x:cafeRoom.x+cafeRoom.w*.73,y:cafeRoom.y+cafeRoom.h*.72,r:1.55,type:'table'},
+ {x:cafeRoom.x+cafeRoom.w*.5,y:cafeRoom.y+cafeRoom.h*.5,r:2.5,type:'emergency-button'}
+]:[];
 const SPAWN_X=MX(280)*MAP_SCALE,SPAWN_Y=MY(176)*MAP_SCALE;
 let cameraIntro=null,cameraIntroPlayed=false;
 function beginCameraIntro(){if(cameraIntroPlayed)return;cameraIntroPlayed=true;cameraIntro={start:tsNow(),duration:1800};}
@@ -642,7 +651,7 @@ function shipRoomDecor(room,g){
   const cyl=(parent,px,py,pz,rt,rb,h,mat,seg=32)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),mat);m.position.set(px,py,pz);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m};
   const sphere=(parent,px,py,pz,sx,sy,sz,mat)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),mat);m.position.set(px,py,pz);m.scale.set(sx,sy,sz);m.castShadow=true;parent.add(m);return m};
   const chair=(px,pz,a)=>{
-   const dx=Math.cos(a),dz=Math.sin(a),sx=px+dx*.125,sz=pz+dz*.125;
+   const dx=Math.cos(a),dz=Math.sin(a),sx=px+dx*.09,sz=pz+dz*.09;
    // base giratoria, columna, cojín y respaldo curvado visualmente
    cyl(g,sx,.105,sz,.055,.065,.05,metal,20);
    cyl(g,sx,.19,sz,.025,.03,.08,metal,16);
@@ -680,7 +689,7 @@ function shipRoomDecor(room,g){
   // Tres mesas de reunión distribuidas dejando un pasillo central amplio.
   const positions=[[x+w*.27,z+d*.31],[x+w*.73,z+d*.31],[x+w*.27,z+d*.72],[x+w*.73,z+d*.72]];
   positions.forEach(([px,pz],i)=>{
-   roundTable(px,pz,.085,false);for(let n=0;n<4;n++)chair(px,pz,n*Math.PI/2+Math.PI/4);
+   roundTable(px,pz,.055,false);for(let n=0;n<4;n++)chair(px,pz,n*Math.PI/2+Math.PI/4);
    // Bandeja central con vasos, platos y pequeños detalles para que cada mesa tenga vida.
    cyl(g,px,.414,pz,.065,.065,.018,edge,24);
    cyl(g,px,.426,pz,.045,.045,.012,tableTop,24);
@@ -691,7 +700,7 @@ function shipRoomDecor(room,g){
    }
   });
   // Mesa central de emergencia, mayor y con el botón rojo protagonista.
-  const ex=cx,ez=cz;roundTable(ex,ez,.135,true);
+  const ex=cx,ez=cz;roundTable(ex,ez,.09,true);
   for(let n=0;n<4;n++)chair(ex,ez,n*Math.PI/2);
   // Terminal de tareas junto al lateral: monitor inclinado, teclado, lector y luces de estado.
   const tx=x+w*.87,tz=z+d*.52;
@@ -745,12 +754,12 @@ function shipRoomDecor(room,g){
  const beaconMat=new THREE.MeshStandardMaterial({color:0xff334e,emissive:0x8c1024,emissiveIntensity:1.4});for(let k=0;k<8;k++){const b=new THREE.Mesh(new THREE.SphereGeometry(.09,12,8),beaconMat);b.position.set((k+.5)*MAP.w*shipScale/8,.2,.08);shipScene.add(b)}
  ship3d={view,arena,actors:shipActors};resizeShip3D();
 }
-function resizeShip3D(){if(!shipRenderer||!ship3d)return;const w=ship3d.arena.clientWidth,h=ship3d.arena.clientHeight;if(!w||!h)return;shipRenderer.setSize(w,h,false);const aspect=w/h,mapH=MAP.h*shipScale,mapW=MAP.w*shipScale;const span=Math.max(mapH*.19,mapW/Math.max(.5,aspect)*.24,.78);shipCamera.left=-span*aspect/2;shipCamera.right=span*aspect/2;shipCamera.top=span/2;shipCamera.bottom=-span/2;shipCamera.updateProjectionMatrix();shipLastW=w;shipLastH=h}
+function resizeShip3D(){if(!shipRenderer||!ship3d)return;const w=ship3d.arena.clientWidth,h=ship3d.arena.clientHeight;if(!w||!h)return;shipRenderer.setSize(w,h,false);const aspect=w/h,mapH=MAP.h*shipScale,mapW=MAP.w*shipScale;const span=Math.max(mapH*.25,mapW/Math.max(.5,aspect)*.31,1.02);shipCamera.left=-span*aspect/2;shipCamera.right=span*aspect/2;shipCamera.top=span/2;shipCamera.bottom=-span/2;shipCamera.updateProjectionMatrix();shipLastW=w;shipLastH=h}
 function makeCrew3D(q){const group=new THREE.Group(),base=shipMat(q.color||0x35a9d6,.42,.1),dark=shipMat(0x102536,.36,.2),glass=new THREE.MeshPhysicalMaterial({color:0x8edfff,metalness:.42,roughness:.12,clearcoat:1,clearcoatRoughness:.08});const body=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.55,10,20),base);body.position.y=.65;body.castShadow=true;group.add(body);const visor=new THREE.Mesh(new THREE.SphereGeometry(1,28,20),glass);visor.scale.set(.29,.19,.105);visor.position.set(.12,.86,.29);group.add(visor);const shine=new THREE.Mesh(new THREE.SphereGeometry(.045,8,8),shipMat(0xffffff,.15));shine.position.set(.04,.94,.385);group.add(shine);const pack=shipBox(group,-.31,.57,-.02,.19,.48,.36,dark);pack.rotation.z=-.06;const foot=shipBox(group,.12,.12,.02,.48,.18,.55,base);foot.material=base;const shadow=new THREE.Mesh(new THREE.CircleGeometry(.47,24),new THREE.MeshBasicMaterial({color:0x020913,transparent:true,opacity:.42}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.015;group.add(shadow);return group}
 let shipCameraX=null,shipCameraZ=null;
 function drawShip3D(){
  if(!shipRenderer||!shipScene||!gameState)return;
- Object.values(gameState.players||{}).forEach(q=>{let actor=shipActors.get(q.id);if(!actor){actor=makeCrew3D(q);shipActors.set(q.id,actor);shipScene.add(actor)}actor.visible=!!q.alive;actor.position.set(q.x*shipScale,.02,q.y*shipScale);actor.rotation.y=q._faceX<0?Math.PI:0;actor.scale.setScalar(q.id===playerId?.25:.24);if(actor.children[0]?.material?.color)actor.children[0].material.color.set(q.color||'#35a9d6')});
+ Object.values(gameState.players||{}).forEach(q=>{let actor=shipActors.get(q.id);if(!actor){actor=makeCrew3D(q);shipActors.set(q.id,actor);shipScene.add(actor)}actor.visible=!!q.alive;actor.position.set(q.x*shipScale,.02,q.y*shipScale);actor.rotation.y=q._faceX<0?Math.PI:0;actor.scale.setScalar(q.id===playerId?.14:.14);if(actor.children[0]?.material?.color)actor.children[0].material.color.set(q.color||'#35a9d6')});
  const mePlayer=gameState.players?.[playerId],targetX=(mePlayer?.x??SPAWN_X)*shipScale,targetZ=(mePlayer?.y??SPAWN_Y)*shipScale;
  if(shipCameraX===null){shipCameraX=targetX;shipCameraZ=targetZ}
  // Seguimiento suave: la cámara acompaña al tripulante sin saltos bruscos.
@@ -829,8 +838,10 @@ function inFloor(x,y){return MAP.rooms.some(r=>pointInPoly(x,y,roomPolygon(r)))|
 function blocked(x,y){return !inFloor(x,y)}
 // Colisión circular del tripulante: evita que el centro pase pegado al borde de paredes.
 function canWalk(x,y){
- const radius=.78;
+ const radius=.72;
  if(!inFloor(x,y))return false;
+ // Mesas y botón de emergencia: colisión circular con margen para el cuerpo.
+ if((MAP.obstacles||[]).some(o=>Math.hypot(x-o.x,y-o.y)<o.r+radius))return false;
  for(let i=0;i<12;i++){
   const a=i*Math.PI/6;
   if(!inFloor(x+Math.cos(a)*radius,y+Math.sin(a)*radius))return false;
