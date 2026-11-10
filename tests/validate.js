@@ -17,11 +17,11 @@ const mapEnd = html.indexOf('const MAP_SCALE', mapStart);
 assert.ok(mapStart >= 0 && mapEnd > mapStart, 'No se encuentra la definición MAP');
 const mapSource = html.slice(mapStart, mapEnd);
 const MAP = vm.runInNewContext(mapSource + '; MAP');
-assert.equal(MAP.rooms.length, 7, 'El mapa debe recuperar las siete salas');
+assert.equal(MAP.rooms.length, 9, 'El mapa debe incluir las nueve salas, incluidas Oxígeno y Seguridad');
 assert.equal(MAP.corridors.length, 4, 'El mapa debe conservar cuatro corredores, sin el inferior');
 assert.equal(MAP.tasks.length, 6, 'El mapa debe conservar las seis tareas de las siete salas');
-assert.equal(MAP.repairs.length, 4, 'El mapa debe conservar cuatro puntos de reparación');
-assert.equal(MAP.vents.length, 6, 'El mapa debe conservar seis conductos conectados');
+assert.equal(MAP.repairs.length, 6, 'El mapa debe incluir las seis estaciones de reparación');
+assert.equal(MAP.vents.length, 8, 'El mapa debe conservar ocho conductos conectados');
 assert.ok(MAP.obstacles.length > 30, 'Cada sala debe definir colisionadores para su mobiliario');
 for (let i = 0; i < MAP.rooms.length; i++) for (let j = i + 1; j < MAP.rooms.length; j++) {
   const a = MAP.rooms[i], b = MAP.rooms[j];
