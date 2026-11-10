@@ -19,9 +19,16 @@ const mapSource = html.slice(mapStart, mapEnd);
 const MAP = vm.runInNewContext(mapSource + '; MAP');
 assert.equal(MAP.rooms.length, 9, 'El mapa debe incluir las nueve salas, incluidas Oxígeno y Seguridad');
 assert.equal(MAP.corridors.length, 4, 'El mapa debe conservar cuatro corredores, sin el inferior');
-assert.equal(MAP.tasks.length, 6, 'El mapa debe conservar las seis tareas de las siete salas');
+assert.equal(MAP.tasks.length, 6, 'El mapa debe conservar las seis tareas de la nave');
 assert.equal(MAP.repairs.length, 6, 'El mapa debe incluir las seis estaciones de reparación');
 assert.equal(MAP.vents.length, 8, 'El mapa debe conservar ocho conductos conectados');
+assert.ok(MAP.rooms.some(r => r.id === 'oxygen'), 'Debe existir la sala de Oxígeno');
+assert.ok(MAP.rooms.some(r => r.id === 'security'), 'Debe existir la sala de Seguridad');
+assert.equal(MAP.repairs.filter(r => r.type === 'code').length, 2, 'O₂ debe tener dos terminales de código');
+assert.ok(html.includes('40000'), 'El cooldown de asesinato debe ser de 40 segundos');
+assert.ok(html.includes('35000'), 'El cooldown de sabotaje debe ser de 35 segundos');
+assert.ok(html.includes('6.7*0.035'), 'Las luces deben reducir la visión al 3,5 %');
+assert.equal((html.match(/data-camera="[0-3]"/g) || []).length, 4, 'Seguridad debe ofrecer cuatro cámaras');
 assert.ok(MAP.obstacles.length > 30, 'Cada sala debe definir colisionadores para su mobiliario');
 for (let i = 0; i < MAP.rooms.length; i++) for (let j = i + 1; j < MAP.rooms.length; j++) {
   const a = MAP.rooms[i], b = MAP.rooms[j];
