@@ -1227,7 +1227,7 @@ const cutLight=(lx,ly,rad,strength=1)=>{
 MAP.rooms.forEach(r=>{const lx=r.x+r.w/2,ly=r.y+1.15;cutLight(lx,ly,r.kind==='cafe'?2.8:1.65,.22);if(['electrical','reactor','engine','medbay','laboratory','oxygen'].includes(r.id)||['electrical','reactor','engine','medbay','o2'].includes(r.kind))cutLight(lx,r.y+r.h/2,1.45,.18)});
 if(p?.alive){
  const lightsSabotage=gameState?.sabotage?.active&&gameState.sabotage.type==='lights'&&p.role!=='impostor';
- const visionRadius=lightsSabotage?2.35:(p.role==='impostor'?10.5:7.0);
+ const visionRadius=lightsSabotage?2.35:(p.role==='impostor'?10.5:8.75);
  cutOccludedLight(p.x,p.y,visionRadius,1);
 }
 lightCtx.restore();ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.drawImage(lightCanvas,0,0,w,h);ctx.restore();
