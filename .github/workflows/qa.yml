@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - development/spaceship-sabotage-rebuild
-      - main
   pull_request:
     branches:
       - main
