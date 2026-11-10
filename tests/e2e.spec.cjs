@@ -407,7 +407,16 @@ test('gameplay: geometría sin solapamientos, mobiliario sólido, red de conduct
     await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.ventPlayerState())).toMatchObject({inVent:false,ventId:null});
     const lighting=await page.evaluate(()=>({hasLayer:!!window.__starshipLightLayer,code:document.documentElement.innerHTML.includes('visionRadius')}));
     expect(lighting.code).toBe(true);
-    const shadows=await page.evaluate(()=>window.__STARSHIP_TEST__.shadowProbe(55,42,8.75));
+    const shadowGeometry=await page.evaluate(()=>window.__STARSHIP_TEST__.shadowGeometryAudit());
+    expect(shadowGeometry.corridorSegments).toBeGreaterThan(20);
+    expect(shadowGeometry.roomLeaks).toBe(0);
+    expect(shadowGeometry.junctionLeaks).toBe(0);
+    // Comprobar que la visión y las sombras siguen funcionando en una salida de sala y en un cruce.
+    const doorShadows=await page.evaluate(()=>window.__STARSHIP_TEST__.shadowProbe(60,22.5,11.9));
+    const junctionShadows=await page.evaluate(()=>window.__STARSHIP_TEST__.shadowProbe(10,21,11.9));
+    expect(doorShadows.occludedRays).toBeGreaterThan(0);
+    expect(junctionShadows.occludedRays).toBeGreaterThan(0);
+    const shadows=await page.evaluate(()=>window.__STARSHIP_TEST__.shadowProbe(55,42,11.9));
     expect(shadows.segments).toBeGreaterThan(100);
     expect(shadows.points).toBeGreaterThan(48);
     expect(shadows.occludedRays).toBeGreaterThan(0);
