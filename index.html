@@ -574,10 +574,11 @@ const buildFurnitureColliders=()=>{
     rect(r,cx+dx-1.62,cy+dy-1.42,.52,.48);rect(r,cx+dx+1.10,cy+dy-1.42,.52,.48);
     rect(r,cx+dx-1.62,cy+dy+.96,.52,.48);rect(r,cx+dx+1.10,cy+dy+.96,.52,.48);
    });
-   // Mesa SOS solo visual: sin colisión para dejar libre el paso central.
+   // La mesa SOS central conserva su colisión.
+   ellipse(r,cx,cy,1.72,1.12);
   }else if(r.kind==='electrical'){
    for(let j=0;j<3;j++)rect(r,x+.8+j*1.8,y+1.8,1.35,1.05);
-   // Consola POWER GRID solo visual: no bloquea la puerta inferior.
+   // El bloque inferior POWER GRID sigue dibujado, pero no tiene colisión.
   }else if(r.kind==='reactor'){
    circle(r,cx,cy,2.12);
    for(let j=0;j<4;j++)rect(r,cx+Math.cos(j*Math.PI/2)*2.3-.45,cy+Math.sin(j*Math.PI/2)*2.3-.325,.9,.65);
@@ -593,7 +594,7 @@ const buildFurnitureColliders=()=>{
    rect(r,cx-1.7,y+h-2.4,3.4,.65);
   }else if(r.kind==='admin'){
    for(let j=0;j<3;j++)rect(r,x+1+j*2,y+2,1.5,.85);
-   // Módulo ID / ACCESS solo visual: no bloquea la puerta inferior.
+   // El bloque inferior ID / ACCESS sigue dibujado, pero no tiene colisión.
   }else if(r.kind==='weapons'){
    rect(r,x+1,y+2,w-2,1.1);
    for(let j=0;j<3;j++)rect(r,x+1.5+j*1.7,y+2.1,.95,.65);
