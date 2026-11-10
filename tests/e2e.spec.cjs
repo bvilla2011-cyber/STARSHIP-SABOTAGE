@@ -185,6 +185,16 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     await p1.locator('#start').click();
     await expect(p1.locator('#game')).toBeVisible({timeout:16000});
     await expect(p2.locator('#game')).toBeVisible({timeout:16000});
+    // Simula una desconexión real: el jugador vuelve con la misma sesión y conserva su posición.
+    shared.players_v2.get(id2).x=62.25;
+    shared.players_v2.get(id2).y=36.5;
+    await p2.reload();
+    await expect(p2.locator('#profileGate')).not.toHaveClass(/visible/,{timeout:8000});
+    await expect(p2.locator('#connect')).toBeVisible();
+    await p2.locator('#code').fill(code);
+    await p2.locator('#join').click();
+    await expect(p2.locator('#game')).toBeVisible({timeout:10000});
+    await expect.poll(()=>p2.evaluate(()=>window.__STARSHIP_TEST__.playerState())).toMatchObject({x:62.25,y:36.5,alive:true});
     const state=JSON.parse(shared.rooms_v2.get(code).settings);
     const crew=Object.values(state.players).filter(p=>p.role==='crew');
     const impostors=Object.values(state.players).filter(p=>p.role==='impostor');
@@ -305,6 +315,56 @@ test('gameplay: la interacción abre y completa los cinco tipos de minijuego con
       }
       await expect(page.locator('#modal')).toHaveClass(/hidden/,{timeout:7000});
       await expect.poll(()=>page.evaluate(id=>window.__STARSHIP_TEST__.taskDone(id),taskId)).toBe(true);
+    }
+  } finally {
+    await context.close();
+  }
+});
+
+test('sabotajes: las cinco reparaciones funcionan y los críticos provocan derrota al agotar el tiempo', async ({browser}) => {
+  test.setTimeout(90000);
+  const {context,page}=await openAsGuest(browser);
+  try {
+    await page.locator('#explore').click();
+    await expect(page.locator('#game')).toBeVisible();
+    const repairs=['lights','reactor','comms','o2','doors'];
+    for(const sabotage of repairs){
+      const type=await page.evaluate(s=>window.__STARSHIP_TEST__.prepareRepair(s),sabotage);
+      await page.locator('#interact').click();
+      await expect(page.locator('#modal')).not.toHaveClass(/hidden/);
+      if(type==='wires'){
+        for(let i=0;i<4;i++)await page.locator('#modal [data-wire]').nth(i).click();
+      }else if(type==='filter'){
+        for(let i=0;i<6;i++)await page.locator('#modal [data-debris]').first().click();
+      }else if(type==='card'){
+        await page.evaluate(async()=>{
+          const card=document.querySelector('#modal #idCard');
+          const r=card.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+          card.setPointerCapture=()=>{};
+          card.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:2,clientX:x,clientY:y}));
+          await new Promise(resolve=>setTimeout(resolve,500));
+          card.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerId:2,clientX:x+45,clientY:y}));
+          card.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:2,clientX:x+45,clientY:y}));
+        });
+      }else if(type==='sequence'){
+        for(let stage=0;stage<3;stage++){
+          let synced=false;
+          for(let attempt=0;attempt<55&&!synced;attempt++){
+            await page.locator('#modal #cal'+stage).click();
+            synced=(await page.locator('#modal #calState'+stage).textContent()).includes('SINCRONIZADO');
+            if(!synced)await page.waitForTimeout(35);
+          }
+          expect(synced,'Reparación de reactor: módulo '+stage).toBe(true);
+        }
+      }
+      await expect(page.locator('#modal')).toHaveClass(/hidden/,{timeout:7000});
+      await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.sabotageActive())).toBe(false);
+    }
+    const doors=await page.evaluate(()=>window.__STARSHIP_TEST__.expireSabotage('doors'));
+    expect(doors).toMatchObject({phase:'playing',active:false});
+    for(const type of ['reactor','o2']){
+      const expired=await page.evaluate(t=>window.__STARSHIP_TEST__.expireSabotage(t),type);
+      expect(expired).toMatchObject({phase:'ended',winner:'impostor',active:false});
     }
   } finally {
     await context.close();
