@@ -215,3 +215,48 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     await second.context.close();
   }
 });
+
+
+test('auditoría visual responsive: menú, tienda y hangar en escritorio y móvil', async ({browser}) => {
+  test.setTimeout(45000);
+  const {context,page}=await openAsGuest(browser);
+  try {
+    const checkNoHorizontalOverflow=async(label)=>{
+      const metrics=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,bodyWidth:document.body.scrollWidth}));
+      expect(metrics.scrollWidth, label+' — overflow horizontal del documento').toBeLessThanOrEqual(metrics.width+1);
+      expect(metrics.bodyWidth, label+' — overflow horizontal del body').toBeLessThanOrEqual(metrics.width+1);
+    };
+    await expect(page.locator('#connect')).toBeVisible();
+    await page.screenshot({path:'test-results/visual-home-desktop.png',fullPage:true});
+    await page.locator('#shopOpen').click();
+    await expect(page.locator('#shopScreen')).toBeVisible();
+    await expect(page.locator('#shopItems .shop-item').first()).toBeVisible();
+    await page.screenshot({path:'test-results/visual-shop-desktop.png',fullPage:true});
+    await page.locator('#shopClose').click();
+    await page.locator('#customizeOpen').click();
+    await expect(page.locator('#customizeScreen')).toBeVisible();
+    await expect(page.locator('#previewMate')).toBeVisible();
+    await expect(page.locator('#customOptions [data-option]').first()).toBeVisible();
+    await page.screenshot({path:'test-results/visual-hangar-desktop.png',fullPage:true});
+
+    await page.setViewportSize({width:844,height:390});
+    await page.locator('#customizeClose').click();
+    await checkNoHorizontalOverflow('menú móvil apaisado');
+    await page.screenshot({path:'test-results/visual-home-mobile-landscape.png',fullPage:true});
+    await page.locator('#shopOpen').click();
+    await expect(page.locator('#shopScreen')).toBeVisible();
+    await checkNoHorizontalOverflow('tienda móvil apaisado');
+    await page.screenshot({path:'test-results/visual-shop-mobile-landscape.png',fullPage:true});
+    await page.locator('#shopClose').click();
+    await page.locator('#customizeOpen').click();
+    await expect(page.locator('#customizeScreen')).toBeVisible();
+    await checkNoHorizontalOverflow('hangar móvil apaisado');
+    await page.screenshot({path:'test-results/visual-hangar-mobile-landscape.png',fullPage:true});
+
+    await page.setViewportSize({width:390,height:844});
+    await checkNoHorizontalOverflow('menú móvil vertical');
+    await page.screenshot({path:'test-results/visual-mobile-portrait-rotation.png',fullPage:true});
+  } finally {
+    await context.close();
+  }
+});
