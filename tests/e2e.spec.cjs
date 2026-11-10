@@ -273,6 +273,42 @@ test('auditoría visual responsive: menú, tienda y hangar en escritorio y móvi
 });
 
 
+
+test('renderer del mapa: Canvas 2D dibuja las salas y pasillos sin excepciones', async ({browser}) => {
+  test.setTimeout(30000);
+  const {context,page}=await openAsGuest(browser);
+  const drawErrors=[];
+  page.on('pageerror',error=>drawErrors.push(error.message));
+  page.on('console',message=>{
+    if(message.type()==='error' && /STARSHIP draw error|CanvasRenderingContext2D|InvalidStateError/i.test(message.text()))
+      drawErrors.push(message.text());
+  });
+  try {
+    await page.locator('#explore').click();
+    await expect(page.locator('#game')).toBeVisible();
+    await page.waitForTimeout(1200);
+    const render=await page.locator('#world').evaluate(canvas=>{
+      const ctx=canvas.getContext('2d');
+      if(!ctx)return {hasContext:false,width:canvas.width,height:canvas.height,colors:0};
+      const {width,height}=canvas;
+      const data=ctx.getImageData(0,0,width,height).data;
+      const seen=new Set();
+      const stride=Math.max(4,Math.floor((width*height)/18000))*4;
+      for(let i=0;i<data.length;i+=stride){
+        if(data[i+3]>0)seen.add((data[i]<<16)|(data[i+1]<<8)|data[i+2]);
+      }
+      return {hasContext:true,width,height,colors:seen.size};
+    });
+    expect(render.hasContext).toBe(true);
+    expect(render.width).toBeGreaterThan(100);
+    expect(render.height).toBeGreaterThan(100);
+    expect(render.colors, 'el mapa debe tener variedad cromática real, no un canvas vacío').toBeGreaterThan(24);
+    expect(drawErrors, 'el render del mapa no debe lanzar errores JavaScript ni errores de Canvas').toEqual([]);
+  } finally {
+    await context.close();
+  }
+});
+
 test('gameplay: la interacción abre y completa los cinco tipos de minijuego con IDs de tarea online', async ({browser}) => {
   test.setTimeout(90000);
   const {context,page}=await openAsGuest(browser);
