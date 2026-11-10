@@ -60,3 +60,7 @@ La validación estática comprueba sintaxis, geometría, conectividad desde el s
 ## Publicación
 
 GitHub Pages despliega desde `main`. La rama `development/spaceship-sabotage-rebuild` se mantiene separada para revisión. La publicación requiere que pasen las validaciones automatizadas; el despliegue de Pages no publica ramas de desarrollo.
+
+### Smoke test contra Appwrite Cloud real
+
+La prueba de dos sesiones reales se puede lanzar desde GitHub Actions con el input `live_online=true`. También se ejecuta al hacer un push cuyo mensaje incluya `[live-online]`. Usa el origen oficial de GitHub Pages para respetar CORS/plataformas de Appwrite, sirve el `index.html` de la rama probada, crea dos sesiones anónimas, crea y une una sala temporal y trata de eliminarla al terminar. No necesita claves API privilegiadas.
