@@ -17,11 +17,11 @@ const mapEnd = html.indexOf('const MAP_SCALE', mapStart);
 assert.ok(mapStart >= 0 && mapEnd > mapStart, 'No se encuentra la definición MAP');
 const mapSource = html.slice(mapStart, mapEnd);
 const MAP = vm.runInNewContext(mapSource + '; MAP');
-assert.equal(MAP.rooms.length, 7, 'El mapa compacto debe conservar siete salas del sector noroeste');
-assert.equal(MAP.corridors.length, 5, 'El mapa compacto debe tener cinco corredores conectados');
-assert.equal(MAP.tasks.length, 6, 'El mapa compacto debe conservar seis tareas distribuidas en sus salas');
-assert.equal(MAP.repairs.length, 4, 'El mapa compacto debe conservar cuatro puntos de reparación');
-assert.equal(MAP.vents.length, 6, 'El mapa compacto debe conservar seis conductos conectados');
+assert.equal(MAP.rooms.length, 5, 'El mapa compacto debe conservar cinco salas del sector noroeste');
+assert.equal(MAP.corridors.length, 4, 'El mapa compacto debe tener cuatro corredores conectados');
+assert.equal(MAP.tasks.length, 4, 'El mapa compacto debe conservar cuatro tareas distribuidas en sus salas');
+assert.equal(MAP.repairs.length, 3, 'El mapa compacto debe conservar tres puntos de reparación');
+assert.equal(MAP.vents.length, 4, 'El mapa compacto debe conservar cuatro conductos conectados');
 assert.ok(MAP.obstacles.length > 30, 'Cada sala debe definir colisionadores para su mobiliario');
 for (let i = 0; i < MAP.rooms.length; i++) for (let j = i + 1; j < MAP.rooms.length; j++) {
   const a = MAP.rooms[i], b = MAP.rooms[j];
@@ -77,7 +77,7 @@ const reachable = (p) => !!seen[Math.round(p.y / step) * width + Math.round(p.x 
 for (const point of [...MAP.tasks, ...MAP.repairs, ...MAP.vents]) {
   assert.ok(reachable(point), 'Punto inaccesible desde spawn: ' + point.id);
 }
-console.log('✓ Navegación: spawn, 6 tareas, 4 reparaciones y 6 conductos conectados');
+console.log('✓ Navegación: spawn, 4 tareas, 3 reparaciones y 4 conductos conectados');
 
 const ventIds = new Set(MAP.vents.map(v => v.id));
 for (const vent of MAP.vents) for (const link of vent.links) {
@@ -87,7 +87,7 @@ for (const vent of MAP.vents) for (const link of vent.links) {
 const types = new Set(['card','wires','filter','sequence','scan','route','fuel','upload']);
 for (const task of MAP.tasks) assert.ok(types.has(task.type), 'Minijuego no soportado: ' + task.type);
 const repairIds = new Set(MAP.repairs.map(r => r.id));
-for (const id of ['electrical_wires','reactor_start','comms_fix','admin_card']) assert.ok(repairIds.has(id), 'Falta estación de reparación: ' + id);
+for (const id of ['electrical_wires','comms_fix','admin_card']) assert.ok(repairIds.has(id), 'Falta estación de reparación: ' + id);
 console.log('✓ Datos de minijuegos, sabotajes y red de conductos coherentes');
 
 for (const token of ['async function eliminate(', 'async function useVent(', 'async function processMeetingVotes(', 'function finishMatch(', 'function showRoleReveal(', 'function renderLobby(', 'function draw()', 'function startTask()', 'function openMiniGame(', 'async function moveUpdate(']) {
