@@ -202,7 +202,7 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     expect(crew).toHaveLength(1);
     expect(crew[0].tasks).toHaveLength(4);
 
-    await p1.evaluate(()=>window.__STARSHIP_TEST__.allowEmergency());
+    await p1.evaluate(()=>window.__STARSHIP_TEST__.prepareEmergencyMeeting());
     await p1.evaluate(()=>window.__STARSHIP_TEST__.prepareEmergencyMeeting());
     await p1.locator('#emergency').click();
     await expect(p1.locator('#modal')).toContainText('¿QUIÉN ES EL IMPOSTOR?');
