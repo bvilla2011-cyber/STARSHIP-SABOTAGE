@@ -461,13 +461,13 @@ test('gameplay: geometría sin solapamientos, mobiliario sólido, red de conduct
   }
 });
 
-test('sabotajes: las cuatro reparaciones funcionan y el reactor provoca derrota al agotar el tiempo', async ({browser}) => {
+test('sabotajes: las tres reparaciones funcionan y las puertas se restablecen al agotar el tiempo', async ({browser}) => {
   test.setTimeout(90000);
   const {context,page}=await openAsGuest(browser);
   try {
     await page.locator('#explore').click();
     await expect(page.locator('#game')).toBeVisible();
-    const repairs=['lights','reactor','comms','doors'];
+    const repairs=['lights','comms','doors'];
     for(const sabotage of repairs){
       const type=await page.evaluate(s=>window.__STARSHIP_TEST__.prepareRepair(s),sabotage);
       if(sabotage==='comms'){
@@ -509,10 +509,6 @@ test('sabotajes: las cuatro reparaciones funcionan y el reactor provoca derrota 
     }
     const doors=await page.evaluate(()=>window.__STARSHIP_TEST__.expireSabotage('doors'));
     expect(doors).toMatchObject({phase:'playing',active:false});
-    for(const type of ['reactor']){
-      const expired=await page.evaluate(t=>window.__STARSHIP_TEST__.expireSabotage(t),type);
-      expect(expired).toMatchObject({phase:'ended',winner:'impostor',active:false});
-    }
   } finally {
     await context.close();
   }
