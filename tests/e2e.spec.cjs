@@ -304,6 +304,17 @@ test('renderer del mapa: Canvas 2D dibuja las salas y pasillos sin excepciones',
     expect(render.height).toBeGreaterThan(100);
     expect(render.colors, 'el mapa debe tener variedad cromática real, no un canvas vacío').toBeGreaterThan(24);
     expect(drawErrors, 'el render del mapa no debe lanzar errores JavaScript ni errores de Canvas').toEqual([]);
+    const spawn=await page.evaluate(()=>{
+      const p=window.__STARSHIP_TEST__.playerState();
+      return {player:p,walkable:!!p&&canWalk(p.x,p.y)};
+    });
+    expect(spawn.player, 'Explorar debe crear el monguito local').not.toBeNull();
+    expect(spawn.walkable, 'la posición inicial debe permitir caminar').toBe(true);
+    await page.keyboard.down('ArrowRight');
+    await page.waitForTimeout(450);
+    await page.keyboard.up('ArrowRight');
+    const moved=await page.evaluate(()=>window.__STARSHIP_TEST__.playerState());
+    expect(moved.x, 'el monguito debe responder al teclado y desplazarse').toBeGreaterThan(spawn.player.x+.15);
   } finally {
     await context.close();
   }
