@@ -520,13 +520,13 @@ const makeRoom=(id,name,kind,x,y,w,h,color,doors=['top','bottom'])=>({
 const MAP={
  w:82,h:60,
  rooms:[
-  makeRoom('cargo_n','CARGA NORTE','storage',7,9,15,10,'#8a704c'),
-  makeRoom('comms_n','COMUNICACIONES','comms',27,9,15,10,'#765d9b'),
+  makeRoom('cargo_n','CARGA NORTE','storage',7,9,15,10,'#8a704c',['bottom']),
+  makeRoom('comms_n','COMUNICACIONES','comms',27,9,15,10,'#765d9b',['bottom']),
   makeRoom('admin','ADMINISTRACIÓN','admin',7,23,15,10,'#438d70'),
   makeRoom('electrical','ELECTRICIDAD','electrical',27,23,12,10,'#a77a3f'),
-  makeRoom('cafeteria','CAFETERÍA','cafe',45,22.5,32,25,'#497f91',['top','bottom','left','right']),
-  makeRoom('reactor','REACTOR','reactor',7,37,15,10,'#76539a'),
-  makeRoom('medbay','ENFERMERÍA','medbay',27,37,12,10,'#398b86'),
+  makeRoom('cafeteria','CAFETERÍA','cafe',45,22.5,32,25,'#497f91',['top','left']),
+  makeRoom('reactor','REACTOR','reactor',7,37,15,10,'#76539a',['top']),
+  makeRoom('medbay','ENFERMERÍA','medbay',27,37,12,10,'#398b86',['top']),
   makeRoom('oxygen','OXÍGENO','o2',45,9,14,10,'#31947d',['bottom','right']),
   makeRoom('security','SEGURIDAD','security',63,9,14,10,'#347e88',['left'])
  ],
@@ -534,7 +534,7 @@ const MAP={
   {id:'upper_link',main:true,width:4.8,points:[[4,21],[61,21]]},
   {id:'middle_link',main:true,width:4.8,points:[[4,35],[45,35]]},
   {id:'west_spine',main:false,width:3.5,points:[[4,21],[4,35]]},
-  {id:'cafe_north',main:false,width:3.5,points:[[61,8],[61,22.5]]}
+  {id:'cafe_north',main:false,width:4.2,points:[[61,8],[61,22.5]]}
  ],
  obstacles:[],
  tasks:[
