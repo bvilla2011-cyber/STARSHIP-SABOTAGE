@@ -227,6 +227,7 @@ test('auditoría visual responsive: menú, tienda y hangar en escritorio y móvi
       expect(metrics.bodyWidth, label+' — overflow horizontal del body').toBeLessThanOrEqual(metrics.width+1);
     };
     await expect(page.locator('#connect')).toBeVisible();
+    await expect(page.locator('#introSplash')).toHaveCount(0,{timeout:5000});
     await page.screenshot({path:'test-results/visual-home-desktop.png',fullPage:true});
     await page.locator('#shopOpen').click();
     await expect(page.locator('#shopScreen')).toBeVisible();
@@ -268,7 +269,7 @@ test('gameplay: la interacción abre y completa los cinco tipos de minijuego con
   try {
     await page.locator('#explore').click();
     await expect(page.locator('#game')).toBeVisible();
-    const types=['card','wires','route','filter','calibrate'];
+    const types=['card','wires','route','filter','sequence'];
     for (const type of types) {
       const taskId=await page.evaluate(type=>window.__STARSHIP_TEST__.prepareTask(type),type);
       await page.locator('#interact').click();
@@ -279,7 +280,7 @@ test('gameplay: la interacción abre y completa los cinco tipos de minijuego con
         for(const i of [0,1,2,5,8])await page.locator('#modal [data-route="'+i+'"]').click();
       } else if(type==='filter') {
         for(let i=0;i<6;i++)await page.locator('#modal [data-debris]').first().click();
-      } else if(type==='calibrate') {
+      } else if(type==='sequence') {
         for(let stage=0;stage<3;stage++) {
           let synced=false;
           for(let attempt=0;attempt<55&&!synced;attempt++) {
