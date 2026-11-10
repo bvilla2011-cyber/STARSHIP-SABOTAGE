@@ -154,7 +154,7 @@ assert.ok(html.includes('meeting(true,body.id)'), 'Los reportes deben abrir la m
 assert.ok(html.includes("activeSabotage.type!=='lights'") && html.includes('resolvedByMeeting:true'), 'Al convocar reunión deben resolverse todos los sabotajes excepto electricidad');
 assert.ok(html.includes('meetingPlayerColor(msg.id)') && html.includes('meeting-message-dot'), 'El chat debe colorear cada nombre con el color del monguito');
 assert.ok(html.includes('emergencyUsed:{}') && html.includes('targetWasImpostor') && html.includes('remainingImpostors') && html.includes('meeting-result-card'), 'Cada jugador debe tener un único SOS por partida y ver la revelación animada de expulsión');
-assert.ok(html.includes("Nametags por encima de la máscara") && html.includes("nameView"), 'Los nombres deben dibujarse sobre la iluminación y respetar el campo de visión');
+assert.ok(html.includes("const nameView=") && html.includes("pointInPoly(q.x,q.y,nameView)"), 'Los nombres deben dibujarse sobre la iluminación y respetar el campo de visión');
 assert.ok(!html.includes('target.alive=q.alive') && !html.includes('own.alive=local.alive'), 'El snapshot de jugadores no debe revivir eliminados');
 assert.ok(!html.includes('rowId:target.id,data:{alive:false}') && !html.includes('rowId:targetId,data:{alive:false}'), 'Un cliente no debe modificar la fila de otro jugador');
 assert.ok(html.includes('const ownerPermissions=ownerId=>Permission&&Role&&ownerId?') && html.includes('Permission.update(Role.user(ownerId))') && html.includes('Permission.delete(Role.user(ownerId))') && html.includes('permissions:ownerPermissions(playerId)'), 'Las filas individuales deben mantener lectura y escritura restringidas a su propietario');
