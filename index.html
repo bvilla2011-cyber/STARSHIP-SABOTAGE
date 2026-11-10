@@ -528,13 +528,12 @@ const MAP={
   makeRoom('reactor','REACTOR','reactor',7,37,15,10,'#76539a',['top']),
   makeRoom('medbay','ENFERMERÍA','medbay',27,37,12,10,'#398b86',['top']),
   makeRoom('oxygen','OXÍGENO','o2',45,9,14,10,'#31947d',['bottom','right']),
-  makeRoom('security','SEGURIDAD','security',63,9,14,10,'#347e88',['left'])
+  makeRoom('security','SEGURIDAD','security',63,9,14,10,'#347e88',[])
  ],
  corridors:[
-  {id:'upper_link',main:true,width:4.8,points:[[4,21],[61,21]]},
-  {id:'middle_link',main:true,width:4.8,points:[[4,35],[45,35]]},
-  {id:'west_spine',main:false,width:3.5,points:[[4,21],[4,35]]},
-  {id:'cafe_north',main:false,width:4.2,points:[[61,8],[61,22.5]]}
+  // Dos corredores horizontales, recortados con extremos rectos contra los muros.
+  {id:'upper_link',main:true,width:4.8,points:[[7,21],[61,21]]},
+  {id:'middle_link',main:true,width:4.8,points:[[7,35],[45,35]]}
  ],
  obstacles:[],
  tasks:[
