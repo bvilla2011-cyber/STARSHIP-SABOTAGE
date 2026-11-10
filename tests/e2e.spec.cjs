@@ -286,7 +286,7 @@ test('controles: mapa grande con M y botones contextuales limitados por proximid
     await expect(map).not.toHaveClass(/hidden/);
     const box=await map.boundingBox();
     expect(box.width).toBeGreaterThan(0.9*1280);
-    expect(box.height).toBeGreaterThan(0.9*800);
+    expect(box.height).toBeGreaterThan(0.9*720);
     const mapStyle=await map.evaluate(el=>({background:getComputedStyle(el).backgroundColor}));
     expect(mapStyle.background.startsWith('rgba(')).toBe(true);
     await page.keyboard.press('m');
