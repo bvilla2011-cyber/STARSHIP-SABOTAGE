@@ -1,4 +1,4 @@
-name: Deploy STARSHIP SABOTAGE to GitHub Pages
+name: QA and deploy STARSHIP SABOTAGE
 
 on:
   push:
@@ -15,7 +15,37 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  qa:
+    name: Validate release before publishing
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install browser test runner
+        run: npm install --no-save @playwright/test
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Validate source and map navigation
+        run: node tests/validate.js
+      - name: Test two-client multiplayer flow
+        run: npx playwright test tests/e2e.spec.cjs --reporter=line,html
+      - name: Upload browser diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: multiplayer-e2e-diagnostics
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+
   deploy:
+    needs: qa
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
