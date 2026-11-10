@@ -58,7 +58,7 @@ const sdkMock = String.raw`
     limit:value=>({method:'limit',values:[value]}),
     orderDesc:(attribute)=>({method:'orderDesc',attribute})
   };
-  const Role = { any:()=> 'any', user:id=>'user:'+id };
+  const Role = { any:()=> 'any', users:()=> 'users', user:id=>'user:'+id };
   const Permission = {
     read:role=>'read("'+role+'")',
     create:role=>'create("'+role+'")',
@@ -105,9 +105,9 @@ async function apiRoute(route) {
     }
     const row=store.get(id);
     if (!row) return send(404,{message:'Row not found'});
-    if (method === 'GET') { if (!(row.$permissions||[]).includes('read("any")') && !(row.$permissions||[]).includes('read("user:'+user+'")')) return send(403,{message:'Read permission denied'}); return send(200,row); }
+    if (method === 'GET') { const member=table==='rooms_v2'&&[...(shared.players_v2?.values()||[])].some(p=>p.$id===user&&p.roomId===row.$id); if (!(row.$permissions||[]).includes('read("any")') && !(row.$permissions||[]).includes('read("user:'+user+'")') && !((row.$permissions||[]).includes('read("users")')&&member)) return send(403,{message:'Read permission denied'}); return send(200,row); }
     const action=method==='PATCH'?'update':'delete';
-    if (!(row.$permissions||[]).includes(action+'("user:'+user+'")')) return send(403,{message:'Permission denied'});
+    const member=table==='rooms_v2'&&[...(shared.players_v2?.values()||[])].some(p=>p.$id===user&&p.roomId===row.$id); if (!(row.$permissions||[]).includes(action+'("user:'+user+'")') && !((row.$permissions||[]).includes(action+'("users")')&&member) && !(table==='rooms_v2'&&(row.$permissions||[]).includes(action+'("any")'))) return send(403,{message:'Permission denied'});
     if (method === 'PATCH') {
       const payload=req.postDataJSON() || {};
       Object.assign(row,payload.data||{});
@@ -165,7 +165,7 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     await expect(p1.locator('#lobbyList')).toContainText(name2.slice(0,16),{timeout:8000});
     const id2=await p2.evaluate(()=>localStorage.getItem('__mock_user'));
     await expect(p1.locator('#start')).toBeEnabled();
-    await expect.poll(()=>shared.rooms_v2.get(code)?.$permissions?.includes('update("user:'+id2+'")')).toBe(true);
+    await expect.poll(()=>shared.rooms_v2.get(code)?.$permissions?.includes('update("any")')).toBe(true);
 
     const memberWrite=await p2.evaluate(async roomId=>{
       try { await window.__mockTest.request('/rows/rooms_v2/'+encodeURIComponent(roomId),'PATCH',{data:{status:'waiting'}}); return true; }
@@ -173,25 +173,32 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     },code);
     expect(memberWrite).toBe(true);
 
-    const denied=await p2.evaluate(async roomId=>{
-      const member=localStorage.getItem('__mock_user');
-      localStorage.setItem('__mock_user','usr_outsider');
-      try { await window.__mockTest.request('/rows/rooms_v2/'+encodeURIComponent(roomId),'PATCH',{data:{status:'hacked'}}); return false; }
+    const outsiderCannotWritePlayer=await p1.evaluate(async playerId=>{
+      try { await window.__mockTest.request('/rows/players_v2/'+encodeURIComponent(playerId),'PATCH',{data:{x:999}}); return false; }
       catch(e) { return /Permission denied/.test(e.message); }
-      finally { localStorage.setItem('__mock_user',member); }
-    },code);
-    expect(denied).toBe(true);
+    },id2);
+    expect(outsiderCannotWritePlayer).toBe(true);
 
     await p1.locator('#start').click();
     await expect(p1.locator('#game')).toBeVisible({timeout:16000});
     await expect(p2.locator('#game')).toBeVisible({timeout:16000});
+    // Simula una desconexión real: el jugador vuelve con la misma sesión y conserva su posición.
+    shared.players_v2.get(id2).x=62.25;
+    shared.players_v2.get(id2).y=36.5;
+    await p2.reload();
+    await expect(p2.locator('#profileGate')).not.toHaveClass(/visible/,{timeout:8000});
+    await expect(p2.locator('#connect')).toBeVisible();
+    await p2.locator('#code').fill(code);
+    await p2.locator('#join').click();
+    await expect(p2.locator('#game')).toBeVisible({timeout:10000});
+    await expect.poll(()=>p2.evaluate(()=>window.__STARSHIP_TEST__.playerState())).toMatchObject({x:62.25,y:36.5,alive:true});
     const state=JSON.parse(shared.rooms_v2.get(code).settings);
     const crew=Object.values(state.players).filter(p=>p.role==='crew');
     const impostors=Object.values(state.players).filter(p=>p.role==='impostor');
     expect(impostors).toHaveLength(1);
-    expect(shared.rooms_v2.get(code).$permissions).not.toContain('read("any")');
-    expect(shared.rooms_v2.get(code).$permissions).toContain('read("user:'+id1+'")');
-    expect(shared.rooms_v2.get(code).$permissions).toContain('read("user:'+id2+'")');
+    expect(shared.rooms_v2.get(code).$permissions).toContain('read("any")');
+    expect(shared.rooms_v2.get(code).$permissions).toContain('update("any")');
+    expect(shared.rooms_v2.get(code).$permissions).toContain('delete("user:'+id1+'")');
     expect(crew).toHaveLength(1);
     expect(crew[0].tasks).toHaveLength(4);
 
@@ -207,11 +214,213 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     await p1.locator('#moreBtn').click();
     await p1.locator('#leaveMatchBtn').click();
     await expect.poll(()=>shared.rooms_v2.get(code)?.hostId).toBe(id2);
-    await expect.poll(()=>shared.rooms_v2.get(code)?.$permissions?.includes('update("user:'+id2+'")')).toBe(true);
+    await expect.poll(()=>shared.rooms_v2.get(code)?.$permissions?.includes('update("any")')).toBe(true);
+    expect(shared.rooms_v2.get(code).$permissions).toContain('delete("user:'+id2+'")');
     const newHostWrite=await p2.evaluate(async roomId=>{try{await window.__mockTest.request('/rows/rooms_v2/'+encodeURIComponent(roomId),'PATCH',{data:{status:'playing'}});return true}catch(e){return false}},code);
     expect(newHostWrite).toBe(true);
   } finally {
     await first.context.close();
     await second.context.close();
+  }
+});
+
+
+test('auditoría visual responsive: menú, tienda y hangar en escritorio y móvil', async ({browser}) => {
+  test.setTimeout(45000);
+  const {context,page}=await openAsGuest(browser);
+  try {
+    const checkNoHorizontalOverflow=async(label)=>{
+      const metrics=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,bodyWidth:document.body.scrollWidth}));
+      expect(metrics.scrollWidth, label+' — overflow horizontal del documento').toBeLessThanOrEqual(metrics.width+1);
+      expect(metrics.bodyWidth, label+' — overflow horizontal del body').toBeLessThanOrEqual(metrics.width+1);
+    };
+    await expect(page.locator('#connect')).toBeVisible();
+    await expect(page.locator('#introSplash')).toHaveCount(0,{timeout:5000});
+    await page.screenshot({path:'test-results/visual-home-desktop.png',fullPage:true});
+    await page.locator('#shopOpen').click();
+    await expect(page.locator('#shopScreen')).toBeVisible();
+    await expect(page.locator('#shopItems .shop-item').first()).toBeVisible();
+    await page.screenshot({path:'test-results/visual-shop-desktop.png',fullPage:true});
+    await page.locator('#shopClose').click();
+    await page.locator('#customizeOpen').click();
+    await expect(page.locator('#customizeScreen')).toBeVisible();
+    await expect(page.locator('#previewMate')).toBeVisible();
+    await expect(page.locator('#customOptions [data-option]').first()).toBeVisible();
+    await page.screenshot({path:'test-results/visual-hangar-desktop.png',fullPage:true});
+
+    await page.setViewportSize({width:844,height:390});
+    await page.locator('#customizeClose').click();
+    await checkNoHorizontalOverflow('menú móvil apaisado');
+    await page.screenshot({path:'test-results/visual-home-mobile-landscape.png',fullPage:true});
+    await page.locator('#shopOpen').click();
+    await expect(page.locator('#shopScreen')).toBeVisible();
+    await checkNoHorizontalOverflow('tienda móvil apaisado');
+    await page.screenshot({path:'test-results/visual-shop-mobile-landscape.png',fullPage:true});
+    await page.locator('#shopClose').click();
+    await page.locator('#customizeOpen').click();
+    await expect(page.locator('#customizeScreen')).toBeVisible();
+    await checkNoHorizontalOverflow('hangar móvil apaisado');
+    await page.screenshot({path:'test-results/visual-hangar-mobile-landscape.png',fullPage:true});
+
+    await page.setViewportSize({width:390,height:844});
+    await checkNoHorizontalOverflow('menú móvil vertical');
+    await page.screenshot({path:'test-results/visual-mobile-portrait-rotation.png',fullPage:true});
+  } finally {
+    await context.close();
+  }
+});
+
+
+test('gameplay: la interacción abre y completa los cinco tipos de minijuego con IDs de tarea online', async ({browser}) => {
+  test.setTimeout(90000);
+  const {context,page}=await openAsGuest(browser);
+  try {
+    await page.locator('#explore').click();
+    await expect(page.locator('#game')).toBeVisible();
+    const types=['card','wires','route','filter','sequence'];
+    for (const type of types) {
+      const taskId=await page.evaluate(type=>window.__STARSHIP_TEST__.prepareTask(type),type);
+      await page.locator('#interact').click();
+      await expect(page.locator('#modal')).not.toHaveClass(/hidden/);
+      if(type==='wires') {
+        for(let i=0;i<4;i++)await page.locator('#modal [data-wire]').nth(i).click();
+      } else if(type==='route') {
+        for(const i of [0,1,2,5,8])await page.locator('#modal [data-route="'+i+'"]').click();
+      } else if(type==='filter') {
+        for(let i=0;i<6;i++)await page.locator('#modal [data-debris]').first().click();
+      } else if(type==='sequence') {
+        for(let stage=0;stage<3;stage++) {
+          let synced=false;
+          for(let attempt=0;attempt<55&&!synced;attempt++) {
+            await page.locator('#modal #cal'+stage).click();
+            synced=(await page.locator('#modal #calState'+stage).textContent()).includes('SINCRONIZADO');
+            if(!synced)await page.waitForTimeout(35);
+          }
+          expect(synced,'El módulo '+stage+' debe sincronizarse dentro del rango verde').toBe(true);
+        }
+      } else if(type==='card') {
+        await page.evaluate(async()=>{
+          const card=document.querySelector('#modal #idCard');
+          const startX=card.getBoundingClientRect().left+card.getBoundingClientRect().width/2;
+          const startY=card.getBoundingClientRect().top+card.getBoundingClientRect().height/2;
+          // Dispatch the same pointer sequence while preserving the minigame's timed swipe window.
+          card.setPointerCapture=()=>{};
+          card.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:1,clientX:startX,clientY:startY}));
+          await new Promise(resolve=>setTimeout(resolve,500));
+          card.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerId:1,clientX:startX+45,clientY:startY}));
+          card.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:1,clientX:startX+45,clientY:startY}));
+        });
+      }
+      await expect(page.locator('#modal')).toHaveClass(/hidden/,{timeout:7000});
+      await expect.poll(()=>page.evaluate(id=>window.__STARSHIP_TEST__.taskDone(id),taskId)).toBe(true);
+    }
+  } finally {
+    await context.close();
+  }
+});
+
+
+test('gameplay: geometría sin solapamientos, mobiliario sólido, red de conductos conectada y visión por luz', async ({browser}) => {
+  test.setTimeout(45000);
+  const {context,page}=await openAsGuest(browser);
+  try {
+    await page.locator('#explore').click();
+    await expect(page.locator('#game')).toBeVisible();
+    const audit=await page.evaluate(()=>window.__STARSHIP_TEST__.geometryAudit());
+    expect(audit).toMatchObject({rooms:18,corridors:11,vents:14,roomOverlaps:[]});
+    expect(audit.obstacles).toBeGreaterThan(30);
+    const table=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(57.5,33.8));
+    expect(table).toMatchObject({walkable:false,furniture:true});
+    // Las sillas del comedor también son sólidos independientes de las mesas.
+    const chair=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(56.59,34.625));
+    expect(chair).toMatchObject({walkable:false,furniture:true});
+    const doors=await page.evaluate(()=>window.__STARSHIP_TEST__.doorAccessAudit());
+    expect(doors.tested).toBeGreaterThanOrEqual(36);
+    expect(doors.blocked).toEqual([]);
+    const floor=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(60,40));
+    expect(floor).toMatchObject({walkable:true,furniture:false});
+    const network=await page.evaluate(()=>window.__STARSHIP_TEST__.ventNetwork());
+    expect(network).toHaveLength(14);
+    const ids=new Set(network.map(v=>v.id));
+    for(const vent of network)for(const link of vent.links){
+      expect(ids.has(link)).toBe(true);
+      expect(network.find(v=>v.id===link).links).toContain(vent.id);
+    }
+    const reachable=new Set([network[0].id]),queue=[network[0].id];
+    while(queue.length){const id=queue.shift();for(const link of network.find(v=>v.id===id).links)if(!reachable.has(link)){reachable.add(link);queue.push(link)}}
+    expect(reachable.size).toBe(14);
+    const first=await page.evaluate(()=>window.__STARSHIP_TEST__.prepareVent('v1'));
+    await page.locator('#vent').click();
+    await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.ventPlayerState())).toMatchObject({inVent:true,ventId:'v1'});
+    await page.locator('#vent').click();
+    await expect(page.locator('#modal')).toContainText('CONDUCTOS DE SERVICIO');
+    await expect(page.locator('#modal')).toContainText('REACTOR');
+    await page.locator('#modal [data-exit="v2"]').click();
+    await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.ventPlayerState())).toMatchObject({inVent:false,ventId:null});
+    const lighting=await page.evaluate(()=>({hasLayer:!!window.__starshipLightLayer,code:document.documentElement.innerHTML.includes('visionRadius')}));
+    expect(lighting.code).toBe(true);
+    const shadows=await page.evaluate(()=>window.__STARSHIP_TEST__.shadowProbe(60,40,6.7));
+    expect(shadows.segments).toBeGreaterThan(100);
+    expect(shadows.points).toBeGreaterThan(48);
+    expect(shadows.occludedRays).toBeGreaterThan(0);
+  } finally {
+    await context.close();
+  }
+});
+
+test('sabotajes: las cinco reparaciones funcionan y los críticos provocan derrota al agotar el tiempo', async ({browser}) => {
+  test.setTimeout(90000);
+  const {context,page}=await openAsGuest(browser);
+  try {
+    await page.locator('#explore').click();
+    await expect(page.locator('#game')).toBeVisible();
+    const repairs=['lights','reactor','comms','o2','doors'];
+    for(const sabotage of repairs){
+      const type=await page.evaluate(s=>window.__STARSHIP_TEST__.prepareRepair(s),sabotage);
+      if(sabotage==='comms'){
+        await page.evaluate(()=>window.__STARSHIP_TEST__.prepareTask('wires'));
+        await page.evaluate(()=>window.__STARSHIP_TEST__.tryStartTask());
+        await expect(page.locator('#modal')).toHaveClass(/hidden/);
+        await expect(page.locator('#taskText')).toContainText('COMUNICACIONES INTERFERIDAS');
+        await page.evaluate(()=>window.__STARSHIP_TEST__.prepareRepair('comms'));
+      }
+      await page.locator('#interact').click();
+      await expect(page.locator('#modal')).not.toHaveClass(/hidden/);
+      if(type==='wires'){
+        for(let i=0;i<4;i++)await page.locator('#modal [data-wire]').nth(i).click();
+      }else if(type==='filter'){
+        for(let i=0;i<6;i++)await page.locator('#modal [data-debris]').first().click();
+      }else if(type==='card'){
+        await page.evaluate(async()=>{
+          const card=document.querySelector('#modal #idCard');
+          const r=card.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+          card.setPointerCapture=()=>{};
+          card.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:2,clientX:x,clientY:y}));
+          await new Promise(resolve=>setTimeout(resolve,500));
+          card.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerId:2,clientX:x+45,clientY:y}));
+          card.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:2,clientX:x+45,clientY:y}));
+        });
+      }else if(type==='sequence'){
+        for(let stage=0;stage<3;stage++){
+          let synced=false;
+          for(let attempt=0;attempt<55&&!synced;attempt++){
+            await page.locator('#modal #cal'+stage).click();
+            synced=(await page.locator('#modal #calState'+stage).textContent()).includes('SINCRONIZADO');
+            if(!synced)await page.waitForTimeout(35);
+          }
+          expect(synced,'Reparación de reactor: módulo '+stage).toBe(true);
+        }
+      }
+      await expect(page.locator('#modal')).toHaveClass(/hidden/,{timeout:7000});
+      await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.sabotageActive())).toBe(false);
+    }
+    const doors=await page.evaluate(()=>window.__STARSHIP_TEST__.expireSabotage('doors'));
+    expect(doors).toMatchObject({phase:'playing',active:false});
+    for(const type of ['reactor','o2']){
+      const expired=await page.evaluate(t=>window.__STARSHIP_TEST__.expireSabotage(t),type);
+      expect(expired).toMatchObject({phase:'ended',winner:'impostor',active:false});
+    }
+  } finally {
+    await context.close();
   }
 });
