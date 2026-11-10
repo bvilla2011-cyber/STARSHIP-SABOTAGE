@@ -20,10 +20,23 @@ async function openLiveGuest(browser) {
     return route.continue();
   });
   const page = await context.newPage();
+  const diagnostics=[];
+  page.on('console',msg=>{if(msg.type()==='error')diagnostics.push('console: '+msg.text())});
+  page.on('pageerror',err=>diagnostics.push('pageerror: '+err.message));
+  page.on('requestfailed',req=>diagnostics.push('requestfailed: '+req.url()+' :: '+(req.failure()?.errorText||'')));
+  page.on('response',res=>{if(res.url().includes('appwrite')&&!res.ok())diagnostics.push('HTTP '+res.status()+' '+res.url())});
   await page.goto(LIVE_URL, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#profileGate')).toHaveClass(/visible/);
   await page.locator('#guestPlay').click();
-  await expect(page.locator('#profileGate')).not.toHaveClass(/visible/, { timeout: 20000 });
+  try {
+    await expect(page.locator('#profileGate')).not.toHaveClass(/visible/, { timeout: 20000 });
+  } catch (error) {
+    const feedback=(await page.locator('#authFeedback').textContent().catch(()=>''))?.trim();
+    const status=(await page.locator('#authStatus').textContent().catch(()=>''))?.trim();
+    fs.mkdirSync(path.join(ROOT,'test-results'),{recursive:true});
+    await page.screenshot({path:path.join(ROOT,'test-results/live-auth-failure.png'),fullPage:true}).catch(()=>{});
+    throw new Error('Guest auth did not complete. authFeedback='+feedback+'; authStatus='+status+'; diagnostics='+diagnostics.slice(-20).join(' | ')+'; '+error.message);
+  }
   return { context, page };
 }
 
