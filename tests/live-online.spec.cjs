@@ -21,7 +21,7 @@ async function openLiveGuest(browser) {
   });
   const page = await context.newPage();
   const diagnostics=[];
-  page.on('console',msg=>{if(msg.type()==='error')diagnostics.push('console: '+msg.text())});
+  page.on('console',msg=>{if(msg.type()==='error'||msg.type()==='warning')diagnostics.push('console '+msg.type()+': '+msg.text())});
   page.on('pageerror',err=>diagnostics.push('pageerror: '+err.message));
   page.on('requestfailed',req=>diagnostics.push('requestfailed: '+req.url()+' :: '+(req.failure()?.errorText||'')));
   page.on('response',async res=>{if(res.url().includes('appwrite')&&!res.ok()){let body='';try{body=(await res.text()).slice(0,500)}catch(e){}diagnostics.push('HTTP '+res.status()+' '+res.url()+' body='+body)}});
@@ -39,7 +39,7 @@ async function openLiveGuest(browser) {
     await page.screenshot({path:path.join(ROOT,'test-results/live-auth-failure.png'),fullPage:true}).catch(()=>{});
     throw new Error('Guest auth did not complete. authFeedback='+feedback+'; authStatus='+status+'; diagnostics='+diagnostics.slice(-20).join(' | ')+'; '+error.message);
   }
-  return { context, page };
+  return { context, page, diagnostics };
 }
 
 test('Appwrite real: dos sesiones anónimas crean, unen y abandonan una sala', async ({ browser }) => {
@@ -64,10 +64,25 @@ test('Appwrite real: dos sesiones anónimas crean, unen y abandonan una sala', a
     await guestPage.locator('#code').fill(roomCode);
     await guestPage.locator('#join').click();
     await expect(guestPage.locator('#lobby')).toBeVisible({ timeout: 20000 });
-    await expect(hostPage.locator('#lobbyList')).toContainText(
-      (await guestPage.locator('#name').inputValue()).slice(0, 16),
-      { timeout: 20000 }
-    );
+    try {
+      await expect(hostPage.locator('#lobbyList')).toContainText(
+        (await guestPage.locator('#name').inputValue()).slice(0, 16),
+        { timeout: 20000 }
+      );
+    } catch (error) {
+      const roomDiagnostics=await hostPage.evaluate(async roomId=>{
+        try{
+          const client=new Appwrite.Client().setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('6af106fb00396755a6fb');
+          const db=new Appwrite.TablesDB(client);
+          const [rows,room]=await Promise.all([
+            db.listRows({databaseId:'starship_db',tableId:'players_v2',queries:[Appwrite.Query.equal('roomId',roomId),Appwrite.Query.limit(20)],ttl:0}),
+            db.getRow({databaseId:'starship_db',tableId:'rooms_v2',rowId:roomId})
+          ]);
+          return {players:rows.rows.map(p=>({id:p.$id,name:p.nickname,roomId:p.roomId,permissions:p.$permissions})),roomPermissions:room.$permissions};
+        }catch(e){return {error:e.message}}
+      },roomCode).catch(e=>({error:e.message}));
+      throw new Error('Host lobby did not sync guest. hostDiagnostics='+host.diagnostics.slice(-25).join(' | ')+'; guestDiagnostics='+guest.diagnostics.slice(-25).join(' | ')+'; backend='+JSON.stringify(roomDiagnostics)+'; '+error.message);
+    }
     await expect(guestPage.locator('#lobbyList')).toContainText(
       (await hostPage.locator('#name').inputValue()).slice(0, 16),
       { timeout: 20000 }
