@@ -17,9 +17,9 @@ const mapEnd = html.indexOf('const MAP_SCALE', mapStart);
 assert.ok(mapStart >= 0 && mapEnd > mapStart, 'No se encuentra la definición MAP');
 const mapSource = html.slice(mapStart, mapEnd);
 const MAP = vm.runInNewContext(mapSource + '; MAP');
-assert.equal(MAP.rooms.length, 18, 'Número esperado de salas');
+assert.equal(MAP.rooms.length, 16, 'Número esperado de salas tras compactar el mapa');
 assert.equal(MAP.corridors.length, 11, 'Número esperado de corredores separados para no atravesar la cafetería');
-assert.equal(MAP.tasks.length, 17, 'Número esperado de tareas');
+assert.equal(MAP.tasks.length, 15, 'Número esperado de tareas tras retirar las dos salas secundarias');
 assert.equal(MAP.repairs.length, 5, 'Número esperado de reparaciones');
 assert.equal(MAP.vents.length, 14, 'Número esperado de conductos');
 assert.ok(MAP.obstacles.length > 30, 'Cada sala debe definir colisionadores para su mobiliario');
@@ -77,7 +77,7 @@ const reachable = (p) => !!seen[Math.round(p.y / step) * width + Math.round(p.x 
 for (const point of [...MAP.tasks, ...MAP.repairs, ...MAP.vents]) {
   assert.ok(reachable(point), 'Punto inaccesible desde spawn: ' + point.id);
 }
-console.log('✓ Navegación: spawn, 17 tareas, 5 reparaciones y 14 conductos conectados');
+console.log('✓ Navegación: spawn, 15 tareas, 5 reparaciones y 14 conductos conectados');
 
 const ventIds = new Set(MAP.vents.map(v => v.id));
 for (const vent of MAP.vents) for (const link of vent.links) {
@@ -96,6 +96,10 @@ for (const token of ['async function eliminate(', 'async function useVent(', 'as
 assert.ok(html.includes('Date.now()+10000'), 'La cuenta atrás de lobby debe ser de 10 segundos');
 assert.ok(html.includes('blockedByRoomWall('), 'Falta la colisión de paredes');
 assert.ok(html.includes('function collidesFurniture(') && html.includes("o.kind==='circle'"), 'El mobiliario debe tener colisión circular o rectangular');
+assert.ok(html.includes('ellipse(r,cx,cy,1.72,1.12)') && html.includes("fillText('SOS',cx,cy+.32)"), 'La cafetería debe tener una mesa SOS central con botón visible y colisionador');
+assert.ok(html.includes("canvas.addEventListener('click'") && html.includes('function startTask()') && html.includes("cafe.x+cafe.w/2"), 'El botón SOS debe responder al clic y a la interacción cercana');
+assert.ok(html.includes('for(let i=0;i<72;i++)angles.push'), 'La visibilidad y las sombras deben usar mayor resolución angular');
+assert.ok(!html.includes("'LABORATORIO','medbay'") && !html.includes("'CARGA SUR','storage'"), 'El mapa compacto no debe incluir las dos salas retiradas');
 assert.ok(html.includes('const visionRadius=lightsSabotage?2.35'), 'La visión debe limitarse por radio y sabotaje de luces');
 assert.ok(html.includes('window.__starshipLightLayer') && html.includes("globalCompositeOperation='destination-out'"), 'La iluminación debe usar una máscara de oscuridad con penumbra');
 assert.ok(html.includes('function playVictimKillAnimation'), 'Falta animación de víctima');
