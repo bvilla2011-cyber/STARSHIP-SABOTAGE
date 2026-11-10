@@ -18,10 +18,15 @@ assert.ok(mapStart >= 0 && mapEnd > mapStart, 'No se encuentra la definición MA
 const mapSource = html.slice(mapStart, mapEnd);
 const MAP = vm.runInNewContext(mapSource + '; MAP');
 assert.equal(MAP.rooms.length, 18, 'Número esperado de salas');
-assert.equal(MAP.corridors.length, 9, 'Número esperado de corredores');
+assert.equal(MAP.corridors.length, 11, 'Número esperado de corredores separados para no atravesar la cafetería');
 assert.equal(MAP.tasks.length, 17, 'Número esperado de tareas');
 assert.equal(MAP.repairs.length, 5, 'Número esperado de reparaciones');
-assert.equal(MAP.vents.length, 5, 'Número esperado de conductos');
+assert.equal(MAP.vents.length, 14, 'Número esperado de conductos');
+assert.ok(MAP.obstacles.length > 30, 'Cada sala debe definir colisionadores para su mobiliario');
+for (let i = 0; i < MAP.rooms.length; i++) for (let j = i + 1; j < MAP.rooms.length; j++) {
+  const a = MAP.rooms[i], b = MAP.rooms[j];
+  assert.ok(!(a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y), 'Salas solapadas: ' + a.id + ' / ' + b.id);
+}
 
 const pointInRoom = (x, y, r) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
 function distanceToPath(x, y, points) {
@@ -72,7 +77,7 @@ const reachable = (p) => !!seen[Math.round(p.y / step) * width + Math.round(p.x 
 for (const point of [...MAP.tasks, ...MAP.repairs, ...MAP.vents]) {
   assert.ok(reachable(point), 'Punto inaccesible desde spawn: ' + point.id);
 }
-console.log('✓ Navegación: spawn, 17 tareas, 5 reparaciones y 5 conductos conectados');
+console.log('✓ Navegación: spawn, 17 tareas, 5 reparaciones y 14 conductos conectados');
 
 const ventIds = new Set(MAP.vents.map(v => v.id));
 for (const vent of MAP.vents) for (const link of vent.links) {
@@ -90,6 +95,9 @@ for (const token of ['async function eliminate(', 'async function useVent(', 'as
 }
 assert.ok(html.includes('Date.now()+10000'), 'La cuenta atrás de lobby debe ser de 10 segundos');
 assert.ok(html.includes('blockedByRoomWall('), 'Falta la colisión de paredes');
+assert.ok(html.includes('function collidesFurniture(') && html.includes("o.kind==='circle'"), 'El mobiliario debe tener colisión circular o rectangular');
+assert.ok(html.includes('const visionRadius=lightsSabotage?2.35'), 'La visión debe limitarse por radio y sabotaje de luces');
+assert.ok(html.includes('window.__starshipLightLayer') && html.includes("globalCompositeOperation='destination-out'"), 'La iluminación debe usar una máscara de oscuridad con penumbra');
 assert.ok(html.includes('function playVictimKillAnimation'), 'Falta animación de víctima');
 assert.ok(html.includes('if(i<stage)return;n.pos=angle'), 'Las agujas activas de calibración deben animarse');
 assert.ok(html.includes("players.filter(q=>q.vote?.startsWith(m.id+'|')).length"), 'El contador de votos debe refrescarse con las votaciones remotas');
