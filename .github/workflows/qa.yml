@@ -20,6 +20,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,5 +28,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate game systems and map navigation
+      - name: Install browser test runner
+        run: npm install --no-save @playwright/test
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Validate source and map navigation
         run: node tests/validate.js
+      - name: Test two-client multiplayer flow
+        run: npx playwright test tests/e2e.spec.cjs --reporter=line
