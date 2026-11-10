@@ -554,14 +554,14 @@ const MAP={
   {id:'o2_room',name:'CÓDIGO O₂ · SALA DE OXÍGENO',room:'OXÍGENO',x:52,y:14,type:'code',station:'oxygen'}
  ],
  vents:[
-  {id:'v1',name:'CARGA NORTE',room:'CARGA NORTE',x:19,y:16,links:['v2','v6','v8']},
-  {id:'v2',name:'COMUNICACIONES',room:'COMUNICACIONES',x:39,y:16,links:['v1','v3','v7']},
-  {id:'v3',name:'ELECTRICIDAD',room:'ELECTRICIDAD',x:36,y:30,links:['v2','v4']},
-  {id:'v4',name:'ENFERMERÍA',room:'ENFERMERÍA',x:36,y:44,links:['v3','v5']},
-  {id:'v5',name:'REACTOR',room:'REACTOR',x:19,y:44,links:['v4','v6']},
-  {id:'v6',name:'ADMINISTRACIÓN',room:'ADMINISTRACIÓN',x:19,y:30,links:['v5','v1']},
-  {id:'v7',name:'OXÍGENO',room:'OXÍGENO',x:55,y:17,links:['v2','v8']},
-  {id:'v8',name:'SEGURIDAD',room:'SEGURIDAD',x:71,y:17,links:['v7','v1']}
+  // RED OESTE · tres conductos conectados entre Carga, Administración y Reactor.
+  {id:'v1',name:'CARGA NORTE',room:'CARGA NORTE',zone:'west',x:18.2,y:16,links:['v5','v6']},
+  {id:'v6',name:'ADMINISTRACIÓN',room:'ADMINISTRACIÓN',zone:'west',x:18.2,y:29.4,links:['v1','v5']},
+  {id:'v5',name:'REACTOR',room:'REACTOR',zone:'west',x:18.2,y:44,links:['v1','v6']},
+  // RED ESTE · tres conductos conectados entre Oxígeno, Seguridad y Cafetería.
+  {id:'v7',name:'OXÍGENO',room:'OXÍGENO',zone:'east',x:53.2,y:17,links:['v8','v9']},
+  {id:'v8',name:'SEGURIDAD',room:'SEGURIDAD',zone:'east',x:71,y:17,links:['v7','v9']},
+  {id:'v9',name:'CAFETERÍA',room:'CAFETERÍA',zone:'east',x:74.2,y:35,links:['v7','v8']}
  ]
 };
 
