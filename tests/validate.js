@@ -107,6 +107,7 @@ assert.ok(html.includes('playerId=authUser.$id'), 'La identidad de jugador debe 
 assert.ok(html.includes('async function syncRoomAccess()'), 'El anfitrión debe gestionar ACL por miembros de sala');
 assert.ok(html.includes('Permission.update(Role.any())') && html.includes('Permission.read(Role.any())') && html.includes("signature='shared-guest-room-v3|'+phase") && html.includes('Permission.delete(Role.user(playerId))'), 'Las salas deben permitir sincronización guest y mantener el borrado limitado al anfitrión');
 assert.ok(html.includes('function ensureCountdownTicker()') && html.includes('countdownTicker=setInterval'), 'La cuenta atrás debe avanzar y lanzar la partida aunque falle un ciclo de sondeo');
+assert.ok(html.includes('prepareVent(id)') && html.includes('ventPlayerState()'), 'Las pruebas deben poder verificar entrada y salida de los conductos');
 assert.ok(html.includes("gameState.sabotage.type==='comms'") && html.includes('COMUNICACIONES INTERFERIDAS'), 'El sabotaje de comunicaciones debe bloquear las tareas normales hasta repararlo');
 assert.ok(html.includes('permissions:ownerPermissions(playerId)'), 'Las filas de jugador deben tener permisos propios');
 assert.ok(html.includes('protocolVersion:2'), 'Las salas nuevas deben declarar versión de protocolo');
