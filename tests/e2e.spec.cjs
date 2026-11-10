@@ -319,6 +319,45 @@ test('gameplay: la interacción abre y completa los cinco tipos de minijuego con
   }
 });
 
+
+test('gameplay: geometría sin solapamientos, mobiliario sólido, red de conductos conectada y visión por luz', async ({browser}) => {
+  test.setTimeout(45000);
+  const {context,page}=await openAsGuest(browser);
+  try {
+    await page.locator('#explore').click();
+    await expect(page.locator('#game')).toBeVisible();
+    const audit=await page.evaluate(()=>window.__STARSHIP_TEST__.geometryAudit());
+    expect(audit).toMatchObject({rooms:18,corridors:11,vents:14,roomOverlaps:[]});
+    expect(audit.obstacles).toBeGreaterThan(30);
+    const table=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(57.5,33.8));
+    expect(table).toMatchObject({walkable:false,furniture:true});
+    const floor=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(60,40));
+    expect(floor).toMatchObject({walkable:true,furniture:false});
+    const network=await page.evaluate(()=>window.__STARSHIP_TEST__.ventNetwork());
+    expect(network).toHaveLength(14);
+    const ids=new Set(network.map(v=>v.id));
+    for(const vent of network)for(const link of vent.links){
+      expect(ids.has(link)).toBe(true);
+      expect(network.find(v=>v.id===link).links).toContain(vent.id);
+    }
+    const reachable=new Set([network[0].id]),queue=[network[0].id];
+    while(queue.length){const id=queue.shift();for(const link of network.find(v=>v.id===id).links)if(!reachable.has(link)){reachable.add(link);queue.push(link)}}
+    expect(reachable.size).toBe(14);
+    const first=await page.evaluate(()=>window.__STARSHIP_TEST__.prepareVent('v1'));
+    await page.locator('#vent').click();
+    await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.ventPlayerState())).toMatchObject({inVent:true,ventId:'v1'});
+    await page.locator('#vent').click();
+    await expect(page.locator('#modal')).toContainText('CONDUCTOS DE SERVICIO');
+    await expect(page.locator('#modal')).toContainText('REACTOR');
+    await page.locator('#modal [data-exit="v2"]').click();
+    await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.ventPlayerState())).toMatchObject({inVent:false,ventId:null});
+    const lighting=await page.evaluate(()=>({hasLayer:!!window.__starshipLightLayer,code:document.documentElement.innerHTML.includes('visionRadius')}));
+    expect(lighting.code).toBe(true);
+  } finally {
+    await context.close();
+  }
+});
+
 test('sabotajes: las cinco reparaciones funcionan y los críticos provocan derrota al agotar el tiempo', async ({browser}) => {
   test.setTimeout(90000);
   const {context,page}=await openAsGuest(browser);
