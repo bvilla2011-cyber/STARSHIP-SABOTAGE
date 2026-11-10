@@ -58,7 +58,7 @@ const sdkMock = String.raw`
     limit:value=>({method:'limit',values:[value]}),
     orderDesc:(attribute)=>({method:'orderDesc',attribute})
   };
-  const Role = { any:()=> 'any', user:id=>'user:'+id };
+  const Role = { any:()=> 'any', users:()=> 'users', user:id=>'user:'+id };
   const Permission = {
     read:role=>'read("'+role+'")',
     create:role=>'create("'+role+'")',
@@ -105,9 +105,9 @@ async function apiRoute(route) {
     }
     const row=store.get(id);
     if (!row) return send(404,{message:'Row not found'});
-    if (method === 'GET') { if (!(row.$permissions||[]).includes('read("any")') && !(row.$permissions||[]).includes('read("user:'+user+'")')) return send(403,{message:'Read permission denied'}); return send(200,row); }
+    if (method === 'GET') { const member=table==='rooms_v2'&&[...(shared.players_v2?.values()||[])].some(p=>p.$id===user&&p.roomId===row.$id); if (!(row.$permissions||[]).includes('read("any")') && !(row.$permissions||[]).includes('read("user:'+user+'")') && !((row.$permissions||[]).includes('read("users")')&&member)) return send(403,{message:'Read permission denied'}); return send(200,row); }
     const action=method==='PATCH'?'update':'delete';
-    if (!(row.$permissions||[]).includes(action+'("user:'+user+'")')) return send(403,{message:'Permission denied'});
+    const member=table==='rooms_v2'&&[...(shared.players_v2?.values()||[])].some(p=>p.$id===user&&p.roomId===row.$id); if (!(row.$permissions||[]).includes(action+'("user:'+user+'")') && !((row.$permissions||[]).includes(action+'("users")')&&member)) return send(403,{message:'Permission denied'});
     if (method === 'PATCH') {
       const payload=req.postDataJSON() || {};
       Object.assign(row,payload.data||{});
@@ -165,7 +165,7 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     await expect(p1.locator('#lobbyList')).toContainText(name2.slice(0,16),{timeout:8000});
     const id2=await p2.evaluate(()=>localStorage.getItem('__mock_user'));
     await expect(p1.locator('#start')).toBeEnabled();
-    await expect.poll(()=>shared.rooms_v2.get(code)?.$permissions?.includes('update("user:'+id2+'")')).toBe(true);
+    await expect.poll(()=>shared.rooms_v2.get(code)?.$permissions?.includes('update("users")')).toBe(true);
 
     const memberWrite=await p2.evaluate(async roomId=>{
       try { await window.__mockTest.request('/rows/rooms_v2/'+encodeURIComponent(roomId),'PATCH',{data:{status:'waiting'}}); return true; }
@@ -200,8 +200,7 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     const impostors=Object.values(state.players).filter(p=>p.role==='impostor');
     expect(impostors).toHaveLength(1);
     expect(shared.rooms_v2.get(code).$permissions).not.toContain('read("any")');
-    expect(shared.rooms_v2.get(code).$permissions).toContain('read("user:'+id1+'")');
-    expect(shared.rooms_v2.get(code).$permissions).toContain('read("user:'+id2+'")');
+    expect(shared.rooms_v2.get(code).$permissions).toContain('read("users")');
     expect(crew).toHaveLength(1);
     expect(crew[0].tasks).toHaveLength(4);
 
@@ -217,7 +216,7 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     await p1.locator('#moreBtn').click();
     await p1.locator('#leaveMatchBtn').click();
     await expect.poll(()=>shared.rooms_v2.get(code)?.hostId).toBe(id2);
-    await expect.poll(()=>shared.rooms_v2.get(code)?.$permissions?.includes('update("user:'+id2+'")')).toBe(true);
+    await expect.poll(()=>shared.rooms_v2.get(code)?.$permissions?.includes('update("users")')).toBe(true);
     const newHostWrite=await p2.evaluate(async roomId=>{try{await window.__mockTest.request('/rows/rooms_v2/'+encodeURIComponent(roomId),'PATCH',{data:{status:'playing'}});return true}catch(e){return false}},code);
     expect(newHostWrite).toBe(true);
   } finally {
