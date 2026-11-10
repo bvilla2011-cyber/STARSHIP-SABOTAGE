@@ -260,3 +260,58 @@ test('auditoría visual responsive: menú, tienda y hangar en escritorio y móvi
     await context.close();
   }
 });
+
+
+test('gameplay: la interacción abre y completa los cinco tipos de minijuego con IDs de tarea online', async ({browser}) => {
+  test.setTimeout(90000);
+  const {context,page}=await openAsGuest(browser);
+  try {
+    await page.locator('#explore').click();
+    await expect(page.locator('#game')).toBeVisible();
+    const types=['card','wires','route','filter','calibrate'];
+    for (const type of types) {
+      const taskId=await page.evaluate(type=>{
+        const station=MAP.tasks.find(t=>t.type===type);
+        if(!station)throw new Error('No hay estación del tipo '+type);
+        const p=gameState.players[playerId];
+        const id=station.id+'_online_assignment';
+        p.tasks=[{id,name:station.name,room:station.room,stationId:station.id}];
+        p.done=[];
+        p.x=station.x;p.y=station.y;
+        gameState.required=999;
+        return id;
+      },type);
+      await page.locator('#interact').click();
+      await expect(page.locator('#modal')).not.toHaveClass(/hidden/);
+      if(type==='wires') {
+        for(let i=0;i<4;i++)await page.locator('#modal [data-wire]').nth(i).click();
+      } else if(type==='route') {
+        for(const i of [0,1,2,5,8])await page.locator('#modal [data-route="'+i+'"]').click();
+      } else if(type==='filter') {
+        for(let i=0;i<6;i++)await page.locator('#modal [data-debris]').first().click();
+      } else if(type==='calibrate') {
+        for(let stage=0;stage<3;stage++) {
+          let synced=false;
+          for(let attempt=0;attempt<55&&!synced;attempt++) {
+            await page.locator('#modal #cal'+stage).click();
+            synced=(await page.locator('#modal #calState'+stage).textContent()).includes('SINCRONIZADO');
+            if(!synced)await page.waitForTimeout(35);
+          }
+          expect(synced,'El módulo '+stage+' debe sincronizarse dentro del rango verde').toBe(true);
+        }
+      } else if(type==='card') {
+        const card=page.locator('#modal #idCard');
+        const b=await card.boundingBox();
+        await page.mouse.move(b.x+b.width/2,b.y+b.height/2);
+        await page.mouse.down();
+        await page.waitForTimeout(500);
+        await page.mouse.move(b.x+b.width/2+45,b.y+b.height/2,{steps:4});
+        await page.mouse.up();
+      }
+      await expect(page.locator('#modal')).toHaveClass(/hidden/,{timeout:7000});
+      await expect.poll(()=>page.evaluate(id=>gameState.players[playerId].done.includes(id),taskId)).toBe(true);
+    }
+  } finally {
+    await context.close();
+  }
+});
