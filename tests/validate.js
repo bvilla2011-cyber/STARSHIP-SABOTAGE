@@ -105,7 +105,7 @@ assert.ok(html.includes("canvas.addEventListener('click'") && html.includes('fun
 assert.ok(html.includes('for(let i=0;i<72;i++)angles.push'), 'La visibilidad y las sombras deben usar mayor resolución angular');
 assert.ok(!html.includes("'LABORATORIO','medbay'") && !html.includes("'CARGA SUR','storage'"), 'El mapa compacto no debe incluir las dos salas retiradas');
 assert.ok(html.includes("const visionRadius=lightsSabotage?2.35:(p.role==='impostor'?10.5:11.9)"), 'La visión normal debe ampliarse ligeramente y el sabotaje debe limitarla');
-assert.ok(html.includes('Los muebles conservan sus colisionadores de movimiento, pero no bloquean la luz.'), 'Los muebles no deben proyectar sombras');
+assert.ok(html.includes('El mobiliario sigue siendo sólido para el jugador, pero no proyecta sombras.'), 'Los muebles no deben proyectar sombras');
 assert.ok(html.includes('for(const c of MAP.corridors||[])'), 'Los bordes de los pasillos deben bloquear la luz');
 assert.ok(html.includes('function segmentRectInterval') && html.includes('function shadowGeometryAudit()'), 'Las sombras de pasillos deben recortarse en habitaciones y cruces');
 assert.ok(!html.includes('for(const o of MAP.obstacles||[]){\n  if(o.kind===\'rect\')'), 'Los obstáculos de mobiliario no deben formar parte de la oclusión de luz');
