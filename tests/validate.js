@@ -100,6 +100,7 @@ assert.ok(html.includes('async function syncRoomAccess()'), 'El anfitrión debe 
 assert.ok(html.includes("['playing','ended'].includes(phase)?ids.map(id=>Permission.read(Role.user(id)))"), 'El estado activo debe ser legible solo por miembros de la sala');
 assert.ok(html.includes('permissions:ownerPermissions(playerId)'), 'Las filas de jugador deben tener permisos propios');
 assert.ok(html.includes('protocolVersion:2'), 'Las salas nuevas deben declarar versión de protocolo');
+assert.ok(html.includes("ROOMS='rooms_v2',PLAYERS='players_v2'"), 'El cliente debe usar tablas v2 con permisos limitados');
 assert.ok(html.includes("m.id+'|'+choice") && html.includes("q.vote?.startsWith(m.id+'|')"), 'Los votos deben aislarse por reunión');
 assert.ok(!html.includes('target.alive=q.alive') && !html.includes('own.alive=local.alive'), 'El snapshot de jugadores no debe revivir eliminados');
 assert.ok(!html.includes('rowId:target.id,data:{alive:false}') && !html.includes('rowId:targetId,data:{alive:false}'), 'Un cliente no debe modificar la fila de otro jugador');
