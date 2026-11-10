@@ -12,10 +12,10 @@ Juego social de deducción multijugador para navegador. El objetivo técnico es 
 
 ## Mapa
 - 18 habitaciones.
-- 9 corredores (6 longitudinales y 3 transversales).
+- 11 corredores (6 longitudinales y 3 transversales).
 - 17 estaciones de tareas.
 - 5 estaciones de reparación.
-- 5 conductos con enlaces recíprocos.
+- 14 conductos con enlaces recíprocos.
 - Spawn central en cafetería.
 
 El mapa es original y mantiene convenciones del género, sin copiar literalmente planos, arte ni recursos protegidos de otros juegos.
