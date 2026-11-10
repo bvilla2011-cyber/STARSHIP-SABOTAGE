@@ -11,7 +11,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  # One-time recovery lane for this release; normal deployments remain serialized under 'pages'.
+  group: ${{ contains(github.event.head_commit.message || '', 'pages-runner-recovery') && format('pages-recovery-{0}', github.sha) || 'pages' }}
   cancel-in-progress: true
 
 jobs:
