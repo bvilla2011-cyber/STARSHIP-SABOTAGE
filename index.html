@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#07111d"><title>STARSHIP: SABOTAGE</title>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#07111d"><title>SPACESHIP SABOTAGE</title>
 <style>
 :root{color-scheme:dark;--bg:#07111d;--panel:#102235;--line:#34536a;--cyan:#61dbe8;--gold:#f2ca72;--red:#ff6470}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#edf6fc;font:15px system-ui,-apple-system,Segoe UI,sans-serif}button,input,select{font:inherit}button{border:1px solid var(--line);background:#1b354a;color:white;border-radius:9px;padding:11px 14px;font-weight:800}button.primary{background:#167f91;border:0}button:disabled{opacity:.4}.screen{min-height:100dvh;display:grid;place-items:center;padding:18px;background:radial-gradient(ellipse at top,#173b50,#07111d 70%)}.card{width:min(520px,100%);padding:22px;background:#0c1b2a;border:1px solid var(--line);border-radius:18px}.logo{text-align:center;font-size:clamp(32px,9vw,48px);font-weight:1000;line-height:.95;letter-spacing:2px}.logo span{color:var(--red)}.sub{text-align:center;color:var(--cyan);letter-spacing:3px;font-size:10px;margin:12px 0 20px}label{display:block;color:#9eb2c3;font-size:12px;margin:12px 0 5px}input,select{width:100%;padding:12px;background:#081522;border:1px solid var(--line);border-radius:8px;color:white}.row{display:flex;gap:9px}.row>*{flex:1;min-width:0}.stack{display:grid;gap:9px;margin-top:14px}.notice{font-size:12px;line-height:1.5;padding:10px;background:#102b40;border:1px solid #31536b;border-radius:9px;color:#c3d5e2;margin:12px 0}.muted{color:#9eb2c3}.hidden{display:none!important}#lobbyList{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin:12px 0}.pill{background:#1a3043;border-radius:8px;padding:9px;font-size:12px}#game{height:100dvh;display:flex;flex-direction:column}header{height:48px;display:flex;align-items:center;padding:0 12px;gap:10px;background:#091522;border-bottom:1px solid var(--line);font-weight:900}#phase{margin-left:auto;color:var(--gold);font-size:12px}#arena{position:relative;flex:1;min-height:0}canvas{width:100%;height:100%;display:block;touch-action:none}#hud{position:absolute;inset:10px 10px auto;display:flex;justify-content:space-between;pointer-events:none}#tasks,#actions{background:#081725df;border:1px solid var(--line);border-radius:10px;padding:9px;max-width:45%;font-size:11px}#actions{display:grid;gap:6px;pointer-events:auto}#actions button{font-size:10px;padding:8px}#joystick{position:absolute;left:16px;bottom:18px;width:124px;height:124px;border:2px solid #9bdde8bb;border-radius:50%;background:radial-gradient(circle,#244a61cc,#0b1d2dbb 72%);box-shadow:0 0 0 7px #68c9dc12,inset 0 0 22px #8deeff25,0 8px 25px #0008;touch-action:none;user-select:none;-webkit-user-select:none;pointer-events:auto}#stick{position:absolute;left:42px;top:42px;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 32% 25%,#f3ffff,#8bd8e5 48%,#267b91);border:2px solid #eaffff;box-shadow:0 4px 12px #0009,inset 0 -4px 8px #174b63;will-change:transform;pointer-events:none}#toast{position:absolute;top:58px;left:50%;transform:translateX(-50%);background:#19354a;padding:10px 14px;border-radius:8px;display:none}#modal{position:absolute;inset:0;background:#000b;display:grid;place-items:center;padding:16px}#modal .card{max-height:85%;overflow:auto}#end{position:absolute;inset:0;z-index:20;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#173c55ee,#020711f5 75%);text-align:center;font-weight:1000}#end.hidden{display:none!important}.victory-panel{position:relative;width:min(560px,92%);padding:28px 22px 24px;border:1px solid #75dce9;border-radius:22px;background:linear-gradient(155deg,#16374d,#091725 72%);box-shadow:0 0 0 5px #64d8e51c,0 24px 90px #000c;animation:victory-pop .75s cubic-bezier(.18,.85,.25,1.2) both}.victory-emblem{margin:8px auto;width:88px;height:88px;display:grid;place-items:center;border-radius:50%;font-size:52px;color:#ffe38c;background:radial-gradient(circle,#a77a35,#45331d 70%);border:3px solid #ffe29a;box-shadow:0 0 35px #f7ca6644;animation:emblem-pulse 2s ease-in-out infinite}.victory-kicker{font-size:10px;letter-spacing:4px;color:#8deaf2}.victory-panel h1{font-size:clamp(29px,7vw,48px);margin:12px 0 5px;color:#ffe18c;text-shadow:0 3px 0 #62431d,0 0 22px #ffd66b55}.victory-panel p{font-size:13px;color:#b6cbd7;font-weight:500}.victory-stars{color:#ffe7a1;letter-spacing:12px;font-size:20px}.victory-result{margin:17px auto;padding:10px;border-radius:9px;background:#06131f;color:#bfeaf0;font-size:12px}.victory-panel button{width:100%;margin-top:8px;padding:13px}@keyframes victory-pop{0%{transform:translateY(50px) scale(.75);opacity:0}70%{transform:translateY(-5px) scale(1.03)}100%{transform:none;opacity:1}}@keyframes emblem-pulse{50%{transform:scale(1.08);box-shadow:0 0 48px #f7ca6688}}
 @media(min-width:800px){#joystick{display:none}#tasks,#actions{font-size:13px}#actions button{font-size:12px}}
@@ -473,7 +473,6 @@
 <section id="lobby" class="screen hidden"><div class="lobby-shell"><div class="lobby-ship-stage"><div class="lobby-stars"></div><div class="ship-orbit"></div><div class="spawn-beam"></div><svg class="lobby-ship" viewBox="0 0 180 180" role="img" aria-label="Nave de la tripulación"><defs><linearGradient id="shipMetal" x2="0" y2="1"><stop stop-color="#dffcff"/><stop offset=".45" stop-color="#5d9bb2"/><stop offset="1" stop-color="#183b55"/></linearGradient><linearGradient id="shipGlass" x2="0" y2="1"><stop stop-color="#eaffff"/><stop offset="1" stop-color="#37a9ce"/></linearGradient></defs><path d="M90 10 111 43 145 54 132 91 143 126 105 133 90 164 74 133 37 126 48 91 35 54 69 43Z" fill="url(#shipMetal)" stroke="#b7f8ff" stroke-width="3"/><path d="M90 24 101 54 90 67 79 54Z" fill="#fff3a1"/><path d="M57 88Q90 61 123 88L114 109H66Z" fill="url(#shipGlass)" stroke="#d8ffff" stroke-width="3"/><circle cx="90" cy="91" r="7" fill="#efffff"/><path d="M64 130 54 151M116 130 126 151" stroke="#ffca69" stroke-width="7" stroke-linecap="round"/><path d="M78 146 90 171 102 146" fill="#ffb34f" opacity=".9"/></svg><div class="ship-platform"></div><div class="ship-stage-caption">HANGAR 01 <span>·</span> EMBARQUE</div></div><div class="lobby-console"><div class="lobby-kicker">STARSHIP // SALA DE OPERACIONES</div><div class="lobby-title">PREPARAR <b>PARTIDA</b></div><div class="lobby-code-line"><span>CÓDIGO DE SALA</span><strong id="roomCode"></strong></div><p class="lobby-help">Comparte el código y reúne a tu tripulación antes del despegue.</p><div class="lobby-settings"><div class="lobby-settings-head">CONFIGURACIÓN DE MISIÓN <span id="hostTag">ANFITRIÓN</span></div><div class="row"><div><label for="max">TRIPULACIÓN MÁXIMA</label><select id="max"><option>2</option><option>4</option><option>6</option><option>10</option><option>12</option><option selected>15</option></select></div><div><label for="imps">IMPOSTORES</label><select id="imps"><option>1</option><option selected>2</option><option>3</option></select></div></div></div><div id="lobbyList"></div><div id="lobbyStatus" class="notice">Esperando tripulantes…</div><div id="countdownPanel" class="countdown-panel hidden"><span>SECUENCIA DE INICIO</span><strong id="countdownNumber">8</strong><small id="countdownCaption">PREPARANDO DESPEGUE</small></div><div class="stack"><button class="primary lobby-start" id="start"><span id="lobbyStartLabel">INICIAR PARTIDA</span><b>➜</b></button><button id="leave">ABANDONAR SALA</button></div></div></div></section>
 <main id="game" class="hidden"><div id="roleReveal" class="role-reveal hidden" aria-live="polite"><div class="role-reveal-stars"></div><div class="role-reveal-kicker">STARSHIP // IDENTIFICACIÓN DE TRIPULACIÓN</div><div id="roleRevealTitle" class="role-reveal-title">TRIPULANTE</div><div id="roleRevealSubtitle" class="role-reveal-subtitle">Encuentra a los saboteadores</div><div id="roleRevealCrew" class="role-reveal-crew"></div><div class="role-reveal-footer">INICIANDO SISTEMA EN <b id="roleRevealTimer">5</b></div></div><div id="arena"><canvas id="world"></canvas><div id="hud"><div id="tasks"><div class="task-head"><b id="taskHeading">MISIONES</b><small id="taskProgress"></small></div><div class="task-bar"><i id="taskFill"></i></div><button id="taskToggle" class="task-open-btn">☷ VER MIS TAREAS</button><div id="taskText" class="task-list hidden">Explora la nave</div></div><div id="actions"><button id="mapBtn">▦ MAPA</button><button id="kill" class="hidden">ELIMINAR</button><button id="sabotage" class="hidden">SABOTAJE</button></div></div><button id="moreBtn" aria-label="Más opciones">⋮</button><div id="contextActions"><button id="interact" class="action-orb"><span class="action-glyph">✦</span><span class="action-main">TAREA</span><span id="contextHint">INTERACTUAR</span></button><button id="report" class="report-orb"><span class="report-glyph">!</span><span class="report-main">REPORTAR</span><span class="report-sub">CUERPO</span></button><button id="emergency" class="sos-button"><span class="sos-light"></span><b>SOS</b><small>EMERGENCIA</small></button></div><div id="mapPanel" class="hidden"><div class="map-panel-head"><b>MAPA DE LA NAVE</b><button id="mapClose" aria-label="Cerrar mapa">×</button></div><canvas id="miniMap" width="600" height="420"></canvas></div><div id="sabotagePanel" class="hidden"><div class="sabotage-head"><b>MAPA DE SABOTAJE</b><button id="sabotageClose">✕</button></div><p>Selecciona un sistema para provocar una avería.</p><div class="sabotage-grid"><button data-sab="lights">⚡<b>LUCES</b><small>ELÉCTRICA</small></button><button data-sab="reactor">☢<b>REACTOR</b><small>CRÍTICO</small></button><button data-sab="comms">📡<b>COMUNICACIONES</b><small>SEÑAL</small></button><button data-sab="o2">◉<b>OXÍGENO</b><small>CRÍTICO</small></button><button data-sab="doors">▣<b>PUERTAS</b><small>CAFETERÍA</small></button></div></div><div id="killSequence" class="hidden"><div class="kill-flash"></div><div class="kill-caption">SEÑAL VITAL INTERRUMPIDA</div></div><div id="repairArrow" class="hidden">▼<small>REPARAR</small></div><div id="moreMenu" class="hidden"><b>MENÚ DE PARTIDA</b><button id="resumeBtn">VOLVER</button><button id="leaveMatchBtn" class="danger">ABANDONAR PARTIDA</button></div><div id="joystick"><div id="stick"></div></div><div id="toast"></div><div id="modal" class="hidden"></div><div id="end" class="hidden"><div class="victory-panel"><div class="victory-stars">✦　✧　✦</div><div class="victory-emblem">★</div><div class="victory-kicker">FIN DE LA PARTIDA</div><h1 id="endTitle">¡VICTORIA!</h1><p id="endSubtitle">La tripulación ha cumplido su misión.</p><div id="endResult" class="victory-result"></div><button id="endContinue" class="primary">CONTINUAR</button></div></div></div></main>
 <script src="https://cdn.jsdelivr.net/npm/appwrite@29.0.0" onerror="this.onerror=null;this.src='https://unpkg.com/appwrite@29.0.0'"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
 (()=>{'use strict';
 const ENDPOINT='https://fra.cloud.appwrite.io/v1',PROJECT='6af106fb00396755a6fb',DB='starship_db',ROOMS='rooms',PLAYERS='players';
@@ -497,9 +496,70 @@ function getDb(){
 const $=id=>document.getElementById(id);let roomId='',roomCode='',playerId='',hostId='',isHost=false,soloMode=false,me=null,players=[],gameState=null,poll=null,move={x:0,y:0},keys={},lastMove=0,canvas,ctx,raf=0;
 // MAPA REINICIADO: lienzo vacío para reconstruir el escenario desde cero.
 // Se conserva el motor de renderizado, cámara, personajes y multijugador.
-const MAP={w:84,h:64,rooms:[],corridors:[],obstacles:[],tasks:[],vents:[]};
+// Mapa original 2,5D: seis corredores principales paralelos y tres ejes transversales.
+const makeRoom=(id,name,kind,x,y,w,h,color,doors=['top','bottom'])=>({
+ id,name,kind,x,y,w,h,color,poly:[[0,0],[1,0],[1,1],[0,1]],
+ doors:doors.map(side=>({side,offset:.5,width:2.35}))
+});
+const MAP={
+ w:120,h:84,
+ rooms:[
+  makeRoom('cargo_n','CARGA NORTE','storage',15,9.8,16,8.4,'#8a704c'),
+  makeRoom('comms_n','COMUNICACIONES','comms',43,9.8,16,8.4,'#765d9b'),
+  makeRoom('oxygen','OXÍGENO','o2',77,9.8,16,8.4,'#31947d'),
+  makeRoom('admin','ADMINISTRACIÓN','admin',14,23.8,15,8.4,'#438d70'),
+  makeRoom('electrical','ELECTRICIDAD','electrical',31,23.8,12,8.4,'#a77a3f'),
+  makeRoom('cafeteria','CAFETERÍA','cafe',44,22.8,32,24.4,'#497f91',['top','bottom','left','right']),
+  makeRoom('security','SEGURIDAD','security',79,23.8,16,8.4,'#347e88'),
+  makeRoom('reactor','REACTOR','reactor',14,37.8,16,8.4,'#76539a'),
+  makeRoom('medbay','ENFERMERÍA','medbay',31,37.8,12,8.4,'#398b86'),
+  makeRoom('weapons','ARMERÍA','weapons',79,37.8,16,8.4,'#9b6748'),
+  makeRoom('engine_u','MOTORES SUPERIORES','engine',14,51.8,16,8.4,'#a65f42'),
+  makeRoom('navigation','NAVEGACIÓN','nav',33,51.8,16,8.4,'#3e75a8'),
+  makeRoom('shields','ESCUDOS','shields',71,51.8,16,8.4,'#347f9b'),
+  makeRoom('storage','ALMACÉN','storage',90,51.8,16,8.4,'#8a704c'),
+  makeRoom('comms_s','COMUNICACIONES AUX.','comms',14,65.8,16,8.4,'#765d9b'),
+  makeRoom('laboratory','LABORATORIO','medbay',33,65.8,16,8.4,'#398b86'),
+  makeRoom('cargo_s','CARGA SUR','storage',71,65.8,16,8.4,'#8a704c'),
+  makeRoom('engine_s','MOTORES INFERIORES','engine',90,65.8,16,8.4,'#a65f42')
+ ],
+ corridors:[
+  ...[7,21,35,49,63,77].map((y,i)=>({id:'main_'+(i+1),main:true,width:4.8,points:[[8,y],[112,y]]})),
+  ...[10,60,110].map((x,i)=>({id:'cross_'+(i+1),main:false,width:3.5,points:[[x,7],[x,77]]}))
+ ],
+ obstacles:[
+  {x:22,y:14,r:.48},{x:51,y:14,r:.48},{x:85,y:14,r:.48},
+  {x:37,y:28,r:.42},{x:22,y:42,r:.5},{x:37,y:42,r:.42},
+  {x:86,y:42,r:.48},{x:22,y:56,r:.48},{x:41,y:56,r:.42},
+  {x:79,y:56,r:.45},{x:98,y:56,r:.48},{x:41,y:70,r:.42}
+ ],
+ tasks:[
+  {id:'t_card_n',name:'Pasar tarjeta de carga',room:'CARGA NORTE',x:22,y:14,type:'card'},
+  {id:'t_wires_n',name:'Reparar cableado',room:'COMUNICACIONES',x:51,y:14,type:'wires'},
+  {id:'t_filter',name:'Limpiar filtros de oxígeno',room:'OXÍGENO',x:85,y:14,type:'filter'},
+  {id:'t_admin',name:'Validar identificación',room:'ADMINISTRACIÓN',x:21,y:28,type:'card'},
+  {id:'t_power',name:'Distribuir energía',room:'ELECTRICIDAD',x:37,y:28,type:'wires'},
+  {id:'t_security',name:'Calibrar cámaras',room:'SEGURIDAD',x:86,y:28,type:'sequence'},
+  {id:'t_reactor',name:'Alinear núcleo',room:'REACTOR',x:22,y:42,type:'sequence'},
+  {id:'t_scan',name:'Escáner médico',room:'ENFERMERÍA',x:37,y:42,type:'scan'},
+  {id:'t_weapons',name:'Trazar trayectoria',room:'ARMERÍA',x:86,y:42,type:'route'},
+  {id:'t_fuel_u',name:'Repostar motor',room:'MOTORES SUPERIORES',x:22,y:56,type:'fuel'},
+  {id:'t_nav',name:'Calibrar navegación',room:'NAVEGACIÓN',x:41,y:56,type:'route'},
+  {id:'t_shields',name:'Sincronizar escudos',room:'ESCUDOS',x:79,y:56,type:'sequence'},
+  {id:'t_storage',name:'Clasificar suministros',room:'ALMACÉN',x:98,y:56,type:'card'},
+  {id:'t_upload',name:'Enviar registros',room:'COMUNICACIONES AUX.',x:22,y:70,type:'upload'},
+  {id:'t_lab',name:'Analizar muestra',room:'LABORATORIO',x:41,y:70,type:'scan'},
+  {id:'t_cargo_s',name:'Comprobar contenedores',room:'CARGA SUR',x:79,y:70,type:'fuel'},
+  {id:'t_engine_s',name:'Reiniciar turbina',room:'MOTORES INFERIORES',x:98,y:70,type:'wires'}
+ ],
+ vents:[
+  {id:'v1',x:16,y:13,links:['v2']},{id:'v2',x:16,y:42,links:['v1','v3']},
+  {id:'v3',x:16,y:70,links:['v2']},{id:'v4',x:103,y:28,links:['v5']},
+  {id:'v5',x:103,y:56,links:['v4']}
+ ]
+};
 const MAP_SCALE=1;
-const SPAWN_X=MAP.w/2,SPAWN_Y=MAP.h/2;
+const SPAWN_X=60,SPAWN_Y=35;
 let cameraIntro=null,cameraIntroPlayed=true;
 function beginCameraIntro(){cameraIntro=null;cameraIntroPlayed=true;}
 const perms=Permission&&Role?[Permission.read(Role.any()),Permission.update(Role.any()),Permission.delete(Role.any())]:[];
@@ -516,12 +576,12 @@ function renderLobby(){const cfg=gameState||{};const cap=Number(cfg.maxPlayers||
 async function saveRoomState(s,status='playing'){const r=await getDb().getRow({databaseId:DB,tableId:ROOMS,rowId:roomId});await getDb().updateRow({databaseId:DB,tableId:ROOMS,rowId:roomId,data:{status,settings:JSON.stringify(s)}})}
 function updateLobbyCountdown(){const left=Math.max(0,Math.ceil(((gameState?.countdownEndsAt||Date.now())-Date.now())/1000));$('countdownNumber').textContent=left;$('countdownCaption').textContent=left>0?'PREPARANDO DESPEGUE':'SECUENCIA COMPLETADA';$('countdownPanel').classList.toggle('zero',left===0);if(left===0)$('lobbyStatus').textContent='MOTORES ESTABLES · ESPERANDO SIGUIENTE FASE'}
 let launchingMatch=false,roleRevealShown=false,gameUIStarted=false,roleRevealTimer=null;
-async function startMatch(){if(!isHost||players.length<2)return toast('Se necesitan al menos 2 jugadores.');const maxPlayers=Number($('max').value),impostors=Math.min(3,Math.max(1,Number($('imps').value)));if(impostors>=players.length)return toast('Debe haber menos impostores que tripulantes.');const countdownEndsAt=Date.now()+8000;await getDb().updateRow({databaseId:DB,tableId:ROOMS,rowId:roomId,data:{maxPlayers,status:'countdown',settings:JSON.stringify({phase:'countdown',maxPlayers,impostors,countdownEndsAt})}});gameState={phase:'countdown',maxPlayers,impostors,countdownEndsAt};renderLobby();}
+async function startMatch(){if(!isHost||players.length<2)return toast('Se necesitan al menos 2 jugadores.');const maxPlayers=Number($('max').value),impostors=Math.min(3,Math.max(1,Number($('imps').value)));if(impostors>=players.length)return toast('Debe haber menos impostores que tripulantes.');const countdownEndsAt=Date.now()+10000;await getDb().updateRow({databaseId:DB,tableId:ROOMS,rowId:roomId,data:{maxPlayers,status:'countdown',settings:JSON.stringify({phase:'countdown',maxPlayers,impostors,countdownEndsAt})}});gameState={phase:'countdown',maxPlayers,impostors,countdownEndsAt};renderLobby();}
 async function launchMatchAfterCountdown(){if(!isHost||launchingMatch||gameState?.phase!=='countdown'||Date.now()<(gameState.countdownEndsAt||0))return;launchingMatch=true;try{const count=Math.min(Number(gameState.impostors)||1,players.length-1),shuffled=[...players].sort(()=>Math.random()-.5),roster={},crew=shuffled.slice(count),pool=[...MAP.tasks].sort(()=>Math.random()-.5),assign={};crew.forEach(p=>{const take=pool.splice(0,Math.min(pool.length,3+Math.floor(Math.random()*3)));assign[p.id]=take.map(t=>({id:t.id,name:t.name,room:t.room}))});shuffled.forEach((p,i)=>{const role=i<count?'impostor':'crew';roster[p.id]={...p,cosmetics:p.cosmetics||{},role,x:SPAWN_X,y:SPAWN_Y,alive:true,done:[],tasks:role==='crew'?(assign[p.id]||[]):[],lastKill:0}});const required=Object.values(roster).reduce((n,p)=>n+(p.tasks?.length||0),0);const next={phase:'playing',players:roster,meeting:null,completed:0,required,createdAt:Date.now(),settings:{maxPlayers:gameState.maxPlayers,impostors:count}};await saveRoomState(next,'playing');gameState=next;gameUIStarted=false;roleRevealShown=false;startGameUI()}catch(e){launchingMatch=false;toast('No se pudo iniciar: '+e.message);console.error(e)}}
 function showRoleReveal(){if(roleRevealShown)return;const mine=gameState?.players?.[playerId];if(!mine)return;roleRevealShown=true;const impostor=mine.role==='impostor',team=Object.values(gameState.players).filter(q=>q.role===(impostor?'impostor':'crew'));
 const card=(q,index)=>{const c=q.cosmetics||{},skin=SHOP_ITEMS.find(i=>i.id===c.skin),top=SHOP_ITEMS.find(i=>i.id===c.torso),legs=SHOP_ITEMS.find(i=>i.id===c.abajo),gear=SHOP_ITEMS.find(i=>i.id===c.arriba),base=skin?.suit||q.color||'#35a9d6',trim=skin?.trim||'#b9e9f5',name=clean(q.name||'TRIPULANTE'),gearIcon=gear?.icon||'',gearMarkup=gear?'<g transform="translate(95 43)"><circle r="22" fill="#102030" stroke="#e9f7ff" stroke-width="3"/><text y="9" text-anchor="middle" font-size="24">'+clean(gearIcon)+'</text></g>':'',topMarkup=top?'<path d="M53 119Q95 132 137 119L132 174Q95 190 58 174Z" fill="'+(top.trim||trim)+'" stroke="#101923" stroke-width="5"/><path d="M95 128V177" stroke="#fff" stroke-opacity=".65" stroke-width="3"/>':'',legMarkup=legs?'<path d="M59 171L91 175L87 216L58 220Z M99 175L132 171L138 220L106 216Z" fill="'+(legs.trim||'#263849')+'" stroke="#101923" stroke-width="5"/>':'';return '<div class="role-card" style="--draw-delay:'+index*.12+'s"><div class="role-card-avatar"><svg viewBox="0 0 190 250" role="img" aria-label="Personaje personalizado"><defs><linearGradient id="suit'+index+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".55"/><stop offset=".35" stop-color="'+base+'"/><stop offset="1" stop-color="#101923"/></linearGradient><linearGradient id="visor'+index+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".35" stop-color="#b8f1ff"/><stop offset="1" stop-color="#17617e"/></linearGradient></defs><ellipse cx="95" cy="236" rx="46" ry="8" fill="#020812" opacity=".65"/><g class="crew-draw"><path d="M58 165L91 169L86 216L54 220Z M99 169L132 165L139 220L106 216Z" fill="url(#suit'+index+')" stroke="#101923" stroke-width="7"/>'+legMarkup+'<path d="M53 211L88 211L91 229Q87 238 68 238H48Q41 231 53 211ZM103 211L138 211L146 229Q144 238 124 238H105Q96 232 103 211Z" fill="'+trim+'" stroke="#101923" stroke-width="6"/><path d="M57 110Q48 94 55 75Q62 48 95 48Q128 48 135 75Q142 95 133 112L137 171Q133 187 95 190Q57 187 53 171Z" fill="url(#suit'+index+')" stroke="#101923" stroke-width="8"/>'+topMarkup+'<path d="M54 124Q29 120 28 145L30 177Q32 190 48 185L61 170M136 124Q161 120 162 145L160 177Q158 190 142 185L129 170" fill="'+base+'" stroke="#101923" stroke-width="8" stroke-linecap="round"/><path d="M68 79Q74 62 96 62Q119 62 125 79L124 105Q117 121 95 121Q73 121 66 105Z" fill="'+base+'" stroke="#101923" stroke-width="6"/><rect x="82" y="82" width="61" height="34" rx="17" fill="url(#visor'+index+')" stroke="#102b3c" stroke-width="6"/><path d="M94 88Q111 78 130 87" fill="none" stroke="#fff" stroke-width="4" opacity=".8"/></g>'+gearMarkup+'</svg></div><span class="role-card-name">'+name+'</span><small class="role-card-loadout">'+clean(skin?.name||'Uniforme estándar')+(top?' · '+clean(top.name):'')+(legs?' · '+clean(legs.name):'')+(gear?' · '+clean(gear.name):'')+'</small></div>'};
 $('roleReveal').classList.toggle('impostor',impostor);$('roleRevealTitle').textContent=impostor?'IMPOSTOR':'TRIPULANTE';$('roleRevealSubtitle').textContent=impostor?'Sabotea la nave sin levantar sospechas.':'Completa tus misiones y descubre al impostor.';$('roleRevealCrew').innerHTML=team.map(card).join('');$('roleReveal').querySelectorAll('.western-saloon,.western-dust,.western-tumbleweed').forEach(n=>n.remove());$('roleRevealTimer').textContent='5';$('roleReveal').classList.remove('hidden');if(roleRevealTimer)clearInterval(roleRevealTimer);let left=5;roleRevealTimer=setInterval(()=>{left--;$('roleRevealTimer').textContent=String(Math.max(0,left));if(left<=0){clearInterval(roleRevealTimer);roleRevealTimer=null;$('roleReveal').classList.add('hidden')}},1000)}
-function startGameUI(){if(window.THREE&&!shipRenderer){try{initShip3D()}catch(e){console.warn('No se pudo iniciar la nave 3D',e)}}const exploration=!!gameState?.exploration;const alreadyStarted=gameUIStarted&&$('game')&&!$('game').classList.contains('hidden');if(alreadyStarted){$('kill').classList.toggle('hidden',exploration||gameState?.players?.[playerId]?.role!=='impostor');$('sabotage').classList.toggle('hidden',exploration||gameState?.players?.[playerId]?.role!=='impostor');updateTasks();return}gameUIStarted=true;if(!exploration){beginCameraIntro();showRoleReveal()}else{cameraIntro=null;$('roleReveal').classList.add('hidden')}const joystick=$('joystick'),touchDevice=(navigator.maxTouchPoints||0)>0||('ontouchstart' in window);if(joystick&&touchDevice){joystick.style.cssText='display:block!important;visibility:visible!important;opacity:1!important;position:fixed!important;left:max(22px,env(safe-area-inset-left))!important;bottom:max(22px,env(safe-area-inset-bottom))!important;top:auto!important;right:auto!important;width:140px!important;height:140px!important;z-index:2147483000!important;pointer-events:auto!important;touch-action:none!important;';const knob=$('stick');if(knob)knob.style.cssText='position:absolute;width:48px;height:48px;left:44px;top:44px;pointer-events:none;'}$('lobby').classList.add('hidden');$('game').classList.remove('hidden');$('game').style.display='flex';$('game').style.height='100dvh';$('arena').style.cssText='position:relative;display:block;flex:1 1 auto;min-width:0;min-height:0;width:100%;height:100%;overflow:hidden';$('world').style.cssText='position:absolute;inset:0;display:block;width:100%;height:100%;min-width:1px;min-height:1px;touch-action:none';$('kill').classList.toggle('hidden',gameState?.players?.[playerId]?.role!=='impostor');$('sabotage').classList.toggle('hidden',gameState?.players?.[playerId]?.role!=='impostor');requestAnimationFrame(()=>{resize();draw()});resize();if(!raf)raf=requestAnimationFrame(loop);updateTasks();try{drawMiniMap()}catch(e){console.warn(e)}}
+function startGameUI(){const exploration=!!gameState?.exploration;const alreadyStarted=gameUIStarted&&$('game')&&!$('game').classList.contains('hidden');if(alreadyStarted){$('kill').classList.toggle('hidden',exploration||gameState?.players?.[playerId]?.role!=='impostor');$('sabotage').classList.toggle('hidden',exploration||gameState?.players?.[playerId]?.role!=='impostor');updateTasks();return}gameUIStarted=true;if(!exploration){beginCameraIntro();showRoleReveal()}else{cameraIntro=null;$('roleReveal').classList.add('hidden')}const joystick=$('joystick'),touchDevice=(navigator.maxTouchPoints||0)>0||('ontouchstart' in window);if(joystick&&touchDevice){joystick.style.cssText='display:block!important;visibility:visible!important;opacity:1!important;position:fixed!important;left:max(22px,env(safe-area-inset-left))!important;bottom:max(22px,env(safe-area-inset-bottom))!important;top:auto!important;right:auto!important;width:140px!important;height:140px!important;z-index:2147483000!important;pointer-events:auto!important;touch-action:none!important;';const knob=$('stick');if(knob)knob.style.cssText='position:absolute;width:48px;height:48px;left:44px;top:44px;pointer-events:none;'}$('lobby').classList.add('hidden');$('game').classList.remove('hidden');$('game').style.display='flex';$('game').style.height='100dvh';$('arena').style.cssText='position:relative;display:block;flex:1 1 auto;min-width:0;min-height:0;width:100%;height:100%;overflow:hidden';$('world').style.cssText='position:absolute;inset:0;display:block;width:100%;height:100%;min-width:1px;min-height:1px;touch-action:none';$('kill').classList.toggle('hidden',gameState?.players?.[playerId]?.role!=='impostor');$('sabotage').classList.toggle('hidden',gameState?.players?.[playerId]?.role!=='impostor');requestAnimationFrame(()=>{resize();draw()});resize();if(!raf)raf=requestAnimationFrame(loop);updateTasks();try{drawMiniMap()}catch(e){console.warn(e)}}
 let lastKillAnimationAt=0;function playVictimKillAnimation(){const ev=gameState?.killEvent;if(!ev||ev.victimId!==playerId||ev.at<=lastKillAnimationAt)return;lastKillAnimationAt=ev.at;const layer=$('killSequence');layer.classList.remove('hidden');setTimeout(()=>layer.classList.add('hidden'),1550)}
 function finishMatch(winner){if(!gameState)return;gameState.phase='ended';gameState.winner=winner;const meState=gameState.players?.[playerId],crewWon=winner==='crew',victory=meState?.role===winner;if(meState&&victory&&!gameState.rewarded?.[playerId]){gameState.rewarded=gameState.rewarded||{};gameState.rewarded[playerId]=true;awardCoins(getWinReward(winner),'victoria de '+(crewWon?'tripulación':'impostores'));}if($('end')){$('end').classList.remove('hidden');$('endTitle').textContent=crewWon?'¡TRIPULACIÓN VICTORIOSA!':'¡IMPOSTORES VICTORIOSOS!';$('endSubtitle').textContent=crewWon?'La nave está a salvo. Habéis completado la misión.':'La nave ha caído bajo el control de los saboteadores.';$('endResult').textContent=victory?'✦ HAS GANADO · RECOMPENSA '+getWinReward(winner)+' MONEDAS':'PARTIDA TERMINADA · '+(meState?.role==='impostor'?'TU EQUIPO HA GANADO':'TU EQUIPO HA PERDIDO');}if(isHost&&!gameState._endSaved){gameState._endSaved=true;saveRoomState(gameState,'ended');}}
 function updateTasks(){const p=gameState?.players?.[playerId];if(!p)return;const doneIds=new Set(Object.values(gameState.players||{}).flatMap(x=>x.done||[])),total=gameState.required??MAP.tasks.length,done=Math.min(total,doneIds.size);$('taskText').innerHTML=p.role==='impostor'?'Tu objetivo: sabotear y pasar desapercibido.':(p.tasks||[]).map(t=>'<div class="task-line '+(p.done?.includes(t.id)?'task-done':'')+'">'+(p.done?.includes(t.id)?'✓':'○')+' '+clean(t.name)+'<small>'+clean(t.room)+'</small></div>').join('');$('taskProgress').textContent='';$('taskFill').style.width=(total?done/total*100:0)+'%'}
@@ -573,301 +633,7 @@ function tsNow(){return typeof performance!=='undefined'?performance.now():Date.
 function roundedRect(c,x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
 function roomPolygon(r){return r.poly.map(([x,y])=>[r.x+x*r.w,r.y+y*r.h])}
 
-/* ISOMETRIC 3D SHIP — scene renderer */
-let ship3d=null,shipRenderer=null,shipCamera=null,shipScene=null,shipActors=new Map(),shipRoomGroups=new Map(),shipLastW=0,shipLastH=0;
-const shipScale=.075;
-function shipMat(color,rough=.78,metal=.12){return new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal})}
-function shipBox(parent,x,y,z,w,h,d,mat,bevel=0){const geo=new THREE.BoxGeometry(w,h,d);const mesh=new THREE.Mesh(geo,mat);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh}
-// ARQUITECTURA PROCEDURAL: paredes, jambas y colisión independiente del render.
-const ARCH={wallHeight:3.65,wallThickness:.35,doorHeight:2.65,doorClearance:2.4,wallSegments:[],doorways:[]};
-function closestOnSegment(p,a,b){
- const dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy,t=l?Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/l)):0;
- const x=a[0]+dx*t,y=a[1]+dy*t;return {x,y,t,d:Math.hypot(p[0]-x,p[1]-y)};
-}
-function archWall(parent,a,b,room,opening=null,solidCollider=true){
- const dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy);if(len<.08)return;
- const ux=dx/len,uz=dy/len,th=ARCH.wallThickness;
- const make=(from,to,kind='wall')=>{
-  if(to-from<.08)return;
-  const mid=(from+to)/2,mesh=shipBox(parent,((a[0]+ux*mid)*shipScale),ARCH.wallHeight*shipScale/2,((a[1]+uz*mid)*shipScale), (to-from)*shipScale,ARCH.wallHeight*shipScale,th*shipScale,shipMat(kind==='wall'?0x314d60:0x63899a,.62,.38));
-  mesh.rotation.y=-Math.atan2(uz,ux);mesh.userData.archWall=true;mesh.userData.mapMidZ=a[1]+uz*mid;
-  if(solidCollider)ARCH.wallSegments.push({a:[a[0]+ux*from,a[1]+uz*from],b:[a[0]+ux*to,a[1]+uz*to],room:room.name});
-  const cap=shipBox(parent,((a[0]+ux*mid)*shipScale),ARCH.wallHeight*shipScale+.018,((a[1]+uz*mid)*shipScale), (to-from)*shipScale+.025,.045,th*shipScale+.025,shipMat(0x79a9b8,.4,.55));
-  cap.rotation.y=-Math.atan2(uz,ux);cap.userData.archWall=true;cap.userData.mapMidZ=a[1]+uz*mid;
- };
- if(!opening){make(0,len);return}
- const half=opening.width/2,center=opening.at;
- make(0,Math.max(0,center-half));make(Math.min(len,center+half),len);
- // Marco superior y jambas: las hojas se añaden en el siguiente nivel de puerta.
- const frameMat=shipMat(0x769aaa,.38,.58),postW=.12;
- for(const t of [Math.max(0,center-half),Math.min(len,center+half)]){
-  if(t<0||t>len)continue;
-  const px=(a[0]+ux*t)*shipScale,pz=(a[1]+uz*t)*shipScale;
-  const post=shipBox(parent,px,ARCH.doorHeight*shipScale/2,pz,postW*shipScale,ARCH.doorHeight*shipScale,th*1.12*shipScale,frameMat);post.rotation.y=-Math.atan2(uz,ux);post.userData.archWall=true;post.userData.mapMidZ=a[1]+uz*t;
- }
- const lintel=shipBox(parent,((a[0]+ux*center)*shipScale),(ARCH.doorHeight+.12)*shipScale,((a[1]+uz*center)*shipScale),opening.width*shipScale,.18*shipScale,th*1.12*shipScale,frameMat);lintel.rotation.y=-Math.atan2(uz,ux);lintel.userData.archWall=true;lintel.userData.mapMidZ=a[1]+uz*center;
- ARCH.doorways.push({room:room.name,x:a[0]+ux*center,y:a[1]+uz*center,width:opening.width,open:true});
-}
-function buildRoomArchitecture(parent){
- ARCH.wallSegments=[];ARCH.doorways=[];
- const endpoints=MAP.corridors.flatMap(c=>[c.points[0],c.points[c.points.length-1]]);
- MAP.rooms.forEach(room=>{
-  const poly=roomPolygon(room);
-  for(let i=0;i<poly.length;i++){
-   const a=poly[i],b=poly[(i+1)%poly.length],len=Math.hypot(b[0]-a[0],b[1]-a[1]);let best=null;
-   endpoints.forEach(p=>{const hit=closestOnSegment(p,a,b);if(hit.d<len*.0+Math.max(1.25,room.w*.025)&&(!best||hit.d<best.hit.d))best={hit,p}});
-   archWall(parent,a,b,room,best?{at:best.hit.t*len,width:Math.min(ARCH.doorClearance,Math.max(2.45,room.w*.045))}:null);
-  }
- });
- // Cada corredor tiene dos paredes laterales paralelas a su eje; no es una cinta pintada.
- MAP.corridors.forEach((corridor,index)=>{
-  for(let i=1;i<corridor.points.length;i++){
-   const a=corridor.points[i-1],b=corridor.points[i],dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy)||1;
-   const nx=-dy/len*corridor.width/2,nz=dx/len*corridor.width/2;
-   const fake={name:'CORREDOR '+index};
-   archWall(parent,[a[0]+nx,a[1]+nz],[b[0]+nx,b[1]+nz],fake,null,false);
-   archWall(parent,[a[0]-nx,a[1]-nz],[b[0]-nx,b[1]-nz],fake,null,false);
-  }
- });
-}
-function segmentDistance(p,a,b){return closestOnSegment(p,a,b).d}
-function shipRoomDecor(room,g){
- const x=room.x*shipScale,z=room.y*shipScale,w=room.w*shipScale,d=room.h*shipScale,cx=x+w/2,cz=z+d/2;
- const colors={cafe:0x397b91,engine:0x9b603d,reactor:0x76539b,security:0x397d7c,medbay:0x438b91,electrical:0x9a7942,storage:0x77705a,admin:0x477d68,weapons:0x8d6447,nav:0x47749a,o2:0x438b79,shields:0x397c91,comms:0x735b91};
- const accent=shipMat(colors[room.kind]||0x477d91,.72,.08),wall=shipMat(0x18354a,.82,.08),trim=shipMat(0x39748b,.7,.12);
- const floorTint=new THREE.Color(colors[room.kind]||0x29485b).multiplyScalar(.43);
- const floor=new THREE.MeshStandardMaterial({color:floorTint,roughness:.9,metalness:.025});
- // Suelo amplio y continuo: nada de rejillas brillantes que parezcan placas electrónicas.
- // Suelo con el perímetro octogonal real de la habitación: nunca invade pasillos ni salas vecinas.
- const outline=roomPolygon(room),shape=new THREE.Shape();
- outline.forEach((p,i)=>{const px=(p[0]-room.x)*shipScale,pz=(p[1]-room.y)*shipScale;if(i===0)shape.moveTo(px,-pz);else shape.lineTo(px,-pz)});shape.closePath();
- // Plataforma sólida con canto visible: volumen bajo, no paredes ni techo.
- const floorMesh=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:.12,bevelEnabled:false,curveSegments:2}),floor);
- floorMesh.rotation.x=-Math.PI/2;floorMesh.position.set(x,-.24,z);floorMesh.receiveShadow=true;floorMesh.castShadow=true;g.add(floorMesh);
- const borderPts=outline.map(p=>new THREE.Vector3((p[0]-room.x)*shipScale,-.105,(p[1]-room.y)*shipScale));borderPts.push(borderPts[0].clone());
- const borderGeo=new THREE.BufferGeometry().setFromPoints(borderPts);const borderLine=new THREE.Line(borderGeo,new THREE.LineBasicMaterial({color:colors[room.kind]||0x477d91,transparent:true,opacity:.9}));g.add(borderLine);
- // El mobiliario se escala desde el centro de cada estancia: evita consolas gigantes
- // que ocupen todo el suelo. Cafetería conserva sus mesas ya proporcionadas.
- const decorScale=room.kind==='cafe'?.88:.66,decor=new THREE.Group();
- decor.position.set(cx*(1-decorScale),0,cz*(1-decorScale));decor.scale.set(decorScale,1,decorScale);g.add(decor);g=decor;
- // Salas completamente abiertas: sin techos ni paredes verticales que tapen la vista.
- // Equipamiento bajo, contenido dentro de cada estancia.
- const console=(px,pz,rot=0)=>{const base=shipBox(g,px,.22,pz,.72,.42,.34,wall);base.rotation.y=rot;const screen=shipBox(g,px,.46,pz-.19,.48,.22,.035,accent);screen.rotation.y=rot;shipBox(g,px,.12,pz,.78,.08,.4,trim).rotation.y=rot};
- if(room.kind==='cafe'){
-  // CAFETERÍA: mobiliario modelado pieza a pieza, con siluetas claras desde la cámara isométrica.
-  const metal=shipMat(0x263f50,.42,.62),edge=shipMat(0x668b98,.48,.42),tableTop=shipMat(0xc3d2d0,.38,.22),tableInset=shipMat(0x829fa5,.48,.28),seatMat=shipMat(0x477b8d,.55,.2),seatPad=shipMat(0x9bb8ba,.58,.08),red=shipMat(0xe84c50,.32,.25),redGlow=new THREE.MeshBasicMaterial({color:0xff3948});
-  const cyl=(parent,px,py,pz,rt,rb,h,mat,seg=32)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),mat);m.position.set(px,py,pz);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m};
-  const sphere=(parent,px,py,pz,sx,sy,sz,mat)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),mat);m.position.set(px,py,pz);m.scale.set(sx,sy,sz);m.castShadow=true;parent.add(m);return m};
-  const chair=(px,pz,a)=>{
-   const dx=Math.cos(a),dz=Math.sin(a),sx=px+dx*.09,sz=pz+dz*.09;
-   // base giratoria, columna, cojín y respaldo curvado visualmente
-   cyl(g,sx,.105,sz,.055,.065,.05,metal,20);
-   cyl(g,sx,.19,sz,.025,.03,.08,metal,16);
-   const cushion=shipBox(g,sx,.255,sz,.09,.045,.09,seatPad);cushion.rotation.y=-a;
-   const back=shipBox(g,sx-dx*.065,.36,sz-dz*.065,.09,.10,.035,seatMat);back.rotation.y=-a;
-   const seam=shipBox(g,sx-dx*.065,.37,sz-dz*.065,.065,.008,.038,edge);seam.rotation.y=-a;
-   for(const side of [-1,1]){const arm=shipBox(g,sx-dx*.04+Math.cos(a+Math.PI/2)*side*.05,.34,sz-dz*.04+Math.sin(a+Math.PI/2)*side*.095,.022,.05,.022,metal)}
-  };
-  const roundTable=(px,pz,r,emergency=false)=>{
-   // pie pesado y columna central
-   cyl(g,px,.075,pz,r*.68,r*.78,.12,metal);
-   cyl(g,px,.19,pz,r*.17,r*.21,.18,edge,24);
-   cyl(g,px,.285,pz,r*.96,r*.9,.105,metal);
-   cyl(g,px,.35,pz,r*.91,r*.91,.055,tableTop);
-   cyl(g,px,.381,pz,r*.76,r*.76,.012,tableInset);
-   // aro perimetral y cuatro pequeños remaches
-   const ring=new THREE.Mesh(new THREE.TorusGeometry(r*.87,.018,8,40),edge);ring.rotation.x=Math.PI/2;ring.position.set(px,.385,pz);g.add(ring);
-   for(let n=0;n<4;n++){const a=n*Math.PI/2; sphere(g,px+Math.cos(a)*r*.78,.394,pz+Math.sin(a)*r*.78,.025,.012,.025,metal)}
-   if(emergency){
-    // Consola central de emergencia: carcasa, pulsador rojo, aro luminoso y tres controles auxiliares.
-    shipBox(g,px,.414,pz,r*.78,.045,r*.66,metal);
-    cyl(g,px,.455,pz,r*.37,r*.39,.055,metal);
-    cyl(g,px,.495,pz,r*.29,r*.31,.065,red);
-    sphere(g,px,.535,pz,r*.245,.075,r*.245,redGlow);
-    const halo=new THREE.Mesh(new THREE.TorusGeometry(r*.34,.025,8,32),shipMat(0xffa0a4,.25,.15));halo.rotation.x=Math.PI/2;halo.position.set(px,.50,pz);g.add(halo);
-    // Botones auxiliares con bisel y luz de estado.
-    [[-.31,.08,0x39c6a0],[.31,.08,0x54bce8],[0,-.29,0xf2bd4b]].forEach(([ox,oz,col])=>{
-     cyl(g,px+ox*r,.455,pz+oz*r,r*.105,r*.12,.045,metal,20);
-     cyl(g,px+ox*r,.482,pz+oz*r,r*.075,r*.085,.035,shipMat(col,.28,.2),20);
-     sphere(g,px+ox*r,.505,pz+oz*r,r*.045,.018,r*.045,new THREE.MeshBasicMaterial({color:col}));
-    });
-    shipBox(g,px,.405,pz+r*.55,r*.62,.025,.08,metal);
-   }
-  };
-  // Tres mesas de reunión distribuidas dejando un pasillo central amplio.
-  const positions=[[x+w*.27,z+d*.31],[x+w*.73,z+d*.31],[x+w*.27,z+d*.72],[x+w*.73,z+d*.72]];
-  positions.forEach(([px,pz],i)=>{
-   roundTable(px,pz,.055,false);for(let n=0;n<4;n++)chair(px,pz,n*Math.PI/2+Math.PI/4);
-   // Objetos de sobremesa proporcionados al diámetro real de la mesa.
-   cyl(g,px,.414,pz,.024,.024,.012,edge,20);
-   cyl(g,px,.423,pz,.017,.017,.008,tableTop,20);
-   for(let k=0;k<2;k++){
-    const vx=px+(k?1:-1)*.027,vz=pz+(i%2?.012:-.012);
-    cyl(g,vx,.438,vz,.008,.009,.022,tableTop,12);
-    cyl(g,vx,.451,vz,.006,.006,.004,shipMat(k?0x70c9d2:0xe6a66f,.3,.08),12);
-   }
-  });
-  // Mesa central de emergencia, mayor y con el botón rojo protagonista.
-  const ex=cx,ez=cz;roundTable(ex,ez,.09,true);
-  for(let n=0;n<4;n++)chair(ex,ez,n*Math.PI/2);
-  // Terminal de tareas junto al lateral: monitor inclinado, teclado, lector y luces de estado.
-  const tx=x+w*.87,tz=z+d*.52;
-  shipBox(g,tx,.20,tz,.16,.38,.62,metal);
-  const monitor=shipBox(g,tx-.012,.47,tz-.04,.045,.29,.48,shipMat(0x142c3b,.3,.35));monitor.rotation.x=-.12;
-  shipBox(g,tx-.04,.48,tz-.045,.018,.22,.39,shipMat(0x50b8c4,.28,.2));
-  shipBox(g,tx-.11,.13,tz+.35,.34,.045,.24,edge);
-  for(let n=0;n<5;n++)shipBox(g,tx-.22+n*.055,.17,tz+.35,.035,.025,.13,tableTop);
-  for(let n=0;n<3;n++)sphere(g,tx-.025,.31,tz-.25+n*.12,.025,.025,.025,n===0?redGlow:shipMat(0x62d7a5,.3,.1));
-  // Dispensador de bebidas y pequeños vasos sobre una repisa en la pared.
-  const dx=x+w*.12,dz=z+d*.5;
-  shipBox(g,dx,.28,dz,.38,.52,.32,wall);
-  shipBox(g,dx,.56,dz-.17,.31,.16,.035,shipMat(0x72b7c5,.3,.25));
-  for(let n=0;n<3;n++){cyl(g,dx-.1+n*.1,.67,dz-.18,.035,.04,.08,tableTop,16);cyl(g,dx-.1+n*.1,.715,dz-.18,.025,.025,.012,shipMat(0x65c6cf,.25,.1),16)}
-  // Luminarias circulares empotradas, señalización de suelo y pequeños indicadores de zona.
-  for(let k=0;k<4;k++){
-   const px=x+w*(.18+k*.215),pz=z+d*.91;
-   shipBox(g,px,.008,pz,.13,.012,.035,shipMat(k%2?0x55b9c7:0xe6b85c,.45,.1));
-  }
-  for(const [lx,lz] of [[x+w*.5,z+d*.12],[x+w*.5,z+d*.88]]){
-   cyl(g,lx,.012,lz,.22,.22,.018,edge,32);
-   cyl(g,lx,.024,lz,.16,.16,.012,shipMat(0x8bdce4,.25,.1),32);
-  }
- }else if(room.kind==='weapons'){
-  // Cañón de asteroides: bancada, torreta giratoria, tubo, boca y anillos.
-  const metal=shipMat(0x526b7b,.42,.62),darkMetal=shipMat(0x172e40,.5,.48),glow=shipMat(0x54c9ed,.28,.35);
-  const base=shipBox(g,cx,.16,cz,.58,.22,.58,metal);base.rotation.y=.18;
-  const turret=new THREE.Mesh(new THREE.CylinderGeometry(.24,.29,.22,12),darkMetal);turret.position.set(cx,.34,cz);g.add(turret);
-  const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.105,.15,.62,16),metal);barrel.rotation.x=Math.PI/2;barrel.position.set(cx,.42,cz-.22);g.add(barrel);
-  const muzzle=new THREE.Mesh(new THREE.TorusGeometry(.12,.035,10,24),glow);muzzle.rotation.x=Math.PI/2;muzzle.position.set(cx,.42,cz-.535);g.add(muzzle);
-  const sight=shipBox(g,cx,.58,cz+.08,.22,.12,.24,accent);
-  console(cx+w*.30,cz+d*.27); 
- }else if(room.kind==='nav'){
-  // Puesto de pilotaje con consola curva, radar y ventanal panorámico.
-  const metal=shipMat(0x263f53,.45,.55),screen=shipMat(0x38b9d4,.25,.25);
-  shipBox(g,cx,.22,cz+.12,.72,.38,.30,metal);
-  shipBox(g,cx,.46,cz-.04,.62,.22,.045,screen);
-  const wheel=new THREE.Mesh(new THREE.TorusGeometry(.16,.025,8,28),metal);wheel.position.set(cx,.58,cz+.22);g.add(wheel);
-  const radar=new THREE.Mesh(new THREE.CircleGeometry(.13,32),shipMat(0x0c2638,.25,.2));radar.rotation.x=-Math.PI/2;radar.position.set(cx,.59,cz-.02);g.add(radar);
-  console(cx-w*.28,cz-d*.25);
- }else if(room.kind==='o2'){
-  // Generador de oxígeno con depósitos, tuberías y panel de presión.
-  const tankMat=shipMat(0x7896a0,.38,.55),pipe=shipMat(0x42c4c4,.3,.55);
-  for(let k=0;k<2;k++){const px=cx+(k?1:-1)*w*.24;const tank=new THREE.Mesh(new THREE.CylinderGeometry(.105,.12,.58,16),tankMat);tank.position.set(px,.34,cz-.12);g.add(tank);const cap=new THREE.Mesh(new THREE.SphereGeometry(.11,16,10),accent);cap.position.set(px,.64,cz-.12);g.add(cap);const gauge=new THREE.Mesh(new THREE.TorusGeometry(.045,.012,8,20),pipe);gauge.position.set(px,.42,cz+.02);g.add(gauge)}
-  console(cx,cz+d*.30);
- }else if(room.kind==='shields'){
-  const dark=shipMat(0x172e40,.5,.48);
-  // Tres generadores circulares con núcleos luminosos y anillos concéntricos.
-  const energy=new THREE.MeshBasicMaterial({color:0xff5362});
-  for(let k=0;k<3;k++){const px=x+w*(.25+k*.25),pz=cz;const plinth=new THREE.Mesh(new THREE.CylinderGeometry(.13,.17,.16,12),dark);plinth.position.set(px,.12,pz);g.add(plinth);const ring=new THREE.Mesh(new THREE.TorusGeometry(.13,.025,8,24),accent);ring.position.set(px,.29,pz);g.add(ring);const core=new THREE.Mesh(new THREE.SphereGeometry(.075,16,12),energy);core.position.set(px,.29,pz);g.add(core)}
-  console(cx,cz+d*.30);
- }else if(room.kind==='storage'){
-  // Carga: cajas de distintos tamaños, bidones y contenedores; dejan un corredor central.
-  const crateMats=[0x7b8d91,0x9a8058,0x526c7b].map(c=>shipMat(c,.72,.32));
-  [[.22,.24,.22,.26,.22],[.25,.48,.18,.20,.28],[.76,.24,.24,.28,.22],[.78,.48,.17,.19,.24],[.18,.73,.22,.22,.20]].forEach((v,i)=>{const [px,pz,sx,sy,sz]=v;const crate=shipBox(g,x+w*px,sy/2,z+d*pz,sx,sy,sz,crateMats[i%3]);shipBox(g,x+w*px,sy*.52,z+d*pz,sx*.88,.025,sz*.88,trim)});
-  const drum=new THREE.Mesh(new THREE.CylinderGeometry(.095,.095,.34,16),shipMat(0xb17a43,.55,.42));drum.position.set(cx,.18,cz+d*.30);g.add(drum);
- }else if(room.kind==='admin'){
-  const glow=shipMat(0x54c9ed,.28,.35);
-  // Mesa de administración con patas, sobremesa, lector de tarjeta y pantallas.
-  const top=shipMat(0x9aaeb1,.45,.25),legs=shipMat(0x263f50,.5,.5);
-  shipBox(g,cx,.42,cz,.68,.09,.42,top);for(const sx of [-1,1])for(const sz of [-1,1])shipBox(g,cx+sx*.29,.21,cz+sz*.17,.045,.38,.045,legs);
-  shipBox(g,cx,.56,cz-.12,.34,.16,.035,accent);shipBox(g,cx+.22,.49,cz+.09,.12,.025,.10,glow);
-  console(cx+w*.30,cz-d*.30);
- }else if(room.kind==='comms'){
-  const glow=shipMat(0x54c9ed,.28,.35);
-  // Bastidor de radio, antenas, módulos apilados y cableado visible.
-  const rack=shipMat(0x263d50,.48,.5),wire=shipMat(0x4ccbd0,.32,.35);
-  for(let k=0;k<2;k++){const px=cx+(k?1:-1)*w*.27;shipBox(g,px,.35,cz,.22,.68,.28,rack);for(let n=0;n<3;n++){shipBox(g,px,.48-n*.15,cz+.15,.15,.065,.018,accent)}const mast=new THREE.Mesh(new THREE.CylinderGeometry(.012,.018,.48,8),wire);mast.position.set(px,.91,cz-.06);g.add(mast);const tip=new THREE.Mesh(new THREE.SphereGeometry(.035,10,8),glow);tip.position.set(px,1.16,cz-.06);g.add(tip)}
- }else if(room.kind==='electrical'){
-  const glow=shipMat(0x54c9ed,.28,.35);
-  // Armarios eléctricos con fusibles, cables y luces de peligro.
-  const cabinet=shipMat(0x273747,.52,.5),cable=shipMat(0xe2b34e,.42,.25);
-  for(let k=0;k<3;k++){const px=x+w*(.22+k*.28);shipBox(g,px,.43,cz-.12,.23,.82,.32,cabinet);for(let n=0;n<4;n++){shipBox(g,px-.065+(n%2)*.13,.55-Math.floor(n/2)*.18,cz+.055,.045,.065,.025,n%2?accent:glow)}}
-  for(let k=0;k<3;k++){const tube=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.48,8),cable);tube.rotation.z=Math.PI/2;tube.position.set(cx,.93,cz+.22+k*.07);g.add(tube)}
- }else if(room.kind==='security'){
-  // Banco de vigilancia con pared de monitores orientados hacia la consola.
-  const monitorFrame=shipMat(0x172c3e,.4,.55),display=new THREE.MeshBasicMaterial({color:0x45b9d1});
-  for(let k=0;k<4;k++){const px=x+w*(.18+k*.21);shipBox(g,px,.78,z+d*.18,.18,.25,.045,monitorFrame);shipBox(g,px,.79,z+d*.18+.026,.145,.19,.012,display)}
-  shipBox(g,cx,.34,cz+.18,.58,.34,.30,wall);shipBox(g,cx,.54,cz+.02,.48,.12,.035,accent);
-  const chair=new THREE.Mesh(new THREE.CylinderGeometry(.10,.13,.12,12),trim);chair.position.set(cx,.28,cz+.53);g.add(chair);
- }else if(room.kind==='medbay'){
-  // Escáner médico: plataforma, aro elevado, emisores y panel clínico.
-  const bed=shipMat(0xb8d0d2,.48,.16),light=shipMat(0x6be4ed,.24,.22);
-  shipBox(g,cx,.18,cz+.12,.72,.22,.42,bed);
-  const scanRing=new THREE.Mesh(new THREE.TorusGeometry(.29,.035,10,40),light);scanRing.position.set(cx,.84,cz+.12);g.add(scanRing);
-  for(let k=0;k<4;k++){const a=k*Math.PI/2,beam=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.72,8),accent);beam.position.set(cx+Math.cos(a)*.29,.48,cz+.12+Math.sin(a)*.29);g.add(beam)}
-  console(cx+w*.30,cz-d*.30);
- }else if(room.kind==='reactor'){
-  const core=new THREE.Mesh(new THREE.CylinderGeometry(.35,.42,.62,16),accent);core.position.set(cx,.34,cz);g.add(core);const ring=new THREE.Mesh(new THREE.TorusGeometry(.48,.055,8,24),shipMat(0x9edfff,.35,.2));ring.rotation.x=Math.PI/2;ring.position.set(cx,.38,cz);g.add(ring);
- }else if(room.kind==='engine'){
-  for(let k=0;k<2;k++){const px=x+w*(.35+k*.3),engine=new THREE.Mesh(new THREE.CylinderGeometry(.24,.24,.65,14),shipMat(0x263c4d));engine.rotation.z=Math.PI/2;engine.position.set(px,.3,cz);g.add(engine);shipBox(g,px,.3,cz-.26,.12,.42,.06,accent)}
- }else if(room.kind==='medbay'){
-  for(let k=0;k<2;k++){const px=x+w*(.34+k*.32);shipBox(g,px,.18,cz,.72,.2,.42,shipMat(0xa6c6c6));shipBox(g,px,.31,cz,.12,.07,.48,accent)}
- }else if(room.kind==='electrical'||room.kind==='comms'||room.kind==='security'||room.kind==='admin'||room.kind==='nav'||room.kind==='weapons'){
-  console(x+w*.32,z+d*.28);console(x+w*.68,z+d*.28);
- }else{
-  for(let k=0;k<2;k++){const px=x+w*(.34+k*.32);shipBox(g,px,.22,cz,.54,.4,.5,accent);shipBox(g,px,.44,cz,.58,.055,.52,trim)}
- }
- // Sin placas murales: la vista cenital queda completamente despejada.
-}function initShip3D(){
- if(!window.THREE||shipRenderer)return;
- const arena=$('arena'),old=$('world');if(!arena||!old)return;
- const view=document.createElement('canvas');view.id='world3d';view.style.cssText='position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;touch-action:none';arena.insertBefore(view,old);old.style.opacity='0';old.style.pointerEvents='none';
- shipRenderer=new THREE.WebGLRenderer({canvas:view,antialias:true,alpha:false,powerPreference:'low-power'});shipRenderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));shipRenderer.shadowMap.enabled=false;shipRenderer.outputColorSpace=THREE.SRGBColorSpace;shipRenderer.toneMapping=THREE.ACESFilmicToneMapping;shipRenderer.toneMappingExposure=1.25;
- shipScene=new THREE.Scene();shipScene.background=new THREE.Color(0x071321);shipScene.fog=null;
- shipCamera=new THREE.OrthographicCamera(-15,15,9,-9,.1,150);shipCamera.up.set(0,1,0);shipCamera.position.set(MAP.w*shipScale/2,24,MAP.h*shipScale/2+18);shipCamera.lookAt(MAP.w*shipScale/2,0,MAP.h*shipScale/2);
- shipScene.add(new THREE.HemisphereLight(0xa9eaff,0x253044,2.15));const key=new THREE.DirectionalLight(0xffe7c2,2.5);key.position.set(-18,32,22);key.castShadow=false;shipScene.add(key);
- const floor=shipBox(shipScene,MAP.w*shipScale/2,-.42,MAP.h*shipScale/2,MAP.w*shipScale+5,.5,MAP.h*shipScale+5,shipMat(0x142c3e));floor.receiveShadow=true;
- // Sin rejilla global: deja que destaquen las plataformas, pasillos y objetos del mapa.
- MAP.corridors.forEach(c=>{for(let i=1;i<c.points.length;i++){const a=c.points[i-1],b=c.points[i],dx=(b[0]-a[0])*shipScale,dz=(b[1]-a[1])*shipScale,len=Math.hypot(dx,dz),midX=(a[0]+b[0])*shipScale/2,midZ=(a[1]+b[1])*shipScale/2;const deck=shipBox(shipScene,midX,-.08,midZ,len+.16,.16,c.width*shipScale,shipMat(0x3c6174));deck.rotation.y=-Math.atan2(dz,dx);shipBox(shipScene,midX,.015,midZ,len*.72,.025,.035,shipMat(0x8bd8e8,.35,.3)).rotation.y=-Math.atan2(dz,dx)}});
- // Paredes perimetrales reales con huecos alineados a los extremos de corredores.
- buildRoomArchitecture(shipScene);
- // Las salas se crean bajo demanda al entrar en el área visible de cámara.
- // Hull outline and animated hazard beacons.
- const hull=shipMat(0x294a60,.48,.48);shipBox(shipScene,MAP.w*shipScale/2,-.02,0,MAP.w*shipScale+2,.3,.32,hull);shipBox(shipScene,MAP.w*shipScale/2,-.02,MAP.h*shipScale,MAP.w*shipScale+2,.3,.32,hull);
- const beaconMat=new THREE.MeshStandardMaterial({color:0xff334e,emissive:0x8c1024,emissiveIntensity:1.4});for(let k=0;k<8;k++){const b=new THREE.Mesh(new THREE.SphereGeometry(.09,12,8),beaconMat);b.position.set((k+.5)*MAP.w*shipScale/8,.2,.08);shipScene.add(b)}
- ship3d={view,arena,actors:shipActors};resizeShip3D();
-}
-function resizeShip3D(){if(!shipRenderer||!ship3d)return;const w=ship3d.arena.clientWidth,h=ship3d.arena.clientHeight;if(!w||!h)return;shipRenderer.setSize(w,h,false);const aspect=w/h,mapH=MAP.h*shipScale,mapW=MAP.w*shipScale;const span=Math.max(mapH*.25,mapW/Math.max(.5,aspect)*.31,1.02);shipCamera.left=-span*aspect/2;shipCamera.right=span*aspect/2;shipCamera.top=span/2;shipCamera.bottom=-span/2;shipCamera.updateProjectionMatrix();shipLastW=w;shipLastH=h}
-function makeCrew3D(q){
- const group=new THREE.Group();
- const suit=shipMat(q.color||0x35a9d6,.38,.08),dark=shipMat(0x102536,.42,.22),sole=shipMat(0x142b3b,.55,.18);
- const glass=new THREE.MeshPhysicalMaterial({color:0x9be8ff,metalness:.28,roughness:.13,clearcoat:1,clearcoatRoughness:.06});
- // Silueta de tripulante compacta: cuerpo redondeado, mochila integrada y dos botas separadas.
- const body=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.43,12,24),suit);body.position.set(0,.57,0);body.castShadow=true;body.receiveShadow=true;group.add(body);
- const pack=new THREE.Mesh(new THREE.BoxGeometry(.22,.43,.31),dark);pack.position.set(-.30,.55,-.035);pack.rotation.z=-.035;pack.castShadow=true;group.add(pack);
- const visor=new THREE.Mesh(new THREE.SphereGeometry(1,32,24),glass);visor.scale.set(.255,.17,.105);visor.position.set(.105,.75,.285);visor.castShadow=true;group.add(visor);
- const visorRim=new THREE.Mesh(new THREE.SphereGeometry(1,32,24),shipMat(0x1b3548,.32,.35));visorRim.scale.set(.27,.184,.075);visorRim.position.set(.105,.75,.245);group.add(visorRim);
- const shine=new THREE.Mesh(new THREE.SphereGeometry(.032,12,10),new THREE.MeshBasicMaterial({color:0xffffff}));shine.position.set(.035,.815,.377);group.add(shine);
- const boots=[];for(const side of [-1,1]){const boot=new THREE.Mesh(new THREE.CapsuleGeometry(.105,.13,6,12),suit);boot.scale.set(1,.72,1.25);boot.position.set(side*.16,.105,.025);boot.castShadow=true;group.add(boot);boots.push(boot);shipBox(group,side*.16,.035,.035,.18,.035,.25,sole);}
- group.userData.walkBody=body;group.userData.walkBoots=boots;
- const shadow=new THREE.Mesh(new THREE.CircleGeometry(.39,24),new THREE.MeshBasicMaterial({color:0x020913,transparent:true,opacity:.34,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.012;group.add(shadow);
- return group;
-}
-let shipCameraX=null,shipCameraZ=null;
-function drawShip3D(){
- if(!shipRenderer||!shipScene||!gameState)return;
- Object.values(gameState.players||{}).forEach(q=>{let actor=shipActors.get(q.id);if(!actor){actor=makeCrew3D(q);shipActors.set(q.id,actor);shipScene.add(actor)}actor.visible=!!q.alive;actor.position.set(q.x*shipScale,.02+(q._moving?.022*Math.abs(Math.sin((q._walkPhase||0)*2)):0),q.y*shipScale);actor.rotation.y=q._faceX<0?Math.PI:0;actor.scale.setScalar(.25);if(actor.userData.walkBody){actor.userData.walkBody.rotation.z=q._moving?Math.sin((q._walkPhase||0))*-.055:0;(actor.userData.walkBoots||[]).forEach((boot,i)=>{boot.rotation.x=q._moving?Math.sin((q._walkPhase||0)+(i?Math.PI:0))*.18:0})}if(actor.children[0]?.material?.color)actor.children[0].material.color.set(q.color||'#35a9d6')});
- const mePlayer=gameState.players?.[playerId],targetX=(mePlayer?.x??SPAWN_X)*shipScale,targetZ=(mePlayer?.y??SPAWN_Y)*shipScale;
- if(shipCameraX===null){shipCameraX=targetX;shipCameraZ=targetZ}
- // Seguimiento suave: la cámara acompaña al tripulante sin saltos bruscos.
- shipCameraX+=(targetX-shipCameraX)*.12;shipCameraZ+=(targetZ-shipCameraZ)*.12;
- shipCamera.position.set(shipCameraX,17,shipCameraZ+13);shipCamera.lookAt(shipCameraX,0,shipCameraZ);
- // Cámara cutaway: oculta únicamente las paredes del lado cercano para no tapar al jugador.
- const cutLine=(mePlayer?.y??0)+2.2;
- shipScene.traverse(o=>{if(o.userData?.archWall)o.visible=o.userData.mapMidZ<cutLine});
- // Carga diferida de salas: solo las que intersectan la vista más un margen de 10 m del mapa.
- const margin=10*shipScale,halfW=shipCamera.right,halfH=shipCamera.top;
- MAP.rooms.forEach(room=>{
-  const rx=room.x*shipScale,rz=room.y*shipScale,rw=room.w*shipScale,rd=room.h*shipScale;
-  const visible=rx+rw>=shipCameraX-halfW-margin&&rx<=shipCameraX+halfW+margin&&rz+rd>=shipCameraZ-halfH-margin&&rz<=shipCameraZ+halfH+margin;
-  let group=shipRoomGroups.get(room.name);
-  if(visible&&!group){group=new THREE.Group();group.userData.roomName=room.name;shipScene.add(group);shipRoomDecor(room,group);shipRoomGroups.set(room.name,group)}
-  else if(!visible&&group){shipScene.remove(group);group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material.dispose()}});shipRoomGroups.delete(room.name)}
- });
- shipRenderer.render(shipScene,shipCamera)
-}
-
-function draw(){if(window.THREE&&shipRenderer){try{drawShip3D();return}catch(e){console.warn('3D render fallback',e)}}if(!ctx||!canvas)return;try{const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width<1||canvas.height<1)return;if(w<2||h<2)return;const dpr=Math.min(window.devicePixelRatio||1,2);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';const p=gameState?.players?.[playerId],targetZ=Math.max(.1,Math.min(w/32,h/21));let z=targetZ,cx,cy;const focusX=p?.x??SPAWN_X,focusY=p?.y??SPAWN_Y;if(cameraIntro){const raw=Math.min(1,Math.max(0,(tsNow()-cameraIntro.start)/cameraIntro.duration)),ease=raw*raw*(3-2*raw),fitZ=Math.min(w/MAP.w,h/MAP.h)*.94;z=fitZ*Math.pow(targetZ/fitZ,ease);const fx=MAP.w/2+(focusX-MAP.w/2)*ease,fy=MAP.h/2+(focusY-MAP.h/2)*ease;cx=fx-w/z/2;cy=fy-h/z/2;if(raw>=1)cameraIntro=null}else{const vw=w/z,vh=h/z;cx=Math.max(0,Math.min(MAP.w-vw,focusX-vw/2));cy=Math.max(0,Math.min(MAP.h-vh,focusY-vh/2))}const vw=w/z,vh=h/z;ctx.clearRect(0,0,w,h);ctx.fillStyle='#020811';ctx.fillRect(0,0,w,h);ctx.save();ctx.scale(z,z);ctx.translate(-cx,-cy);
+function draw(){if(!ctx||!canvas)return;try{const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width<1||canvas.height<1)return;if(w<2||h<2)return;const dpr=Math.min(window.devicePixelRatio||1,2);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';const p=gameState?.players?.[playerId],targetZ=Math.max(.1,Math.min(w/32,h/21));let z=targetZ,cx,cy;const focusX=p?.x??SPAWN_X,focusY=p?.y??SPAWN_Y;if(cameraIntro){const raw=Math.min(1,Math.max(0,(tsNow()-cameraIntro.start)/cameraIntro.duration)),ease=raw*raw*(3-2*raw),fitZ=Math.min(w/MAP.w,h/MAP.h)*.94;z=fitZ*Math.pow(targetZ/fitZ,ease);const fx=MAP.w/2+(focusX-MAP.w/2)*ease,fy=MAP.h/2+(focusY-MAP.h/2)*ease;cx=fx-w/z/2;cy=fy-h/z/2;if(raw>=1)cameraIntro=null}else{const vw=w/z,vh=h/z;cx=Math.max(0,Math.min(MAP.w-vw,focusX-vw/2));cy=Math.max(0,Math.min(MAP.h-vh,focusY-vh/2))}const vw=w/z,vh=h/z;ctx.clearRect(0,0,w,h);ctx.fillStyle='#020811';ctx.fillRect(0,0,w,h);ctx.save();ctx.scale(z,z);ctx.translate(-cx,-cy);
 const poly=(pts)=>{ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath()};
 // Sin silueta ni perímetro: el nuevo mapa parte de un lienzo vacío.
 
@@ -907,7 +673,9 @@ if(r.kind==='cafe'){[[-2.5,-1.2],[2.5,-1.2],[-2.5,1.3],[2.5,1.3]].forEach(([dx,d
 }else if(r.kind==='o2'){for(let j=0;j<3;j++){ctx.fillStyle='#1e716a';ctx.beginPath();ctx.arc(x+1.5+j*2,y+3,.58,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#7de7c9';ctx.stroke();ctx.fillStyle='#a5f3d9';ctx.fillRect(x+1.2+j*2,y+2.92,.6,.12)}
 }else if(r.kind==='shields'){desk(x+1,y+2,w-2,1,'#315f75');for(let j=0;j<3;j++){ctx.strokeStyle='#71d8ed';ctx.beginPath();ctx.arc(x+1.7+j*2,y+3.2,.62,Math.PI,Math.PI*2);ctx.stroke()}light(cx,y+1.55,'#79dff2');
 }else if(r.kind==='comms'){desk(x+1,y+2,w-2,1.15,'#544267');for(let j=0;j<4;j++){ctx.fillStyle=['#e4a95c','#76d6c9','#9c9be8','#e67a89'][j];ctx.fillRect(x+1.3+j*1.15,y+2.3,.72,.5)}ctx.strokeStyle='#b7a1e9';ctx.beginPath();ctx.arc(cx,cy+3.2,1.05,Math.PI,Math.PI*2);ctx.stroke()}
-ctx.restore()});MAP.tasks.forEach(t=>{const done=gameState?.players?.[playerId]?.done?.includes(t.id);ctx.save();ctx.fillStyle=done?'#48d39c':'#ffd36b';ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=.22;ctx.beginPath();ctx.arc(t.x,t.y,.19,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#132331';ctx.lineWidth=.055;ctx.stroke();ctx.restore()});
+ctx.restore()});
+MAP.rooms.forEach(r=>(r.doors||[]).forEach(d=>{const cx=r.x+r.w*d.offset,cy=r.y+r.h*d.offset,ww=d.width||2.35;ctx.save();ctx.lineWidth=.12;ctx.strokeStyle='#d9f5ff';ctx.fillStyle='#31566a';if(d.side==='top'||d.side==='bottom'){const yy=d.side==='top'?r.y-.12:r.y+r.h-.38;ctx.fillRect(cx-ww/2,yy,ww,.5);ctx.strokeRect(cx-ww/2,yy,ww,.5);ctx.fillStyle='#9de8ec';ctx.fillRect(cx-ww/2,yy,.12,.5);ctx.fillRect(cx+ww/2-.12,yy,.12,.5)}else{const xx=d.side==='left'?r.x-.12:r.x+r.w-.38;ctx.fillRect(xx,cy-ww/2,.5,ww);ctx.strokeRect(xx,cy-ww/2,.5,ww);ctx.fillStyle='#9de8ec';ctx.fillRect(xx,cy-ww/2,.5,.12);ctx.fillRect(xx,cy+ww/2-.12,.5,.12)}ctx.restore()}));
+MAP.tasks.forEach(t=>{const done=gameState?.players?.[playerId]?.done?.includes(t.id);ctx.save();ctx.fillStyle=done?'#48d39c':'#ffd36b';ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=.22;ctx.beginPath();ctx.arc(t.x,t.y,.19,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#132331';ctx.lineWidth=.055;ctx.stroke();ctx.restore()});
 // Estaciones de misión: terminal físico, icono propio y X luminosa flotante.
 if(p?.alive&&p.role==='crew'){const pending=(p.tasks||[]).filter(t=>!p.done?.includes(t.id)).map(t=>({...t,station:MAP.tasks.find(m=>m.id===t.id)})).filter(t=>t.station).map(t=>({...t,d:Math.hypot(p.x-t.station.x,p.y-t.station.y)})).sort((a,b)=>a.d-b.d);const target=pending[0]?.station;if(target){const ang=Math.atan2(target.y-p.y,target.x-p.x);ctx.save();ctx.translate(p.x,p.y-3.05);ctx.rotate(ang);ctx.globalAlpha=.8+.2*Math.sin(tsNow()/180);ctx.shadowColor='#ffd84f';ctx.shadowBlur=.65;ctx.strokeStyle='#ffe16b';ctx.lineWidth=.13;ctx.beginPath();ctx.moveTo(-.45,0);ctx.lineTo(.50,0);ctx.stroke();ctx.beginPath();ctx.moveTo(.20,-.24);ctx.lineTo(.52,0);ctx.lineTo(.20,.24);ctx.stroke();ctx.beginPath();ctx.arc(0,0,.42,0,Math.PI*2);ctx.strokeStyle='#ffe16b88';ctx.lineWidth=.055;ctx.stroke();ctx.restore()}}MAP.tasks.forEach((t,i)=>{ctx.save();const x=t.x,y=t.y;const glyph={card:'▤',wires:'⌁',sequence:'ϟ',route:'⌖',filter:'✣',fuel:'⛽',upload:'▣',scan:'✚'}[t.type]||'◆';const col={card:'#f4c86b',wires:'#65d9ed',sequence:'#c58aff',route:'#7fcaff',filter:'#73e6b5',fuel:'#f29b5c',upload:'#9daeff',scan:'#8ce8dc'}[t.type]||'#ffe17a';ctx.shadowColor=col;ctx.shadowBlur=.9;ctx.fillStyle='#071522';ctx.strokeStyle=col;ctx.lineWidth=.13;roundedRect(ctx,x-.43,y-.43,.86,.86,.15);ctx.fill();ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle=col;ctx.font='bold .58px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(glyph,x,y+.04);const pulse=.72+.28*Math.sin(tsNow()/210+i);ctx.globalAlpha=pulse;ctx.shadowColor='#ff526b';ctx.shadowBlur=.85;ctx.fillStyle='#ff526b';ctx.font='bold .9px system-ui';ctx.fillText('✕',x,y-1.02);ctx.restore()});if(gameState)Object.values(gameState.players||{}).filter(q=>q.alive).sort((a,b)=>a.y-b.y).forEach(q=>{const x=q.x,y=q.y;const loadout=q.cosmetics||{},fullSuit=SHOP_ITEMS.find(i=>i.id===loadout.skin);const c=fullSuit?.suit||q.color||'#e85d75';const shade=(v,n)=>{const k=parseInt(v.slice(1),16);return '#'+[Math.max(0,Math.min(255,(k>>16)+n)),Math.max(0,Math.min(255,((k>>8)&255)+n)),Math.max(0,Math.min(255,(k&255)+n))].map(t=>t.toString(16).padStart(2,'0')).join('')};ctx.save();const walking=q.id===playerId&&q._moving,phase=q._walkPhase||0,bob=walking?Math.abs(Math.sin(phase))*.075:Math.sin(tsNow()/850)*.012;ctx.translate(x,y-bob);if((q._faceX||1)<0)ctx.scale(-1,1);ctx.fillStyle='#0009';ctx.beginPath();ctx.ellipse(0,.02,.58,.19,0,0,Math.PI*2);ctx.fill();const outline='#07121e',deep=shade(c,-48),light=shade(c,48);ctx.fillStyle=outline;roundedRect(ctx,-.78,-1.31,.30,.88,.16);ctx.fill();const pack=ctx.createLinearGradient(-.8,0,-.43,0);pack.addColorStop(0,deep);pack.addColorStop(1,light);ctx.fillStyle=pack;roundedRect(ctx,-.78,-1.31,.30,.88,.16);ctx.fill();ctx.strokeStyle=outline;ctx.lineWidth=.065;ctx.stroke();// Ciclo de marcha de 4 poses: piernas alternas y botas visibles.
 const stride=walking?Math.sin(phase)*.34:0,lift=walking?Math.max(0,Math.cos(phase))*.11:0;
@@ -924,21 +692,16 @@ function drawMiniMap(){const c=$('miniMap');if(!c)return;const g=c.getContext('2
 function resize(){try{if(window.THREE&&shipRenderer)resizeShip3D();canvas=$('world');if(!canvas)return;const rect=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2),w=Math.max(1,Math.floor(rect.width||window.innerWidth)),h=Math.max(1,Math.floor(rect.height||window.innerHeight));if(canvas.width!==w*dpr)canvas.width=w*dpr;if(canvas.height!==h*dpr)canvas.height=h*dpr;ctx=canvas.getContext('2d',{alpha:false});if(ctx){ctx.setTransform(dpr,0,0,dpr,0,0);drawMapFallback()}try{drawMiniMap()}catch(e){console.warn('Mini mapa no disponible',e)}}catch(e){console.error('Error al redimensionar el escenario',e);drawMapFallback()}}
 function pointInPoly(x,y,pts){let inside=false;for(let i=0,j=pts.length-1;i<pts.length;j=i++){const a=pts[i],b=pts[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])inside=!inside}return inside}
 function corridorContains(x,y,c){const half=c.width/2+.08;for(let i=1;i<c.points.length;i++){const a=c.points[i-1],b=c.points[i],dx=b[0]-a[0],dy=b[1]-a[1],len2=dx*dx+dy*dy,t=len2?Math.max(0,Math.min(1,((x-a[0])*dx+(y-a[1])*dy)/len2)):0,px=a[0]+t*dx,py=a[1]+t*dy;if(Math.hypot(x-px,y-py)<=half)return true}return false}
-function inFloor(x,y){return x>=0&&y>=0&&x<=MAP.w&&y<=MAP.h}
+function pointInRoom(x,y,room){const p=roomPolygon(room);let inside=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const a=p[i],b=p[j];if(((a[1]>y)!==(b[1]>y))&&(x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0]))inside=!inside}return inside}
+function distanceToPath(x,y,points){let best=Infinity;for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i],dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy,t=l?Math.max(0,Math.min(1,((x-a[0])*dx+(y-a[1])*dy)/l)):0;best=Math.min(best,Math.hypot(x-a[0]-dx*t,y-a[1]-dy*t))}return best}
+function inFloor(x,y){if(x<0||y<0||x>MAP.w||y>MAP.h)return false;if(MAP.rooms.some(r=>pointInRoom(x,y,r)))return true;return MAP.corridors.some(c=>distanceToPath(x,y,c.points)<=c.width/2-.08)}
 function blocked(x,y){return !inFloor(x,y)}
 // Colisión circular del tripulante: evita que el centro pase pegado al borde de paredes.
 function canWalk(x,y){
- // Radio real del cuerpo del tripulante en coordenadas del mapa (modelo 3D a escala .25).
- const radius=.4;
+ const radius=.34;
  if(!inFloor(x,y))return false;
- // Paredes arquitectónicas: collider independiente de los meshes visuales.
- for(const wall of ARCH.wallSegments){if(segmentDistance([x,y],wall.a,wall.b)<radius+ARCH.wallThickness*.5)return false}
- // Muebles y maquinaria sólida.
- if((MAP.obstacles||[]).some(o=>Math.hypot(x-o.x,y-o.y)<o.r+radius))return false;
- for(let i=0;i<12;i++){
-  const a=i*Math.PI/6;
-  if(!inFloor(x+Math.cos(a)*radius,y+Math.sin(a)*radius))return false;
- }
+ for(const o of MAP.obstacles||[])if(Math.hypot(x-o.x,y-o.y)<o.r+radius)return false;
+ for(let i=0;i<12;i++){const a=i*Math.PI/6;if(!inFloor(x+Math.cos(a)*radius,y+Math.sin(a)*radius))return false}
  return true;
 }
 function updateRepairArrow(){const el=$('repairArrow'),p=gameState?.players?.[playerId],sab=gameState?.sabotage;if(!el)return;if(!p||p.role!=='crew'||!p.alive||!sab?.active){el.classList.add('hidden');return}const target=MAP.tasks.find(t=>t.id===sab.target);if(!target){el.classList.add('hidden');return}const angle=Math.atan2(target.y-p.y,target.x-p.x)*180/Math.PI;el.style.transform='translateX(-50%) rotate('+(angle-90)+'deg)';el.classList.remove('hidden');el.querySelector('small').textContent='REPARAR · '+String(sab.type||'AVERÍA').toUpperCase()}
