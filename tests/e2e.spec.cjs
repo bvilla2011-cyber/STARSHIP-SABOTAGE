@@ -189,6 +189,7 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     await p1.locator('#modal [data-vote="'+id2+'"]').click();
     await p2.locator('#modal [data-vote="'+id1+'"]').click();
     await expect(p1.locator('#modal')).toContainText('RESULTADO DE LA REUNIÓN',{timeout:5000});
+    await expect(p1.locator('#modal')).toHaveClass(/hidden/,{timeout:8000});
 
     p1.once('dialog',dialog=>dialog.accept());
     await p1.locator('#moreBtn').click();
