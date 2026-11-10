@@ -769,9 +769,23 @@ function distanceToPath(x,y,points){let best=Infinity;for(let i=1;i<points.lengt
 function inFloor(x,y){if(x<0||y<0||x>MAP.w||y>MAP.h)return false;if(MAP.rooms.some(r=>pointInRoom(x,y,r)))return true;return MAP.corridors.some(c=>distanceToPath(x,y,c.points)<=c.width/2-.08)}
 function blocked(x,y){return !inFloor(x,y)}
 // Colisión circular del tripulante: evita que el centro pase pegado al borde de paredes.
+function blockedByRoomWall(x,y,clearance=.34){
+ for(const r of MAP.rooms){
+  const door=(side,along)=>((r.doors||[]).some(d=>d.side===side&&Math.abs(along-(d.offset*(side==='top'||side==='bottom'?r.w:r.h)))<=((d.width||2.35)/2-clearance*.35)));
+  if(x>=r.x-clearance&&x<=r.x+r.w+clearance){
+   if(Math.abs(y-r.y)<clearance&&!door('top',x-r.x))return true;
+   if(Math.abs(y-(r.y+r.h))<clearance&&!door('bottom',x-r.x))return true;
+  }
+  if(y>=r.y-clearance&&y<=r.y+r.h+clearance){
+   if(Math.abs(x-r.x)<clearance&&!door('left',y-r.y))return true;
+   if(Math.abs(x-(r.x+r.w))<clearance&&!door('right',y-r.y))return true;
+  }
+ }
+ return false;
+}
 function canWalk(x,y){
  const radius=.34;
- if(!inFloor(x,y))return false;
+ if(!inFloor(x,y)||blockedByRoomWall(x,y,radius))return false;
  if(gameState?.sabotage?.active&&gameState.sabotage.type==='doors'&&[[60,22.5],[60,47.5],[44,35],[76,35]].some(([dx,dy])=>Math.hypot(x-dx,y-dy)<1.18))return false;
  for(const o of MAP.obstacles||[])if(Math.hypot(x-o.x,y-o.y)<o.r+radius)return false;
  for(let i=0;i<12;i++){const a=i*Math.PI/6;if(!inFloor(x+Math.cos(a)*radius,y+Math.sin(a)*radius))return false}
