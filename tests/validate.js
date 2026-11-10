@@ -124,7 +124,7 @@ assert.ok(html.includes('for(let i=0;i<72;i++)angles.push'), 'Las sombras deben 
 assert.ok(html.includes("canvas.addEventListener('click'") && html.includes('function startTask()') && html.includes("cafe.x+cafe.w/2"), 'El botón SOS debe responder al clic y a la interacción cercana');
 assert.ok(html.includes('for(let i=0;i<72;i++)angles.push'), 'La visibilidad y las sombras deben usar mayor resolución angular');
 
-assert.ok(html.includes("const visionRadius=lightsSabotage?2.35:(p.role==='impostor'?10.5:6.7)"), 'La visión normal debe ampliarse ligeramente y el sabotaje debe limitarla');
+assert.ok(html.includes("const visionRadius=lightsSabotage?6.7*0.035:(p.role==='impostor'?10.5:6.7)"), 'La visión normal debe ampliarse ligeramente y el sabotaje debe limitarla');
 assert.ok(html.includes('El mobiliario sigue siendo sólido para el jugador, pero no proyecta sombras.'), 'Los muebles no deben proyectar sombras');
 assert.ok(html.includes('const corridors=MAP.corridors||[]') && html.includes('corridorId:corridor.id'), 'Los bordes de los pasillos deben bloquear la luz');
 assert.ok(html.includes('function segmentRectInterval') && html.includes('function shadowGeometryAudit()'), 'Las sombras de pasillos deben recortarse en habitaciones y cruces');
