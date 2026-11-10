@@ -126,8 +126,11 @@ assert.ok(html.includes('permissions:ownerPermissions(playerId)'), 'Las filas de
 assert.ok(html.includes('protocolVersion:2'), 'Las salas nuevas deben declarar versión de protocolo');
 assert.ok(html.includes("ROOMS='rooms_v2',PLAYERS='players_v2'"), 'El cliente debe usar tablas v2 con permisos limitados');
 assert.ok(html.includes("m.id+'|vote:'+choice") && html.includes("q.vote?.startsWith(m.id+'|vote:')"), 'Los votos deben aislarse por reunión y fase');
-assert.ok(html.includes("endsAt:Date.now()+190000") && html.includes("m.endsAt=now+90000"), 'La reunión debe incluir 190 segundos de conversación y 30 de votación');
+assert.ok(html.includes("endsAt:Date.now()+90000") && html.includes("m.endsAt=now+30000"), 'La reunión debe incluir 90 segundos de conversación y 30 de votación');
 assert.ok(html.includes("m.id+'|chat-skip'") && html.includes("VOTO NULO · NO EXPULSAR A NADIE"), 'El debate debe poder saltarse por unanimidad y la votación debe admitir voto nulo');
+assert.ok(html.includes('getCafeteriaSpawnPoints(shuffled.length)') && html.includes('teleportPlayersToCafeteria();gameState.meeting=null'), 'Los jugadores deben aparecer separados en cafetería al inicio y tras cada reunión');
+assert.ok((html.match(/sos=canAct&&!sabotageActive/g)||[]).length===3 && html.includes('if(!isReport){if(gameState.sabotage?.active)return toast'), 'El botón de emergencia debe bloquearse durante sabotajes, sin impedir reportar cuerpos');
+assert.ok(html.includes('meeting(true,body.id)'), 'Los reportes deben abrir la misma reunión que el botón de emergencia');
 assert.ok(html.includes('meetingPlayerColor(msg.id)') && html.includes('meeting-message-dot'), 'El chat debe colorear cada nombre con el color del monguito');
 assert.ok(html.includes('emergencyUsed:{}') && html.includes('targetWasImpostor') && html.includes('remainingImpostors') && html.includes('meeting-result-card'), 'Cada jugador debe tener un único SOS por partida y ver la revelación animada de expulsión');
 assert.ok(html.includes("Nametags por encima de la máscara") && html.includes("nameView"), 'Los nombres deben dibujarse sobre la iluminación y respetar el campo de visión');
