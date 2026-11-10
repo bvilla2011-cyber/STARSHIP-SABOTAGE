@@ -41,10 +41,15 @@ node tests/validate.js
 
 El workflow `.github/workflows/qa.yml` valida sintaxis, mapa, conectividad, estaciones, conductos y presencia de sistemas esenciales en pushes y pull requests.
 
-La validación estática no certifica la jugabilidad. Las pruebas de navegador con dos sesiones independientes, reconexión, concurrencia de host y carga real siguen siendo obligatorias antes de publicar.
+La suite automatizada usa Chromium y dos sesiones independientes con un backend Appwrite simulado para comprobar creación/unión de salas, ACL, asignación de roles, votación y transferencia del anfitrión. Es una prueba de integración del cliente, no sustituye una prueba real de carga ni certifica la jugabilidad en todos los dispositivos.
 
-## Seguridad: bloqueo de producción pendiente
-Las tablas `rooms` y `players` conservan permisos de tabla para `any`. El cliente permite invitados y escribe directamente en TablesDB. Restringir permisos sin migrar el protocolo rompería el multijugador; por eso no se han cambiado a ciegas. Antes de producción hay que mover las mutaciones críticas a funciones de servidor con validación de identidad, pertenencia a sala, host, movimiento, roles y acciones. Nunca introduzcas claves API privilegiadas en el navegador.
+## Seguridad
+- Appwrite tiene Row Security activado en las tablas `rooms` y `players`.
+- Las filas de jugador se crean con lectura pública de datos no sensibles y escritura/eliminación restringida a la identidad propietaria.
+- Las salas restringen lectura a los miembros durante la partida y limitan las escrituras a las identidades de los participantes; el anfitrión gestiona los permisos y la transferencia de autoridad.
+- El modo invitado usa una sesión anónima real de Appwrite; el ID de jugador coincide con la identidad autenticada.
+
+**Límite pendiente:** el cliente sigue enviando el estado compartido de la partida. Un participante autenticado puede manipular datos de la sala desde sus herramientas de desarrollo. Antes de abrir el juego a competición o tratarlo como producción resistente a trampas, las acciones críticas deben validarse en funciones de servidor (identidad, pertenencia, anfitrión, movimiento, roles, asesinatos, tareas y sabotajes). Nunca introduzcas claves API privilegiadas en el navegador.
 
 ## Publicación
-GitHub Pages despliega desde `main`. La rama `development/spaceship-sabotage-rebuild` permanece separada para revisión. El pull request de desarrollo se mantiene en borrador hasta completar auditoría funcional, pruebas reales y seguridad.
+GitHub Pages despliega desde `main`. La rama `development/spaceship-sabotage-rebuild` permanece separada para revisión. La publicación requiere que pasen la validación estática y la suite de navegador, además de revisar manualmente la experiencia real en móvil y escritorio.
