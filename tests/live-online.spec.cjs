@@ -92,7 +92,7 @@ test('Appwrite real: dos sesiones anónimas crean, unen y abandonan una sala', a
     await hostPage.locator('#start').click();
     await expect(hostPage.locator('#game')).toBeVisible({ timeout: 20000 });
     await expect(guestPage.locator('#game')).toBeVisible({ timeout: 20000 });
-    await expect.poll(() => guestPage.evaluate(() => document.querySelector('#phase')?.textContent || '')).not.toBe('');
+    await expect.poll(() => guestPage.locator('#taskText').textContent()).not.toBe('');
 
     // The non-host leaves first; the host must remain able to close the room.
     await guestPage.locator('#leave').click();
