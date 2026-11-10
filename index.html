@@ -575,6 +575,7 @@ if(location.hostname==='127.0.0.1'||location.hostname==='localhost'){
    return id;
   },
   taskDone(id){return !!gameState?.players?.[playerId]?.done?.includes(id)},
+  tryStartTask(){startTask()},
   playerState(){const p=gameState?.players?.[playerId];return p?{x:p.x,y:p.y,alive:p.alive,done:p.done?.length||0}:null},
   prepareRepair(type){const ids={lights:'electrical_wires',reactor:'reactor_start',comms:'comms_fix',o2:'o2_filter',doors:'admin_card'},station=MAP.repairs.find(r=>r.id===ids[type]),p=gameState?.players?.[playerId];if(!station||!p)throw new Error('No se puede preparar la reparación '+type);p.role='crew';p.alive=true;p.x=station.x;p.y=station.y;gameState.sabotage={active:true,type,target:station.id,endsAt:0};return station.type},
   sabotageActive(){return !!gameState?.sabotage?.active},
@@ -612,7 +613,7 @@ let moveWriteBusy=false,moveWritePending=false,lastMoveSentAt=0,lastMoveSentX=0,
 async function moveUpdate(force=false){if(soloMode)return;const p=gameState?.players?.[playerId];if(!p||!p.alive)return;const now=Date.now();if(!force&&Math.hypot(p.x-lastMoveSentX,p.y-lastMoveSentY)<.08&&now-lastMoveSentAt<180)return;moveWritePending=true;if(moveWriteBusy)return;moveWriteBusy=true;try{while(moveWritePending){moveWritePending=false;const latest=gameState?.players?.[playerId];if(!latest||!latest.alive)break;const x=latest.x,y=latest.y;await getDb().updateRow({databaseId:DB,tableId:PLAYERS,rowId:playerId,data:{x,y,lastSeen:new Date().toISOString()}});lastMoveSentX=x;lastMoveSentY=y;lastMoveSentAt=Date.now();}}catch(e){console.warn('No se pudo publicar la posición:',e)}finally{moveWriteBusy=false}}
 
 async function syncGame(){if(!isHost||!gameState)return;const now=Date.now();if(now-(syncGame.last||0)<1000)return;syncGame.last=now;try{await saveRoomState(gameState,gameState.phase==='ended'?'ended':'playing')}catch(e){}}
-function startTask(){const p=gameState?.players?.[playerId];if(!p||p.role!=='crew'||!p.alive||gameState.meeting)return;const available=(p.tasks||[]).filter(t=>!p.done?.includes(t.id)).map(t=>({...t,station:MAP.tasks.find(x=>x.id===(t.stationId||t.id))})).filter(t=>t.station).map(t=>({...t,d:Math.hypot(p.x-t.station.x,p.y-t.station.y)})).sort((a,b)=>a.d-b.d);const nearest=available[0];if(!nearest||nearest.d>0.85){toast(nearest?'Acércate a '+nearest.room:'Ya has completado tus tareas.');return}openMiniGame(nearest,nearest.station)}
+function startTask(){const p=gameState?.players?.[playerId];if(!p||p.role!=='crew'||!p.alive||gameState.meeting)return;if(gameState.sabotage?.active&&gameState.sabotage.type==='comms')return toast('COMUNICACIONES INTERFERIDAS · Repara la señal antes de continuar.');const available=(p.tasks||[]).filter(t=>!p.done?.includes(t.id)).map(t=>({...t,station:MAP.tasks.find(x=>x.id===(t.stationId||t.id))})).filter(t=>t.station).map(t=>({...t,d:Math.hypot(p.x-t.station.x,p.y-t.station.y)})).sort((a,b)=>a.d-b.d);const nearest=available[0];if(!nearest||nearest.d>0.85){toast(nearest?'Acércate a '+nearest.room:'Ya has completado tus tareas.');return}openMiniGame(nearest,nearest.station)}
 function openMiniGame(task,station){
  const m=$('modal');m.classList.remove('hidden');m.classList.add('task-modal');
  const title=clean(task.name),room=clean(station.room),type=station.type,gameType=({fuel:'filter',sequence:'calibrate',upload:'route',scan:'calibrate'}[type]||type);
