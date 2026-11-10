@@ -97,6 +97,10 @@ assert.ok(html.includes('Date.now()+10000'), 'La cuenta atrás de lobby debe ser
 assert.ok(html.includes('blockedByRoomWall('), 'Falta la colisión de paredes');
 assert.ok(html.includes('function collidesFurniture(') && html.includes("o.kind==='circle'"), 'El mobiliario debe tener colisión circular o rectangular');
 assert.ok(html.includes('ellipse(r,cx,cy,1.72,1.12)') && html.includes("fillText('SOS',cx,cy+.32)"), 'La cafetería debe tener una mesa SOS central con botón visible y colisionador');
+assert.ok(html.includes("canvas.addEventListener('click'") && html.includes("cafe.x+cafe.w/2"), 'El botón SOS debe responder al clic y a la interacción cercana');
+assert.ok(html.includes('for(let i=0;i<72;i++)angles.push'), 'Las sombras deben usar mayor resolución angular');
+assert.ok(!html.includes("makeRoom('laboratory'") && !html.includes("makeRoom('cargo_s'"), 'El mapa compacto no debe incluir las dos salas retiradas');
+assert.ok(html.includes('ellipse(r,cx,cy,1.72,1.12)') && html.includes("fillText('SOS',cx,cy+.32)"), 'La cafetería debe tener una mesa SOS central con botón visible y colisionador');
 assert.ok(html.includes("canvas.addEventListener('click'") && html.includes('function startTask()') && html.includes("cafe.x+cafe.w/2"), 'El botón SOS debe responder al clic y a la interacción cercana');
 assert.ok(html.includes('for(let i=0;i<72;i++)angles.push'), 'La visibilidad y las sombras deben usar mayor resolución angular');
 assert.ok(!html.includes("'LABORATORIO','medbay'") && !html.includes("'CARGA SUR','storage'"), 'El mapa compacto no debe incluir las dos salas retiradas');
