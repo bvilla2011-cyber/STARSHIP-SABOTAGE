@@ -885,7 +885,7 @@ async function useVent(){
   if(!soloMode)await saveRoomState(gameState);modal.classList.add('hidden');$('vent').textContent='CONDUCTO';moveUpdate(true);draw();
  });
 }
-function meetingPlayerColor(id){const value=gameState?.players?.[id]?.color||'#e85d75';return /^#[0-9a-f]{6}$/i.test(value)?value:'#e85d75'}
+function meetingPlayerColor(id){const player=gameState?.players?.[id],skin=SHOP_ITEMS?.find(item=>item.id===(player?.cosmetics||{}).skin),value=skin?.suit||player?.color||'#e85d75';return /^#[0-9a-f]{6}$/i.test(value)?value:'#e85d75'}
 function meetingSecondsLeft(){return Math.max(0,Math.ceil(((gameState?.meeting?.endsAt||Date.now())-Date.now())/1000))}
 function renderMeetingUI(){
  const m=gameState?.meeting,modal=$('modal');if(!m||!modal)return;
