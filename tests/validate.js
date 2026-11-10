@@ -19,7 +19,7 @@ const mapSource = html.slice(mapStart, mapEnd);
 const MAP = vm.runInNewContext(mapSource + '; MAP');
 assert.equal(MAP.rooms.length, 9, 'El mapa debe incluir las nueve salas, incluidas Oxígeno y Seguridad');
 assert.equal(MAP.corridors.length, 2, 'El mapa debe conservar solo dos corredores horizontales');
-assert.equal(Array.from(MAP.corridors, c => c.id).join(','), 'upper_link,middle_link', 'No deben quedar ramales laterales ni verticales');
+assert.equal([...MAP.corridors].map(c => c.id).join(','), 'upper_link,middle_link', 'No deben quedar ramales laterales ni verticales');
 assert.equal(Array.from(MAP.corridors[0].points, p => p.join(',')).join(';'), '7,21;61,21', 'El corredor superior debe acabar recto y alineado con las paredes');
 assert.equal(Array.from(MAP.corridors[1].points, p => p.join(',')).join(';'), '7,35;45,35', 'El corredor central debe acabar recto y alineado con las paredes');
 assert.equal(MAP.rooms.find(r => r.id === 'security').doors.length, 0, 'Seguridad debe tener la pared izquierda cerrada, sin puerta');
