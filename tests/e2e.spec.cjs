@@ -359,6 +359,10 @@ test('gameplay: geometría sin solapamientos, mobiliario sólido, red de conduct
     await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.ventPlayerState())).toMatchObject({inVent:false,ventId:null});
     const lighting=await page.evaluate(()=>({hasLayer:!!window.__starshipLightLayer,code:document.documentElement.innerHTML.includes('visionRadius')}));
     expect(lighting.code).toBe(true);
+    const shadows=await page.evaluate(()=>window.__STARSHIP_TEST__.shadowProbe(60,40,6.7));
+    expect(shadows.segments).toBeGreaterThan(100);
+    expect(shadows.points).toBeGreaterThan(48);
+    expect(shadows.occludedRays).toBeGreaterThan(0);
   } finally {
     await context.close();
   }
