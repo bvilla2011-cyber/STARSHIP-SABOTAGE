@@ -116,7 +116,7 @@ for (const token of ['async function eliminate(', 'async function useVent(', 'as
 assert.ok(html.includes('Date.now()+10000'), 'La cuenta atrás de lobby debe ser de 10 segundos');
 assert.ok(html.includes('blockedByRoomWall('), 'Falta la colisión de paredes');
 assert.ok(html.includes('function collidesFurniture(') && html.includes("o.kind==='circle'"), 'El mobiliario debe tener colisión circular o rectangular');
-assert.ok(html.includes('ellipse(r,cx,cy,1.72,1.12)') && html.includes("fillText('SOS',cx,cy+.32)") && !MAP.obstacles.some(o=>o.room==='cafeteria'&&o.kind==='ellipse'&&Math.abs(o.x-61)<.01&&Math.abs(o.y-35)<.01), 'La mesa SOS debe verse sin bloquear el paso');
+assert.ok(html.includes('ctx.ellipse(cx,cy,1.72,1.12') && html.includes("fillText('SOS',cx,cy+.32)") && !MAP.obstacles.some(o=>o.room==='cafeteria'&&o.kind==='ellipse'&&Math.abs(o.x-61)<.01&&Math.abs(o.y-35)<.01), 'La mesa SOS debe verse sin bloquear el paso');
 assert.ok(html.includes("canvas.addEventListener('click'") && html.includes("cafe.x+cafe.w/2"), 'El botón SOS debe responder al clic y a la interacción cercana');
 assert.ok(html.includes('for(let i=0;i<72;i++)angles.push'), 'Las sombras deben usar mayor resolución angular');
 
