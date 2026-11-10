@@ -91,6 +91,8 @@ for (const token of ['async function eliminate(', 'async function useVent(', 'as
 assert.ok(html.includes('Date.now()+10000'), 'La cuenta atrás de lobby debe ser de 10 segundos');
 assert.ok(html.includes('blockedByRoomWall('), 'Falta la colisión de paredes');
 assert.ok(html.includes('function playVictimKillAnimation'), 'Falta animación de víctima');
+assert.ok(html.includes('if(i<stage)return;n.pos=angle'), 'Las agujas activas de calibración deben animarse');
+assert.ok(html.includes("players.filter(q=>q.alive&&q.vote).length"), 'El contador de votos debe refrescarse con las votaciones remotas');
 assert.ok(!html.includes('three.min.js'), 'El proyecto debe conservar el renderer 2.5D Canvas');
 console.log('✓ Sistemas críticos presentes; renderer 2.5D Canvas confirmado');
 console.log('QA OK — validación estática y conectividad superadas');
