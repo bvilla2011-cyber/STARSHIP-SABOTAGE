@@ -116,7 +116,7 @@ assert.ok(html.includes("ROOMS='rooms_v2',PLAYERS='players_v2'"), 'El cliente de
 assert.ok(html.includes("m.id+'|'+choice") && html.includes("q.vote?.startsWith(m.id+'|')"), 'Los votos deben aislarse por reunión');
 assert.ok(!html.includes('target.alive=q.alive') && !html.includes('own.alive=local.alive'), 'El snapshot de jugadores no debe revivir eliminados');
 assert.ok(!html.includes('rowId:target.id,data:{alive:false}') && !html.includes('rowId:targetId,data:{alive:false}'), 'Un cliente no debe modificar la fila de otro jugador');
-assert.ok(html.includes('Permission.update(Role.user(ownerId))') && html.includes('const permissions=ownerPermissions(playerId)'), 'Las filas individuales deben mantener escritura restringida a su propietario');
+assert.ok(html.includes('const ownerPermissions=ownerId=>Permission&&Role&&ownerId?') && html.includes('Permission.update(Role.user(ownerId))') && html.includes('Permission.delete(Role.user(ownerId))') && html.includes('permissions:ownerPermissions(playerId)'), 'Las filas individuales deben mantener lectura y escritura restringidas a su propietario');
 assert.ok(html.includes('setInterval(pollRoom,450)'), 'El polling debe tener una frecuencia moderada');
 assert.ok(html.includes('async function leaveCurrentRoom()'), 'Debe existir salida con transferencia de anfitrión');
 assert.ok(html.includes('const returning=!!(existing&&existing.roomId===roomId'), 'Los jugadores originales deben poder reconectarse a su partida');
