@@ -520,19 +520,19 @@ const makeRoom=(id,name,kind,x,y,w,h,color,doors=['top','bottom'])=>({
 const MAP={
  w:82,h:60,
  rooms:[
-  makeRoom('cargo_n','CARGA NORTE','storage',7,7,15,10,'#8a704c'),
-  makeRoom('comms_n','COMUNICACIONES','comms',27,7,15,10,'#765d9b'),
+  makeRoom('cargo_n','CARGA NORTE','storage',7,9,15,10,'#8a704c'),
+  makeRoom('comms_n','COMUNICACIONES','comms',27,9,15,10,'#765d9b'),
   makeRoom('admin','ADMINISTRACIÓN','admin',7,23,15,10,'#438d70'),
   makeRoom('electrical','ELECTRICIDAD','electrical',27,23,12,10,'#a77a3f'),
   makeRoom('cafeteria','CAFETERÍA','cafe',45,22.5,32,25,'#497f91',['top','bottom','left','right']),
-  makeRoom('reactor','REACTOR','reactor',7,39,15,10,'#76539a'),
-  makeRoom('medbay','ENFERMERÍA','medbay',27,39,12,10,'#398b86')
+  makeRoom('reactor','REACTOR','reactor',7,37,15,10,'#76539a'),
+  makeRoom('medbay','ENFERMERÍA','medbay',27,37,12,10,'#398b86')
  ],
  corridors:[
-  {id:'upper_link',main:true,width:4.8,points:[[4,20],[61,20]]},
-  {id:'middle_link',main:true,width:4.8,points:[[4,36],[45,36]]},
-  {id:'lower_link',main:true,width:4.8,points:[[4,52],[43,52]]},
-  {id:'west_spine',main:false,width:3.5,points:[[4,20],[4,52]]},
+  {id:'upper_link',main:true,width:4.8,points:[[4,21],[61,21]]},
+  {id:'middle_link',main:true,width:4.8,points:[[4,35],[45,35]]},
+  {id:'lower_link',main:true,width:4.8,points:[[4,49],[43,49]]},
+  {id:'west_spine',main:false,width:3.5,points:[[4,21],[4,49]]},
   {id:'cafe_north',main:false,width:3.5,points:[[61,8],[61,22.5]]}
  ],
  obstacles:[],
@@ -541,8 +541,8 @@ const MAP={
   {id:'t_wires_n',name:'Reparar cableado',room:'COMUNICACIONES',x:34,y:12,type:'wires'},
   {id:'t_admin',name:'Validar identificación',room:'ADMINISTRACIÓN',x:14,y:28,type:'card'},
   {id:'t_power',name:'Distribuir energía',room:'ELECTRICIDAD',x:33,y:28,type:'wires'},
-  {id:'t_reactor',name:'Alinear núcleo',room:'REACTOR',x:14,y:44,type:'sequence'},
-  {id:'t_scan',name:'Escáner médico',room:'ENFERMERÍA',x:33,y:44,type:'scan'}
+  {id:'t_reactor',name:'Alinear núcleo',room:'REACTOR',x:14,y:42,type:'sequence'},
+  {id:'t_scan',name:'Escáner médico',room:'ENFERMERÍA',x:33,y:42,type:'scan'}
  ],
  repairs:[
   {id:'electrical_wires',name:'REPARAR DISTRIBUCIÓN ELÉCTRICA',room:'ELECTRICIDAD',x:33,y:28,type:'wires'},
@@ -551,11 +551,11 @@ const MAP={
   {id:'admin_card',name:'DESBLOQUEAR PUERTAS',room:'ADMINISTRACIÓN',x:14,y:28,type:'card'}
  ],
  vents:[
-  {id:'v1',name:'CARGA NORTE',room:'CARGA NORTE',x:19,y:14,links:['v2','v6']},
-  {id:'v2',name:'COMUNICACIONES',room:'COMUNICACIONES',x:39,y:14,links:['v1','v3']},
+  {id:'v1',name:'CARGA NORTE',room:'CARGA NORTE',x:19,y:16,links:['v2','v6']},
+  {id:'v2',name:'COMUNICACIONES',room:'COMUNICACIONES',x:39,y:16,links:['v1','v3']},
   {id:'v3',name:'ELECTRICIDAD',room:'ELECTRICIDAD',x:36,y:30,links:['v2','v4']},
-  {id:'v4',name:'ENFERMERÍA',room:'ENFERMERÍA',x:36,y:46,links:['v3','v5']},
-  {id:'v5',name:'REACTOR',room:'REACTOR',x:19,y:46,links:['v4','v6']},
+  {id:'v4',name:'ENFERMERÍA',room:'ENFERMERÍA',x:36,y:44,links:['v3','v5']},
+  {id:'v5',name:'REACTOR',room:'REACTOR',x:19,y:44,links:['v4','v6']},
   {id:'v6',name:'ADMINISTRACIÓN',room:'ADMINISTRACIÓN',x:19,y:30,links:['v5','v1']}
  ]
 };
