@@ -21,7 +21,16 @@ assert.equal(MAP.rooms.length, 9, 'El mapa debe incluir las nueve salas, incluid
 assert.equal(MAP.corridors.length, 4, 'El mapa debe conservar cuatro corredores, sin el inferior');
 assert.equal(MAP.tasks.length, 6, 'El mapa debe conservar las seis tareas de la nave');
 assert.equal(MAP.repairs.length, 6, 'El mapa debe incluir las seis estaciones de reparación');
-assert.equal(MAP.vents.length, 8, 'El mapa debe conservar ocho conductos conectados');
+assert.equal(MAP.vents.length, 6, 'El mapa debe tener exactamente seis conductos');
+assert.equal(MAP.vents.filter(v => v.zone === 'west').length, 3, 'La zona oeste debe tener tres conductos');
+assert.equal(MAP.vents.filter(v => v.zone === 'east').length, 3, 'La zona este debe tener tres conductos');
+for (const zone of ['west','east']) {
+  const group = MAP.vents.filter(v => v.zone === zone);
+  const seen = new Set([group[0].id]), queue = [group[0].id];
+  while (queue.length) for (const id of group.find(v => v.id === queue.shift()).links) if (group.some(v => v.id === id) && !seen.has(id)) { seen.add(id); queue.push(id); }
+  assert.equal(seen.size, 3, 'Los tres conductos de la zona '+zone+' deben estar conectados');
+}
+assert.ok(MAP.vents.every(v => v.links.every(id => MAP.vents.find(q => q.id === id)?.zone === v.zone)), 'No debe haber conexiones entre zonas');
 assert.ok(MAP.rooms.some(r => r.id === 'oxygen'), 'Debe existir la sala de Oxígeno');
 assert.ok(MAP.rooms.some(r => r.id === 'security'), 'Debe existir la sala de Seguridad');
 assert.equal(MAP.repairs.filter(r => r.type === 'code').length, 2, 'O₂ debe tener dos terminales de código');
