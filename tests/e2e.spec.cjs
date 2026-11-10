@@ -105,7 +105,7 @@ async function apiRoute(route) {
     }
     const row=store.get(id);
     if (!row) return send(404,{message:'Row not found'});
-    if (method === 'GET') return send(200,row);
+    if (method === 'GET') { if (!(row.$permissions||[]).includes('read("any")') && !(row.$permissions||[]).includes('read("user:'+user+'")')) return send(403,{message:'Read permission denied'}); return send(200,row); }
     const action=method==='PATCH'?'update':'delete';
     if (!(row.$permissions||[]).includes(action+'("user:'+user+'")')) return send(403,{message:'Permission denied'});
     if (method === 'PATCH') {
@@ -180,6 +180,9 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     const crew=Object.values(state.players).filter(p=>p.role==='crew');
     const impostors=Object.values(state.players).filter(p=>p.role==='impostor');
     expect(impostors).toHaveLength(1);
+    expect(shared.rooms.get(code).$permissions).not.toContain('read("any")');
+    expect(shared.rooms.get(code).$permissions).toContain('read("user:'+id1+'")');
+    expect(shared.rooms.get(code).$permissions).toContain('read("user:'+id2+'")');
     expect(crew).toHaveLength(1);
     expect(crew[0].tasks).toHaveLength(4);
 
