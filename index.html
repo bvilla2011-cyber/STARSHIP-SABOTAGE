@@ -627,10 +627,18 @@ const buildFurnitureColliders=()=>{
  }
  return out;
 };
+function segmentRectInterval(x1,y1,x2,y2,rect){
+ let lo=0,hi=1;const dx=x2-x1,dy=y2-y1;
+ for(const [p,q] of [[-dx,x1-rect.x],[dx,rect.x+rect.w-x1],[-dy,y1-rect.y],[dy,rect.y+rect.h-y1]]){
+  if(Math.abs(p)<1e-9){if(q<0)return null;continue}
+  const t=q/p;if(p<0){if(t>hi)return null;lo=Math.max(lo,t)}else{if(t<lo)return null;hi=Math.min(hi,t)}
+ }
+ return hi-lo>.0001?[Math.max(0,lo),Math.min(1,hi)]:null;
+}
 function buildOcclusionSegments(){
- const segments=[],add=(x1,y1,x2,y2)=>{if(Math.hypot(x2-x1,y2-y1)>.025)segments.push({x1,y1,x2,y2,minX:Math.min(x1,x2),maxX:Math.max(x1,x2),minY:Math.min(y1,y2),maxY:Math.max(y1,y2)})};
+ const segments=[],add=(x1,y1,x2,y2,meta={})=>{if(Math.hypot(x2-x1,y2-y1)>.025)segments.push({x1,y1,x2,y2,...meta,minX:Math.min(x1,x2),maxX:Math.max(x1,x2),minY:Math.min(y1,y2),maxY:Math.max(y1,y2)})};
  const wall=(x1,y1,x2,y2,doors,vertical)=>{
-  const length=vertical?y2-y1:x2-x1,gaps=(doors||[]).map(d=>{const c=d.offset*length,half=(d.width||2.35)/2+.08;return [Math.max(0,c-half),Math.min(length,c+half)]}).sort((a,b)=>a[0]-b[0]);
+  const length=vertical?y2-y1:x2-x1,gaps=(doors||[]).map(d=>{const center=d.offset*length,half=(d.width||2.35)/2+.08;return [Math.max(0,center-half),Math.min(length,center+half)]}).sort((a,b)=>a[0]-b[0]);
   let cursor=0;for(const [a,b] of gaps){if(a>cursor){if(vertical)add(x1,y1+cursor,x2,y1+a);else add(x1+cursor,y1,x1+a,y2)}cursor=Math.max(cursor,b)}
   if(cursor<length){if(vertical)add(x1,y1+cursor,x2,y2);else add(x1+cursor,y1,x2,y2)}
  };
@@ -640,19 +648,47 @@ function buildOcclusionSegments(){
   wall(r.x,r.y,r.x,r.y+r.h,r.doors?.filter(d=>d.side==='left'),true);
   wall(r.x+r.w,r.y,r.x+r.w,r.y+r.h,r.doors?.filter(d=>d.side==='right'),true);
  }
- // Los muebles conservan sus colisionadores de movimiento, pero no bloquean la luz.
- // Los bordes de los pasillos sí forman parte de la geometría de sombras.
- for(const c of MAP.corridors||[]){
-  const half=(c.width||0)/2;
-  for(let i=1;i<c.points.length;i++){
-   const a=c.points[i-1],b=c.points[i],dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy);
+ // El mobiliario sigue siendo sólido para el jugador, pero no proyecta sombras.
+ // Las aristas de los pasillos se recortan en habitaciones y cruces: así no
+ // atraviesan las puertas ni crean paredes invisibles entre corredores conectados.
+ const corridors=MAP.corridors||[];
+ for(let ci=0;ci<corridors.length;ci++){
+  const corridor=corridors[ci],half=(corridor.width||0)/2;
+  for(let si=1;si<corridor.points.length;si++){
+   const a=corridor.points[si-1],b=corridor.points[si],dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy);
    if(len<.001)continue;
    const ox=-dy/len*half,oy=dx/len*half;
-   add(a[0]+ox,a[1]+oy,b[0]+ox,b[1]+oy);
-   add(a[0]-ox,a[1]-oy,b[0]-ox,b[1]-oy);
+   const blockers=MAP.rooms.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h}));
+   for(let oi=0;oi<corridors.length;oi++){
+    if(oi===ci)continue;
+    const other=corridors[oi],oh=(other.width||0)/2+.015;
+    for(let k=1;k<other.points.length;k++){
+     const p=other.points[k-1],q=other.points[k];
+     blockers.push({x:Math.min(p[0],q[0])-oh,y:Math.min(p[1],q[1])-oh,w:Math.abs(q[0]-p[0])+2*oh,h:Math.abs(q[1]-p[1])+2*oh});
+    }
+   }
+   for(const side of [-1,1]){
+    const x1=a[0]+side*ox,y1=a[1]+side*oy,x2=b[0]+side*ox,y2=b[1]+side*oy;
+    const intervals=blockers.map(rect=>segmentRectInterval(x1,y1,x2,y2,rect)).filter(Boolean).sort((u,v)=>u[0]-v[0]);
+    const merged=[];for(const it of intervals){const last=merged[merged.length-1];if(last&&it[0]<=last[1]+.0001)last[1]=Math.max(last[1],it[1]);else merged.push([...it])}
+    let cursor=0;const meta={corridorId:corridor.id,corridorSegment:si};
+    for(const [lo,hi] of merged){if(lo>cursor+.0001)add(x1+dx*cursor,y1+dy*cursor,x1+dx*lo,y1+dy*lo,meta);cursor=Math.max(cursor,hi)}
+    if(cursor<1-.0001)add(x1+dx*cursor,y1+dy*cursor,x2,y2,meta);
+   }
   }
  }
  return segments;
+}
+function shadowGeometryAudit(){
+ const corridorSegments=MAP_OCCLUSION_SEGMENTS.filter(s=>s.corridorId);
+ let roomLeaks=0,junctionLeaks=0;
+ const distance=(x,y,a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy,t=l?Math.max(0,Math.min(1,((x-a[0])*dx+(y-a[1])*dy)/l)):0;return Math.hypot(x-a[0]-dx*t,y-a[1]-dy*t)};
+ for(const s of corridorSegments){
+  const x=(s.x1+s.x2)/2,y=(s.y1+s.y2)/2;
+  if(MAP.rooms.some(r=>x>r.x+.001&&x<r.x+r.w-.001&&y>r.y+.001&&y<r.y+r.h-.001))roomLeaks++;
+  if(MAP.corridors.some(c=>c.id!==s.corridorId&&distance(x,y,c.points[0],c.points[1])<(c.width||0)/2-.001))junctionLeaks++;
+ }
+ return {corridorSegments:corridorSegments.length,roomLeaks,junctionLeaks};
 }
 function visibilityPolygon(px,py,radius){
  const relevant=[];
@@ -723,6 +759,7 @@ if(location.hostname==='127.0.0.1'||location.hostname==='localhost'){
   },
   collisionProbe(x,y){return {walkable:canWalk(Number(x),Number(y)),furniture:collidesFurniture(Number(x),Number(y))}},
   shadowProbe(x,y,radius=6.7){const pts=visibilityPolygon(Number(x),Number(y),Number(radius));return {segments:MAP_OCCLUSION_SEGMENTS.length,points:pts.length,occludedRays:pts.filter(q=>Math.hypot(q[0]-Number(x),q[1]-Number(y))<Number(radius)-.12).length}},
+  shadowGeometryAudit(){return shadowGeometryAudit()},
   doorAccessAudit(){
    const blocked=[];
    for(const r of MAP.rooms)for(const d of r.doors||[]){
@@ -1227,7 +1264,7 @@ const cutLight=(lx,ly,rad,strength=1)=>{
 MAP.rooms.forEach(r=>{const lx=r.x+r.w/2,ly=r.y+1.15;cutLight(lx,ly,r.kind==='cafe'?2.8:1.65,.22);if(['electrical','reactor','engine','medbay','laboratory','oxygen'].includes(r.id)||['electrical','reactor','engine','medbay','o2'].includes(r.kind))cutLight(lx,r.y+r.h/2,1.45,.18)});
 if(p?.alive){
  const lightsSabotage=gameState?.sabotage?.active&&gameState.sabotage.type==='lights'&&p.role!=='impostor';
- const visionRadius=lightsSabotage?2.35:(p.role==='impostor'?10.5:8.75);
+ const visionRadius=lightsSabotage?2.35:(p.role==='impostor'?10.5:11.9);
  cutOccludedLight(p.x,p.y,visionRadius,1);
 }
 lightCtx.restore();ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.drawImage(lightCanvas,0,0,w,h);ctx.restore();
