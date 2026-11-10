@@ -167,9 +167,18 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     await expect(p1.locator('#start')).toBeEnabled();
     await expect.poll(()=>shared.rooms.get(code)?.$permissions?.includes('update("user:'+id2+'")')).toBe(true);
 
+    const memberWrite=await p2.evaluate(async roomId=>{
+      try { await window.__mockTest.request('/rows/rooms/'+encodeURIComponent(roomId),'PATCH',{data:{status:'waiting'}}); return true; }
+      catch(e) { return false; }
+    },code);
+    expect(memberWrite).toBe(true);
+
     const denied=await p2.evaluate(async roomId=>{
+      const member=localStorage.getItem('__mock_user');
+      localStorage.setItem('__mock_user','usr_outsider');
       try { await window.__mockTest.request('/rows/rooms/'+encodeURIComponent(roomId),'PATCH',{data:{status:'hacked'}}); return false; }
       catch(e) { return /Permission denied/.test(e.message); }
+      finally { localStorage.setItem('__mock_user',member); }
     },code);
     expect(denied).toBe(true);
 
