@@ -562,6 +562,21 @@ const MAP={
 };
 const MAP_SCALE=1;
 const SPAWN_X=60,SPAWN_Y=35;
+// API de pruebas E2E disponible únicamente en localhost; nunca se expone en producción.
+if(location.hostname==='127.0.0.1'||location.hostname==='localhost'){
+ window.__STARSHIP_TEST__={
+  prepareTask(type){
+   const station=MAP.tasks.find(t=>t.type===type);
+   const p=gameState?.players?.[playerId];
+   if(!station||!p)throw new Error('No se puede preparar la tarea '+type);
+   const id=station.id+'_online_assignment';
+   p.tasks=[{id,name:station.name,room:station.room,stationId:station.id}];
+   p.done=[];p.x=station.x;p.y=station.y;gameState.required=999;
+   return id;
+  },
+  taskDone(id){return !!gameState?.players?.[playerId]?.done?.includes(id)}
+ };
+}
 let cameraIntro=null,cameraIntroPlayed=true;
 function beginCameraIntro(){cameraIntro=null;cameraIntroPlayed=true;}
 const ownerPermissions=ownerId=>Permission&&Role&&ownerId?[Permission.read(Role.any()),Permission.update(Role.user(ownerId)),Permission.delete(Role.user(ownerId))]:[];
