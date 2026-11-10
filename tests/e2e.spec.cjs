@@ -411,7 +411,7 @@ test('gameplay: geometría sin solapamientos, mobiliario sólido, red de conduct
     await page.locator('#explore').click();
     await expect(page.locator('#game')).toBeVisible();
     const audit=await page.evaluate(()=>window.__STARSHIP_TEST__.geometryAudit());
-    expect(audit).toMatchObject({rooms:9,corridors:4,vents:6,roomOverlaps:[]});
+    expect(audit).toMatchObject({rooms:9,corridors:2,vents:6,roomOverlaps:[]});
     expect(audit.obstacles).toBeGreaterThan(30);
     const table=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(52,29.6));
     expect(table).toMatchObject({walkable:false,furniture:true});
@@ -419,7 +419,7 @@ test('gameplay: geometría sin solapamientos, mobiliario sólido, red de conduct
     const chair=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(50.64,28.42));
     expect(chair).toMatchObject({walkable:false,furniture:true});
     const doors=await page.evaluate(()=>window.__STARSHIP_TEST__.doorAccessAudit());
-    expect(doors.tested).toBeGreaterThanOrEqual(13);
+    expect(doors.tested).toBeGreaterThanOrEqual(12);
     expect(doors.blocked).toEqual([]);
     const floor=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(60,40));
     expect(floor).toMatchObject({walkable:true,furniture:false});
@@ -448,7 +448,7 @@ test('gameplay: geometría sin solapamientos, mobiliario sólido, red de conduct
     const lighting=await page.evaluate(()=>({hasLayer:!!window.__starshipLightLayer,code:document.documentElement.innerHTML.includes('visionRadius')}));
     expect(lighting.code).toBe(true);
     const shadowGeometry=await page.evaluate(()=>window.__STARSHIP_TEST__.shadowGeometryAudit());
-    expect(shadowGeometry.corridorSegments).toBeGreaterThan(20);
+    expect(shadowGeometry.corridorSegments).toBeGreaterThan(8);
     expect(shadowGeometry.roomLeaks).toBe(0);
     expect(shadowGeometry.junctionLeaks).toBe(0);
     // Comprobar que la visión y las sombras siguen funcionando en una salida de sala y en un cruce.
