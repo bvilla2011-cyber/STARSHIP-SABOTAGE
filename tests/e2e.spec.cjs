@@ -292,7 +292,7 @@ test('controles: mapa grande con M y botones contextuales limitados por proximid
     await page.keyboard.press('m');
     await expect(map).toHaveClass(/hidden/);
     const availability=await page.evaluate(()=>window.__STARSHIP_TEST__.actionAvailability());
-    expect(availability).toEqual({task:true,report:true,meeting:true});
+    expect(availability).toEqual({task:false,report:false,meeting:false});
     await page.evaluate(()=>window.__STARSHIP_TEST__.prepareTask('card'));
     await expect(page.locator('#interact')).toBeEnabled();
     await page.keyboard.press('e');
