@@ -2,14 +2,14 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-const inlineScripts = [...html.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/gi)]
+const inlineScripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)]
   .map(match => match[1])
   .filter(script => script.trim());
 
 assert.equal(inlineScripts.length, 1, 'Debe existir un único script principal inline');
 new Function(inlineScripts[0]);
 
-const ids = [...html.matchAll(/\\bid=["']([^"']+)["']/g)].map(match => match[1]);
+const ids = [...html.matchAll(/\bid=["']([^"']+)["']/g)].map(match => match[1]);
 const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
 assert.deepEqual([...new Set(duplicates)], [], 'No puede haber IDs HTML duplicados');
 
@@ -18,7 +18,7 @@ const mapEnd = inlineScripts[0].indexOf('function updateRepairArrow', mapStart);
 assert.ok(mapStart >= 0 && mapEnd > mapStart, 'No se pudo localizar la definición del mapa y sus colisiones');
 const mapCode = inlineScripts[0].slice(mapStart, mapEnd);
 
-const mapReport = new Function(mapCode + `
+const mapReport = new Function(mapCode + \`
   let gameState = null;
   const $ = () => null;
   const step = 0.2;
@@ -54,7 +54,7 @@ const mapReport = new Function(mapCode + `
     unreachableRepairs: MAP.repairs.filter(point => !reachable(point.x, point.y)).map(point => point.id),
     spawnWalkable: canWalk(SPAWN_X, SPAWN_Y)
   };
-`)();
+\`)();
 
 assert.equal(mapReport.rooms, 18, 'El mapa debe contener 18 salas');
 assert.equal(mapReport.corridors, 9, 'El mapa debe contener 9 corredores');
