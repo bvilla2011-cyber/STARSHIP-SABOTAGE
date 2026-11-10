@@ -131,6 +131,7 @@ assert.ok(html.includes("m.id+'|chat-skip'") && html.includes("VOTO NULO · NO E
 assert.ok(html.includes('getCafeteriaSpawnPoints(shuffled.length)') && html.includes('teleportPlayersToCafeteria();gameState.meeting=null'), 'Los jugadores deben aparecer separados en cafetería al inicio y tras cada reunión');
 assert.ok((html.match(/sos=canAct&&!sabotageActive/g)||[]).length===3 && html.includes('if(!isReport){if(gameState.sabotage?.active)return toast'), 'El botón de emergencia debe bloquearse durante sabotajes, sin impedir reportar cuerpos');
 assert.ok(html.includes('meeting(true,body.id)'), 'Los reportes deben abrir la misma reunión que el botón de emergencia');
+assert.ok(html.includes("activeSabotage.type!=='lights'") && html.includes('resolvedByMeeting:true'), 'Al convocar reunión deben resolverse todos los sabotajes excepto electricidad');
 assert.ok(html.includes('meetingPlayerColor(msg.id)') && html.includes('meeting-message-dot'), 'El chat debe colorear cada nombre con el color del monguito');
 assert.ok(html.includes('emergencyUsed:{}') && html.includes('targetWasImpostor') && html.includes('remainingImpostors') && html.includes('meeting-result-card'), 'Cada jugador debe tener un único SOS por partida y ver la revelación animada de expulsión');
 assert.ok(html.includes("Nametags por encima de la máscara") && html.includes("nameView"), 'Los nombres deben dibujarse sobre la iluminación y respetar el campo de visión');
