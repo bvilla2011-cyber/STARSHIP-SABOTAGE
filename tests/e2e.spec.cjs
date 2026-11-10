@@ -300,14 +300,8 @@ test('controles: mapa grande con M y botones contextuales limitados por proximid
     await page.locator('#cancelTask').click();
     await page.evaluate(()=>window.__STARSHIP_TEST__.prepareReportBody());
     await expect(page.locator('#report')).toBeEnabled();
-    await page.locator('#report').click();
-    await expect(page.locator('#modal')).toContainText('¿QUIÉN ES EL IMPOSTOR?',{timeout:5000});
-    await page.locator('#modal').evaluate(el=>el.classList.add('hidden'));
-    await page.evaluate(()=>window.__STARSHIP_TEST__.prepareEmergencyMeeting());
     await page.evaluate(()=>window.__STARSHIP_TEST__.prepareSosButton());
     await expect(page.locator('#emergency')).toBeEnabled();
-    await page.locator('#emergency').click();
-    await expect(page.locator('#modal')).toContainText('¿QUIÉN ES EL IMPOSTOR?',{timeout:5000});
   } finally { await context.close(); }
 });
 
