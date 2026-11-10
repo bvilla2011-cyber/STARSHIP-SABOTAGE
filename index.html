@@ -981,7 +981,7 @@ function drawRoomEquipmentAccents(r){
 /* Acabado artístico de segunda pasada: panelería, relieve y maquinaria mural.
    Todo se dibuja dentro de la silueta de la sala y es estrictamente decorativo. */
 function drawRoomFinishPass(r){
- const {x,y,w,h}=r,accent=ROOM_ACCENTS[r.id]||ROOM_KIND_ACCENTS[r.kind]||'#76d8e8';
+ const {x,y,w,h}=r,cx=x+w/2,cy=y+h/2,accent=ROOM_ACCENTS[r.id]||ROOM_KIND_ACCENTS[r.kind]||'#76d8e8';
  ctx.save();ctx.beginPath();roomPolygon(r).forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.clip();
  const floor=ctx.createLinearGradient(x,y,x,y+h);floor.addColorStop(0,'rgba(220,244,255,.055)');floor.addColorStop(.45,'rgba(4,14,23,.015)');floor.addColorStop(1,'rgba(0,4,12,.25)');ctx.fillStyle=floor;ctx.fillRect(x,y,w,h);
  // Paneles rectangulares con bisel sutil y juntas de expansión.
