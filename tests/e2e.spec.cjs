@@ -194,7 +194,9 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     await p1.locator('#moreBtn').click();
     await p1.locator('#leaveMatchBtn').click();
     await expect.poll(()=>shared.rooms.get(code)?.hostId).toBe(id2);
-    await expect(p2.locator('#hostTag')).toHaveText('ANFITRIÓN',{timeout:5000});
+    await expect.poll(()=>shared.rooms.get(code)?.$permissions?.includes('update("user:'+id2+'")')).toBe(true);
+    const newHostWrite=await p2.evaluate(async roomId=>{try{await window.__mockTest.request('/rows/rooms/'+encodeURIComponent(roomId),'PATCH',{data:{status:'playing'}});return true}catch(e){return false}},code);
+    expect(newHostWrite).toBe(true);
   } finally {
     await first.context.close();
     await second.context.close();
