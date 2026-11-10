@@ -140,6 +140,7 @@ assert.ok(html.includes("if(k==='m'&&!e.repeat){e.preventDefault();toggleMapPane
 assert.ok(html.includes('width="1200" height="840"') && html.includes('g.globalAlpha=.76'), 'El mapa debe ser grande, nítido y translúcido');
 assert.ok(html.includes("const canAct=!!p&&p.alive&&!p.inVent&&!gameState?.meeting") && html.includes("$('emergency').disabled=!sos"), 'Los controles contextuales deben respetar la proximidad y el estado del jugador');
 assert.ok(html.includes('TAREA [E]') && html.includes('REPORTAR [R]') && html.includes('MAPA [M]'), 'El HUD debe mostrar los atajos');
+assert.ok(html.includes("if(k==='e'&&!e.repeat)startTask()") && html.includes("if(k==='r'&&!e.repeat)reportNearbyBody()"), 'Las teclas E y R deben activar sus acciones correspondientes');
 assert.ok(html.includes('window.refreshActionAvailability=function()') && html.includes('window.refreshActionAvailability();'), 'El refresco de botones debe estar disponible para el bucle principal');
 assert.ok(html.includes('map-overlay-and-disabled-actions') && html.includes('background:rgba(7,21,34,.10)'), 'El mapa debe ocupar casi toda la pantalla con fondo translúcido');
 assert.ok(html.includes('#emergency:disabled{filter:grayscale(1)!important;opacity:.32!important'), 'Los botones desactivados deben verse grises y atenuados');
