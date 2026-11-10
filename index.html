@@ -633,6 +633,7 @@ const buildFurnitureColliders=()=>{
  return out;
 };
 MAP.obstacles=buildFurnitureColliders();
+const MAP_OCCLUSION_SEGMENTS=buildOcclusionSegments();
 const MAP_SCALE=1;
 const ROOM_KIND_ACCENTS={cafe:'#e8b96c',engine:'#ff925d',reactor:'#c58aff',security:'#69dce2',medbay:'#8ce8dc',electrical:'#ffd16a',storage:'#d4a16c',admin:'#80e0bd',weapons:'#f1a76f',nav:'#76c9ff',o2:'#72e8bd',shields:'#69dfff',comms:'#c49bff'};
 const ROOM_ACCENTS={cargo_n:'#d6ad72',comms_n:'#c7a5ff',oxygen:'#79f0c5',admin:'#83e4c2',electrical:'#ffd16a',cafeteria:'#f2c67e',security:'#6de2e9',reactor:'#d29aff',medbay:'#8ce8dc',weapons:'#f2a66f',engine_u:'#ff9868',navigation:'#79cfff',shields:'#73e5ff',storage:'#d8b27a',comms_s:'#a994ef',laboratory:'#91e8d0',cargo_s:'#e2a66e',engine_s:'#ff795b'};
@@ -676,6 +677,7 @@ if(location.hostname==='127.0.0.1'||location.hostname==='localhost'){
    return {rooms:MAP.rooms.length,corridors:MAP.corridors.length,vents:MAP.vents.length,roomOverlaps:overlaps,obstacles:MAP.obstacles.length};
   },
   collisionProbe(x,y){return {walkable:canWalk(Number(x),Number(y)),furniture:collidesFurniture(Number(x),Number(y))}},
+  shadowProbe(x,y,radius=6.7){const pts=visibilityPolygon(Number(x),Number(y),Number(radius));return {segments:MAP_OCCLUSION_SEGMENTS.length,points:pts.length,occludedRays:pts.filter(q=>Math.hypot(q[0]-Number(x),q[1]-Number(y))<Number(radius)-.12).length}},
   doorAccessAudit(){
    const blocked=[];
    for(const r of MAP.rooms)for(const d of r.doors||[]){
@@ -920,11 +922,20 @@ const cutLight=(lx,ly,rad,strength=1)=>{
  grad.addColorStop(0,'rgba(0,0,0,'+strength+')');grad.addColorStop(.62,'rgba(0,0,0,'+(strength*.96)+')');grad.addColorStop(.88,'rgba(0,0,0,'+(strength*.62)+')');grad.addColorStop(1,'rgba(0,0,0,0)');
  lightCtx.fillStyle=grad;lightCtx.beginPath();lightCtx.arc(lx,ly,rad,0,Math.PI*2);lightCtx.fill();
 };
+ // La luz del jugador se recorta con un polígono de visibilidad: paredes,
+ // mesas y maquinaria proyectan sombras reales sobre el campo de visión.
+ const cutOccludedLight=(lx,ly,rad,strength=1)=>{
+  const polygon=visibilityPolygon(lx,ly,rad);
+  if(polygon.length<3){cutLight(lx,ly,rad,strength);return}
+  lightCtx.save();lightCtx.beginPath();
+  polygon.forEach((pt,i)=>i?lightCtx.lineTo(pt[0],pt[1]):lightCtx.moveTo(pt[0],pt[1]));
+  lightCtx.closePath();lightCtx.clip();cutLight(lx,ly,rad,strength);lightCtx.restore();
+ };
 MAP.rooms.forEach(r=>{const lx=r.x+r.w/2,ly=r.y+1.15;cutLight(lx,ly,r.kind==='cafe'?2.8:1.65,.22);if(['electrical','reactor','engine','medbay','laboratory','oxygen'].includes(r.id)||['electrical','reactor','engine','medbay','o2'].includes(r.kind))cutLight(lx,r.y+r.h/2,1.45,.18)});
 if(p?.alive){
  const lightsSabotage=gameState?.sabotage?.active&&gameState.sabotage.type==='lights'&&p.role!=='impostor';
  const visionRadius=lightsSabotage?2.35:(p.role==='impostor'?10.5:6.7);
- cutLight(p.x,p.y,visionRadius,1);
+ cutOccludedLight(p.x,p.y,visionRadius,1);
 }
 lightCtx.restore();ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.drawImage(lightCanvas,0,0,w,h);ctx.restore();
 // La penumbra queda fuera del radio de visión, como en una partida real de Among Us.
@@ -937,6 +948,51 @@ function pointInPoly(x,y,pts){let inside=false;for(let i=0,j=pts.length-1;i<pts.
 function corridorContains(x,y,c){const half=c.width/2+.08;for(let i=1;i<c.points.length;i++){const a=c.points[i-1],b=c.points[i],dx=b[0]-a[0],dy=b[1]-a[1],len2=dx*dx+dy*dy,t=len2?Math.max(0,Math.min(1,((x-a[0])*dx+(y-a[1])*dy)/len2)):0,px=a[0]+t*dx,py=a[1]+t*dy;if(Math.hypot(x-px,y-py)<=half)return true}return false}
 function pointInRoom(x,y,room){const p=roomPolygon(room);let inside=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const a=p[i],b=p[j];if(((a[1]>y)!==(b[1]>y))&&(x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0]))inside=!inside}return inside}
 function distanceToPath(x,y,points){let best=Infinity;for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i],dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy,t=l?Math.max(0,Math.min(1,((x-a[0])*dx+(y-a[1])*dy)/l)):0;best=Math.min(best,Math.hypot(x-a[0]-dx*t,y-a[1]-dy*t))}return best}
+function buildOcclusionSegments(){
+ const segments=[],add=(x1,y1,x2,y2)=>{if(Math.hypot(x2-x1,y2-y1)>.025)segments.push({x1,y1,x2,y2,minX:Math.min(x1,x2),maxX:Math.max(x1,x2),minY:Math.min(y1,y2),maxY:Math.max(y1,y2)})};
+ const wall=(x1,y1,x2,y2,doors,vertical)=>{
+  const length=vertical?y2-y1:x2-x1,gaps=(doors||[]).map(d=>{const c=d.offset*length,half=(d.width||2.35)/2+.08;return [Math.max(0,c-half),Math.min(length,c+half)]}).sort((a,b)=>a[0]-b[0]);
+  let cursor=0;for(const [a,b] of gaps){if(a>cursor){if(vertical)add(x1,y1+cursor,x2,y1+a);else add(x1+cursor,y1,x1+a,y2)}cursor=Math.max(cursor,b)}
+  if(cursor<length){if(vertical)add(x1,y1+cursor,x2,y2);else add(x1+cursor,y1,x2,y2)}
+ };
+ for(const r of MAP.rooms){
+  wall(r.x,r.y,r.x+r.w,r.y,r.doors?.filter(d=>d.side==='top'),false);
+  wall(r.x,r.y+r.h,r.x+r.w,r.y+r.h,r.doors?.filter(d=>d.side==='bottom'),false);
+  wall(r.x,r.y,r.x,r.y+r.h,r.doors?.filter(d=>d.side==='left'),true);
+  wall(r.x+r.w,r.y,r.x+r.w,r.y+r.h,r.doors?.filter(d=>d.side==='right'),true);
+ }
+ for(const o of MAP.obstacles||[]){
+  if(o.kind==='rect'){
+   add(o.x,o.y,o.x+o.w,o.y);add(o.x+o.w,o.y,o.x+o.w,o.y+o.h);
+   add(o.x+o.w,o.y+o.h,o.x,o.y+o.h);add(o.x,o.y+o.h,o.x,o.y);
+  }else{
+   const rx=o.kind==='ellipse'?o.rx:o.r,ry=o.kind==='ellipse'?o.ry:o.r,steps=24;
+   for(let i=0;i<steps;i++){const a=i*Math.PI*2/steps,b=(i+1)*Math.PI*2/steps;add(o.x+Math.cos(a)*rx,o.y+Math.sin(a)*ry,o.x+Math.cos(b)*rx,o.y+Math.sin(b)*ry)}
+  }
+ }
+ return segments;
+}
+function visibilityPolygon(px,py,radius){
+ const relevant=[];
+ const pointDistance=(x,y,s)=>{const dx=s.x2-s.x1,dy=s.y2-s.y1,l=dx*dx+dy*dy,t=l?Math.max(0,Math.min(1,((x-s.x1)*dx+(y-s.y1)*dy)/l)):0;return Math.hypot(x-s.x1-dx*t,y-s.y1-dy*t)};
+ for(const s of MAP_OCCLUSION_SEGMENTS)if(s.minX<=px+radius&&s.maxX>=px-radius&&s.minY<=py+radius&&s.maxY>=py-radius&&pointDistance(px,py,s)<=radius+.2)relevant.push(s);
+ const angles=[];for(let i=0;i<48;i++)angles.push(i*Math.PI*2/48);
+ const addAngles=(x,y)=>{const a=Math.atan2(y-py,x-px);angles.push(a-.00012,a,a+.00012)};
+ for(const s of relevant){addAngles(s.x1,s.y1);addAngles(s.x2,s.y2);const dx=s.x2-s.x1,dy=s.y2-s.y1,l=dx*dx+dy*dy,t=l?Math.max(0,Math.min(1,((px-s.x1)*dx+(py-s.y1)*dy)/l)):0;addAngles(s.x1+dx*t,s.y1+dy*t)}
+ angles.sort((a,b)=>a-b);
+ const points=[];
+ for(const angle of angles){
+  const rx=Math.cos(angle),ry=Math.sin(angle);let nearest=radius;
+  for(const s of relevant){
+   const sx=s.x2-s.x1,sy=s.y2-s.y1,qx=s.x1-px,qy=s.y1-py,den=rx*sy-ry*sx;
+   if(Math.abs(den)<1e-8)continue;
+   const t=(qx*sy-qy*sx)/den,u=(qx*ry-qy*rx)/den;
+   if(t>.015&&t<nearest&&u>=0&&u<=1)nearest=t;
+  }
+  points.push([px+rx*nearest,py+ry*nearest]);
+ }
+ return points;
+}
 function inFloor(x,y){if(x<0||y<0||x>MAP.w||y>MAP.h)return false;if(MAP.rooms.some(r=>pointInRoom(x,y,r)))return true;return MAP.corridors.some(c=>distanceToPath(x,y,c.points)<=c.width/2-.08)}
 function blocked(x,y){return !inFloor(x,y)}
 // Colisión circular del tripulante: evita que el centro pase pegado al borde de paredes.
