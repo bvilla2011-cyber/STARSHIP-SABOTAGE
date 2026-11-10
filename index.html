@@ -556,8 +556,8 @@ const MAP={
  ],
  vents:[
   {id:'v1',x:16,y:13,links:['v2']},{id:'v2',x:16,y:42,links:['v1','v3']},
-  {id:'v3',x:16,y:70,links:['v2']},{id:'v4',x:103,y:28,links:['v5']},
-  {id:'v5',x:103,y:56,links:['v4']}
+  {id:'v3',x:16,y:70,links:['v2']},{id:'v4',x:86,y:28,links:['v5']},
+  {id:'v5',x:98,y:56,links:['v4']}
  ]
 };
 const MAP_SCALE=1;
@@ -639,7 +639,7 @@ async function useVent(){
 function renderMeetingUI(){
  const m=gameState?.meeting,modal=$('modal');if(!m||!modal)return;
  const mine=gameState.players?.[playerId],myVote=players.find(q=>q.id===playerId)?.vote||'';
- const key=[m.id,m.status||'voting',myVote,m.result?.targetId||''].join('|');
+ const key=[m.id,m.status||'voting',myVote,m.result?.targetId||'',players.filter(q=>q.alive&&q.vote).length,Object.values(gameState.players||{}).filter(q=>q.alive).length].join('|');
  if(modal.dataset.meetingKey===key)return;
  modal.dataset.meetingKey=key;modal.classList.remove('hidden');modal.classList.remove('task-modal');
  if(m.status==='resolved'){
