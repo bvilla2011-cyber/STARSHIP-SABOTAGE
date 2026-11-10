@@ -579,8 +579,7 @@ const buildFurnitureColliders=()=>{
     rect(r,cx+dx-1.62,cy+dy-1.42,.52,.48);rect(r,cx+dx+1.10,cy+dy-1.42,.52,.48);
     rect(r,cx+dx-1.62,cy+dy+.96,.52,.48);rect(r,cx+dx+1.10,cy+dy+.96,.52,.48);
    });
-   // La mesa SOS central conserva su colisión.
-   ellipse(r,cx,cy,1.72,1.12);
+   // La mesa SOS central es decorativa y no bloquea el paso.
   }else if(r.kind==='electrical'){
    for(let j=0;j<3;j++)rect(r,x+1.05,y+1+j*2.15,1.05,1.35);
    // El bloque inferior POWER GRID sigue dibujado, pero no tiene colisión.
