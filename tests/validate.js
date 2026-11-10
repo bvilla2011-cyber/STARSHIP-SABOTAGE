@@ -17,11 +17,11 @@ const mapEnd = html.indexOf('const MAP_SCALE', mapStart);
 assert.ok(mapStart >= 0 && mapEnd > mapStart, 'No se encuentra la definición MAP');
 const mapSource = html.slice(mapStart, mapEnd);
 const MAP = vm.runInNewContext(mapSource + '; MAP');
-assert.equal(MAP.rooms.length, 5, 'El mapa compacto debe conservar cinco salas del sector noroeste');
-assert.equal(MAP.corridors.length, 4, 'El mapa compacto debe tener cuatro corredores conectados');
-assert.equal(MAP.tasks.length, 4, 'El mapa compacto debe conservar cuatro tareas distribuidas en sus salas');
-assert.equal(MAP.repairs.length, 3, 'El mapa compacto debe conservar tres puntos de reparación');
-assert.equal(MAP.vents.length, 4, 'El mapa compacto debe conservar cuatro conductos conectados');
+assert.equal(MAP.rooms.length, 7, 'El mapa debe recuperar las siete salas');
+assert.equal(MAP.corridors.length, 4, 'El mapa debe conservar cuatro corredores, sin el inferior');
+assert.equal(MAP.tasks.length, 6, 'El mapa debe conservar las seis tareas de las siete salas');
+assert.equal(MAP.repairs.length, 4, 'El mapa debe conservar cuatro puntos de reparación');
+assert.equal(MAP.vents.length, 6, 'El mapa debe conservar seis conductos conectados');
 assert.ok(MAP.obstacles.length > 30, 'Cada sala debe definir colisionadores para su mobiliario');
 for (let i = 0; i < MAP.rooms.length; i++) for (let j = i + 1; j < MAP.rooms.length; j++) {
   const a = MAP.rooms[i], b = MAP.rooms[j];
@@ -61,7 +61,7 @@ function blockedByRoomWall(x, y, clearance = .34) {
 const step = .2, width = Math.floor(MAP.w / step) + 1, height = Math.floor(MAP.h / step) + 1;
 const pass = (x, y) => inFloor(x, y) && !blockedByRoomWall(x, y);
 const sx = Math.round(61 / step), sy = Math.round(35 / step);
-assert.ok(pass(61, 35), 'El spawn debe ser transitable y quedar libre de la nueva mesa SOS');
+assert.ok(pass(61, 35), 'El spawn debe ser transitable y quedar libre de la mesa SOS');
 const seen = new Uint8Array(width * height), queue = [sy * width + sx];
 seen[queue[0]] = 1;
 for (let i = 0; i < queue.length; i++) {
@@ -77,7 +77,7 @@ const reachable = (p) => !!seen[Math.round(p.y / step) * width + Math.round(p.x 
 for (const point of [...MAP.tasks, ...MAP.repairs, ...MAP.vents]) {
   assert.ok(reachable(point), 'Punto inaccesible desde spawn: ' + point.id);
 }
-console.log('✓ Navegación: spawn, 4 tareas, 3 reparaciones y 4 conductos conectados');
+console.log('✓ Navegación: spawn, 6 tareas, 4 reparaciones y 6 conductos conectados');
 
 const ventIds = new Set(MAP.vents.map(v => v.id));
 for (const vent of MAP.vents) for (const link of vent.links) {
@@ -87,7 +87,7 @@ for (const vent of MAP.vents) for (const link of vent.links) {
 const types = new Set(['card','wires','filter','sequence','scan','route','fuel','upload']);
 for (const task of MAP.tasks) assert.ok(types.has(task.type), 'Minijuego no soportado: ' + task.type);
 const repairIds = new Set(MAP.repairs.map(r => r.id));
-for (const id of ['electrical_wires','comms_fix','admin_card']) assert.ok(repairIds.has(id), 'Falta estación de reparación: ' + id);
+for (const id of ['electrical_wires','reactor_start','comms_fix','admin_card']) assert.ok(repairIds.has(id), 'Falta estación de reparación: ' + id);
 console.log('✓ Datos de minijuegos, sabotajes y red de conductos coherentes');
 
 for (const token of ['async function eliminate(', 'async function useVent(', 'async function processMeetingVotes(', 'function finishMatch(', 'function showRoleReveal(', 'function renderLobby(', 'function draw()', 'function startTask()', 'function openMiniGame(', 'async function moveUpdate(']) {
@@ -96,14 +96,14 @@ for (const token of ['async function eliminate(', 'async function useVent(', 'as
 assert.ok(html.includes('Date.now()+10000'), 'La cuenta atrás de lobby debe ser de 10 segundos');
 assert.ok(html.includes('blockedByRoomWall('), 'Falta la colisión de paredes');
 assert.ok(html.includes('function collidesFurniture(') && html.includes("o.kind==='circle'"), 'El mobiliario debe tener colisión circular o rectangular');
-assert.ok(html.includes('ellipse(r,cx,cy,1.72,1.12)') && html.includes("fillText('SOS',cx,cy+.32)"), 'La cafetería debe tener una mesa SOS central con botón visible y colisionador');
+assert.ok(html.includes('ellipse(r,cx,cy,1.72,1.12)') && html.includes("fillText('SOS',cx,cy+.32)") && !MAP.obstacles.some(o=>o.room==='cafeteria'&&o.kind==='ellipse'&&Math.abs(o.x-61)<.01&&Math.abs(o.y-35)<.01), 'La mesa SOS debe verse sin bloquear el paso');
 assert.ok(html.includes("canvas.addEventListener('click'") && html.includes("cafe.x+cafe.w/2"), 'El botón SOS debe responder al clic y a la interacción cercana');
 assert.ok(html.includes('for(let i=0;i<72;i++)angles.push'), 'Las sombras deben usar mayor resolución angular');
-assert.ok(!html.includes("makeRoom('laboratory'") && !html.includes("makeRoom('cargo_s'"), 'El mapa compacto no debe incluir las dos salas retiradas');
-assert.ok(html.includes('ellipse(r,cx,cy,1.72,1.12)') && html.includes("fillText('SOS',cx,cy+.32)"), 'La cafetería debe tener una mesa SOS central con botón visible y colisionador');
+
+
 assert.ok(html.includes("canvas.addEventListener('click'") && html.includes('function startTask()') && html.includes("cafe.x+cafe.w/2"), 'El botón SOS debe responder al clic y a la interacción cercana');
 assert.ok(html.includes('for(let i=0;i<72;i++)angles.push'), 'La visibilidad y las sombras deben usar mayor resolución angular');
-assert.ok(!html.includes("'LABORATORIO','medbay'") && !html.includes("'CARGA SUR','storage'"), 'El mapa compacto no debe incluir las dos salas retiradas');
+
 assert.ok(html.includes("const visionRadius=lightsSabotage?2.35:(p.role==='impostor'?10.5:6.7)"), 'La visión normal debe ampliarse ligeramente y el sabotaje debe limitarla');
 assert.ok(html.includes('El mobiliario sigue siendo sólido para el jugador, pero no proyecta sombras.'), 'Los muebles no deben proyectar sombras');
 assert.ok(html.includes('const corridors=MAP.corridors||[]') && html.includes('corridorId:corridor.id'), 'Los bordes de los pasillos deben bloquear la luz');
