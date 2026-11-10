@@ -104,7 +104,10 @@ assert.ok(html.includes('ellipse(r,cx,cy,1.72,1.12)') && html.includes("fillText
 assert.ok(html.includes("canvas.addEventListener('click'") && html.includes('function startTask()') && html.includes("cafe.x+cafe.w/2"), 'El botón SOS debe responder al clic y a la interacción cercana');
 assert.ok(html.includes('for(let i=0;i<72;i++)angles.push'), 'La visibilidad y las sombras deben usar mayor resolución angular');
 assert.ok(!html.includes("'LABORATORIO','medbay'") && !html.includes("'CARGA SUR','storage'"), 'El mapa compacto no debe incluir las dos salas retiradas');
-assert.ok(html.includes('const visionRadius=lightsSabotage?2.35'), 'La visión debe limitarse por radio y sabotaje de luces');
+assert.ok(html.includes("const visionRadius=lightsSabotage?2.35:(p.role==='impostor'?10.5:7.0)"), 'La visión normal debe ampliarse ligeramente y el sabotaje debe limitarla');
+assert.ok(html.includes('Los muebles conservan sus colisionadores de movimiento, pero no bloquean la luz.'), 'Los muebles no deben proyectar sombras');
+assert.ok(html.includes('for(const c of MAP.corridors||[])'), 'Los bordes de los pasillos deben bloquear la luz');
+assert.ok(!html.includes('for(const o of MAP.obstacles||[]){\n  if(o.kind===\'rect\')'), 'Los obstáculos de mobiliario no deben formar parte de la oclusión de luz');
 assert.ok(html.includes('window.__starshipLightLayer') && html.includes("globalCompositeOperation='destination-out'"), 'La iluminación debe usar una máscara de oscuridad con penumbra');
 assert.ok(html.includes('function playVictimKillAnimation'), 'Falta animación de víctima');
 assert.ok(html.includes('if(i<stage)return;n.pos=angle'), 'Las agujas activas de calibración deben animarse');
