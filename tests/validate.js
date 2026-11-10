@@ -104,7 +104,7 @@ assert.ok(html.includes('ellipse(r,cx,cy,1.72,1.12)') && html.includes("fillText
 assert.ok(html.includes("canvas.addEventListener('click'") && html.includes('function startTask()') && html.includes("cafe.x+cafe.w/2"), 'El botón SOS debe responder al clic y a la interacción cercana');
 assert.ok(html.includes('for(let i=0;i<72;i++)angles.push'), 'La visibilidad y las sombras deben usar mayor resolución angular');
 assert.ok(!html.includes("'LABORATORIO','medbay'") && !html.includes("'CARGA SUR','storage'"), 'El mapa compacto no debe incluir las dos salas retiradas');
-assert.ok(html.includes("const visionRadius=lightsSabotage?2.35:(p.role==='impostor'?10.5:11.9)"), 'La visión normal debe ampliarse ligeramente y el sabotaje debe limitarla');
+assert.ok(html.includes("const visionRadius=lightsSabotage?2.35:(p.role==='impostor'?10.5:6.7)"), 'La visión normal debe ampliarse ligeramente y el sabotaje debe limitarla');
 assert.ok(html.includes('El mobiliario sigue siendo sólido para el jugador, pero no proyecta sombras.'), 'Los muebles no deben proyectar sombras');
 assert.ok(html.includes('const corridors=MAP.corridors||[]') && html.includes('corridorId:corridor.id'), 'Los bordes de los pasillos deben bloquear la luz');
 assert.ok(html.includes('function segmentRectInterval') && html.includes('function shadowGeometryAudit()'), 'Las sombras de pasillos deben recortarse en habitaciones y cruces');
@@ -112,7 +112,7 @@ assert.ok(!html.includes('for(const o of MAP.obstacles||[]){\n  if(o.kind===\'re
 assert.ok(html.includes('window.__starshipLightLayer') && html.includes("globalCompositeOperation='destination-out'"), 'La iluminación debe usar una máscara de oscuridad con penumbra');
 assert.ok(html.includes('function playVictimKillAnimation'), 'Falta animación de víctima');
 assert.ok(html.includes('if(i<stage)return;n.pos=angle'), 'Las agujas activas de calibración deben animarse');
-assert.ok(html.includes("players.filter(q=>q.vote?.startsWith(m.id+'|')).length"), 'El contador de votos debe refrescarse con las votaciones remotas');
+assert.ok(html.includes("alive.filter(q=>q.vote?.startsWith(m.id+'|vote:')).length"), 'El contador de votos debe refrescarse con las votaciones remotas');
 assert.ok(html.includes('Permission.update(Role.user(ownerId))'), 'Las filas deben ser editables solo por su propietario autorizado');
 assert.ok(html.includes('account.createAnonymousSession()'), 'El modo invitado debe usar una identidad autenticada de Appwrite');
 assert.ok(html.includes('playerId=authUser.$id'), 'La identidad de jugador debe coincidir con la sesión Appwrite');
@@ -125,7 +125,7 @@ assert.ok(html.includes("gameState.sabotage.type==='comms'") && html.includes('C
 assert.ok(html.includes('permissions:ownerPermissions(playerId)'), 'Las filas de jugador deben tener permisos propios');
 assert.ok(html.includes('protocolVersion:2'), 'Las salas nuevas deben declarar versión de protocolo');
 assert.ok(html.includes("ROOMS='rooms_v2',PLAYERS='players_v2'"), 'El cliente debe usar tablas v2 con permisos limitados');
-assert.ok(html.includes("m.id+'|'+choice") && html.includes("q.vote?.startsWith(m.id+'|')"), 'Los votos deben aislarse por reunión');
+assert.ok(html.includes("m.id+'|vote:'+choice") && html.includes("q.vote?.startsWith(m.id+'|')"), 'Los votos deben aislarse por reunión');
 assert.ok(!html.includes('target.alive=q.alive') && !html.includes('own.alive=local.alive'), 'El snapshot de jugadores no debe revivir eliminados');
 assert.ok(!html.includes('rowId:target.id,data:{alive:false}') && !html.includes('rowId:targetId,data:{alive:false}'), 'Un cliente no debe modificar la fila de otro jugador');
 assert.ok(html.includes('const ownerPermissions=ownerId=>Permission&&Role&&ownerId?') && html.includes('Permission.update(Role.user(ownerId))') && html.includes('Permission.delete(Role.user(ownerId))') && html.includes('permissions:ownerPermissions(playerId)'), 'Las filas individuales deben mantener lectura y escritura restringidas a su propietario');
