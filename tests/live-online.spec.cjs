@@ -24,9 +24,11 @@ async function openLiveGuest(browser) {
   page.on('console',msg=>{if(msg.type()==='error')diagnostics.push('console: '+msg.text())});
   page.on('pageerror',err=>diagnostics.push('pageerror: '+err.message));
   page.on('requestfailed',req=>diagnostics.push('requestfailed: '+req.url()+' :: '+(req.failure()?.errorText||'')));
-  page.on('response',res=>{if(res.url().includes('appwrite')&&!res.ok())diagnostics.push('HTTP '+res.status()+' '+res.url())});
+  page.on('response',async res=>{if(res.url().includes('appwrite')&&!res.ok()){let body='';try{body=(await res.text()).slice(0,500)}catch(e){}diagnostics.push('HTTP '+res.status()+' '+res.url()+' body='+body)}});
   await page.goto(LIVE_URL, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#profileGate')).toHaveClass(/visible/);
+  // initProfile awaits the initial /account probe before assigning the guest button handler.
+  await expect.poll(()=>page.evaluate(()=>typeof document.querySelector('#guestPlay')?.onclick)).toBe('function');
   await page.locator('#guestPlay').click();
   try {
     await expect(page.locator('#profileGate')).not.toHaveClass(/visible/, { timeout: 20000 });
