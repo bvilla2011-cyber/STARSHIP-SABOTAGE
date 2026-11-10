@@ -504,35 +504,30 @@ const makeRoom=(id,name,kind,x,y,w,h,color,doors=['top','bottom'])=>({
 const MAP={
  w:120,h:84,
  rooms:[
-  makeRoom('cargo_n','CARGA NORTE','storage',15,9.8,16,8.4,'#8a704c'),
-  makeRoom('comms_n','COMUNICACIONES','comms',43,9.8,16,8.4,'#765d9b'),
-  makeRoom('oxygen','OXÍGENO','o2',77,9.8,16,8.4,'#31947d'),
-  makeRoom('admin','ADMINISTRACIÓN','admin',14,23.8,15,8.4,'#438d70'),
-  makeRoom('electrical','ELECTRICIDAD','electrical',31,23.8,12,8.4,'#a77a3f'),
-  makeRoom('cafeteria','CAFETERÍA','cafe',44,22.8,32,24.4,'#497f91',['top','bottom','left','right']),
-  makeRoom('security','SEGURIDAD','security',79,23.8,16,8.4,'#347e88'),
-  makeRoom('reactor','REACTOR','reactor',14,37.8,16,8.4,'#76539a'),
-  makeRoom('medbay','ENFERMERÍA','medbay',31,37.8,12,8.4,'#398b86'),
-  makeRoom('weapons','ARMERÍA','weapons',79,37.8,16,8.4,'#9b6748'),
-  makeRoom('engine_u','MOTORES SUPERIORES','engine',14,51.8,16,8.4,'#a65f42'),
-  makeRoom('navigation','NAVEGACIÓN','nav',33,51.8,16,8.4,'#3e75a8'),
-  makeRoom('shields','ESCUDOS','shields',71,51.8,16,8.4,'#347f9b'),
-  makeRoom('storage','ALMACÉN','storage',90,51.8,16,8.4,'#8a704c'),
-  makeRoom('comms_s','COMUNICACIONES AUX.','comms',14,65.8,16,8.4,'#765d9b'),
-  makeRoom('laboratory','LABORATORIO','medbay',33,65.8,16,8.4,'#398b86'),
-  makeRoom('cargo_s','CARGA SUR','storage',71,65.8,16,8.4,'#8a704c'),
-  makeRoom('engine_s','MOTORES INFERIORES','engine',90,65.8,16,8.4,'#a65f42')
+  makeRoom('cargo_n','CARGA NORTE','storage',15,9,16,10,'#8a704c'),
+  makeRoom('comms_n','COMUNICACIONES','comms',43,9,16,10,'#765d9b'),
+  makeRoom('oxygen','OXÍGENO','o2',77,9,16,10,'#31947d'),
+  makeRoom('admin','ADMINISTRACIÓN','admin',14,23,15,10,'#438d70'),
+  makeRoom('electrical','ELECTRICIDAD','electrical',31,23,12,10,'#a77a3f'),
+  makeRoom('cafeteria','CAFETERÍA','cafe',44,22.5,32,25,'#497f91',['top','bottom','left','right']),
+  makeRoom('security','SEGURIDAD','security',79,23,16,10,'#347e88'),
+  makeRoom('reactor','REACTOR','reactor',14,37,16,10,'#76539a'),
+  makeRoom('medbay','ENFERMERÍA','medbay',31,37,12,10,'#398b86'),
+  makeRoom('weapons','ARMERÍA','weapons',79,37,16,10,'#9b6748'),
+  makeRoom('engine_u','MOTORES SUPERIORES','engine',14,51,16,10,'#a65f42'),
+  makeRoom('navigation','NAVEGACIÓN','nav',33,51,16,10,'#3e75a8'),
+  makeRoom('shields','ESCUDOS','shields',71,51,16,10,'#347f9b'),
+  makeRoom('storage','ALMACÉN','storage',90,51,16,10,'#8a704c'),
+  makeRoom('comms_s','COMUNICACIONES AUX.','comms',14,65,16,10,'#765d9b'),
+  makeRoom('laboratory','LABORATORIO','medbay',33,65,16,10,'#398b86'),
+  makeRoom('cargo_s','CARGA SUR','storage',71,65,16,10,'#8a704c'),
+  makeRoom('engine_s','MOTORES INFERIORES','engine',90,65,16,10,'#a65f42')
  ],
  corridors:[
   ...[7,21,35,49,63,77].map((y,i)=>({id:'main_'+(i+1),main:true,width:4.8,points:[[8,y],[112,y]]})),
   ...[10,60,110].map((x,i)=>({id:'cross_'+(i+1),main:false,width:3.5,points:[[x,7],[x,77]]}))
  ],
- obstacles:[
-  {x:22,y:14,r:.48},{x:51,y:14,r:.48},{x:85,y:14,r:.48},
-  {x:37,y:28,r:.42},{x:22,y:42,r:.5},{x:37,y:42,r:.42},
-  {x:86,y:42,r:.48},{x:22,y:56,r:.48},{x:41,y:56,r:.42},
-  {x:79,y:56,r:.45},{x:98,y:56,r:.48},{x:41,y:70,r:.42}
- ],
+ obstacles:[]
  tasks:[
   {id:'t_card_n',name:'Pasar tarjeta de carga',room:'CARGA NORTE',x:22,y:14,type:'card'},
   {id:'t_wires_n',name:'Reparar cableado',room:'COMUNICACIONES',x:51,y:14,type:'wires'},
