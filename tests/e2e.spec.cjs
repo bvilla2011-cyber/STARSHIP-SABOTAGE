@@ -331,6 +331,12 @@ test('gameplay: geometría sin solapamientos, mobiliario sólido, red de conduct
     expect(audit.obstacles).toBeGreaterThan(30);
     const table=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(57.5,33.8));
     expect(table).toMatchObject({walkable:false,furniture:true});
+    // Las sillas del comedor también son sólidos independientes de las mesas.
+    const chair=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(56.59,34.625));
+    expect(chair).toMatchObject({walkable:false,furniture:true});
+    const doors=await page.evaluate(()=>window.__STARSHIP_TEST__.doorAccessAudit());
+    expect(doors.tested).toBeGreaterThanOrEqual(36);
+    expect(doors.blocked).toEqual([]);
     const floor=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(60,40));
     expect(floor).toMatchObject({walkable:true,furniture:false});
     const network=await page.evaluate(()=>window.__STARSHIP_TEST__.ventNetwork());
