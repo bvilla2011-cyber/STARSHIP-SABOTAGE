@@ -1249,9 +1249,29 @@ if(p?.alive){
  cutOccludedLight(p.x,p.y,visionRadius,1);
 }
 lightCtx.restore();ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.drawImage(lightCanvas,0,0,w,h);ctx.restore();
- // Nametags por encima de la máscara: legibles y visibles solo dentro del campo de visión.
+ // Name tags en coordenadas de pantalla: tamaño constante en PC y móvil,
+ // independientemente del zoom de cámara y de la resolución del monitor.
  const nameView=p?.alive?visibilityPolygon(p.x,p.y,gameState?.sabotage?.active&&gameState.sabotage.type==='lights'&&p.role!=='impostor'?2.35:(p.role==='impostor'?10.5:6.7)):null;
- if(gameState)Object.values(gameState.players||{}).filter(q=>q.alive&&!q.inVent).forEach(q=>{if(p?.alive&&(!nameView||!pointInPoly(q.x,q.y,nameView)))return;const label=String(q.name||'Player').slice(0,16),tx=q.x,ty=q.y-2.24;ctx.save();ctx.font='700 .43px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';const tw=Math.min(4.8,ctx.measureText(label).width+.48);ctx.fillStyle='rgba(3,13,23,.88)';roundedRect(ctx,tx-tw/2,ty-.31,tw,.62,.16);ctx.fill();ctx.strokeStyle='rgba(137,220,237,.72)';ctx.lineWidth=.045;ctx.stroke();ctx.fillStyle='#fff';ctx.lineWidth=.10;ctx.strokeStyle='#07111a';ctx.strokeText(label,tx,ty);ctx.fillText(label,tx,ty);ctx.restore()});
+ if(gameState){
+  ctx.save();
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const tagFont=w<640?11:13,tagHeight=w<640?19:21,maxTagWidth=Math.min(190,Math.max(100,w*.24));
+  Object.values(gameState.players||{}).filter(q=>q.alive&&!q.inVent).forEach(q=>{
+   if(p?.alive&&(!nameView||!pointInPoly(q.x,q.y,nameView)))return;
+   const label=String(q.name||'Player').slice(0,16),sx=(q.x-cx)*z,headY=(q.y-cy)*z-1.78*z;
+   if(sx<0||sx>w)return;
+   ctx.save();
+   ctx.font='600 '+tagFont+'px system-ui,-apple-system,Segoe UI,sans-serif';
+   ctx.textAlign='center';ctx.textBaseline='middle';
+   const textWidth=Math.min(maxTagWidth-18,ctx.measureText(label).width),boxWidth=Math.max(38,textWidth+18),centerY=headY-tagHeight/2-3;
+   ctx.fillStyle='rgba(3,13,23,.88)';
+   roundedRect(ctx,sx-boxWidth/2,centerY-tagHeight/2,boxWidth,tagHeight,6);ctx.fill();
+   ctx.strokeStyle='rgba(137,220,237,.78)';ctx.lineWidth=1;ctx.stroke();
+   ctx.fillStyle='#fff';ctx.fillText(label,sx,centerY,maxTagWidth-18);
+   ctx.restore();
+  });
+  ctx.restore();
+ }
  // La penumbra queda fuera del radio de visión, como en una partida real de Among Us.
 ctx.restore()}catch(err){console.error('STARSHIP draw error:',err);drawMapFallback()}}
 function drawMapFallback(){try{if(!ctx||!canvas)return;const w=canvas.clientWidth,h=canvas.clientHeight;if(w<2||h<2)return;const k=Math.min((w-24)/MAP.w,(h-24)/MAP.h),ox=(w-MAP.w*k)/2,oy=(h-MAP.h*k)/2;ctx.clearRect(0,0,w,h);ctx.fillStyle='#030914';ctx.fillRect(0,0,w,h);ctx.save();ctx.translate(ox,oy);ctx.scale(k,k);MAP.rooms.forEach(r=>{const p=roomPolygon(r);ctx.beginPath();p.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath();ctx.fillStyle=r.color;ctx.fill();ctx.strokeStyle='#d5f4ff';ctx.lineWidth=.12;ctx.stroke();ctx.fillStyle='#fff';ctx.font='bold .7px system-ui';ctx.textAlign='center';ctx.fillText(r.name,r.x+r.w/2,r.y+r.h/2)});MAP.corridors.forEach(c=>{ctx.strokeStyle='#35566a';ctx.lineWidth=c.width;ctx.lineCap='square';ctx.lineJoin='miter';ctx.beginPath();c.points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke()});Object.values(gameState?.players||{}).filter(q=>q.alive&&!q.inVent).sort((a,b)=>a.y-b.y).forEach(q=>{const x=q.x,y=q.y,c=q.color||'#e85d75';ctx.save();ctx.translate(x,y);ctx.fillStyle='#07121e';ctx.beginPath();ctx.ellipse(0,.02,.58,.19,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=c;ctx.strokeStyle='#07121e';ctx.lineWidth=.11;roundedRect(ctx,-.58,-1.55,1.16,1.42,.46);ctx.fill();ctx.stroke();ctx.fillStyle='#17445f';ctx.strokeStyle='#09283a';ctx.lineWidth=.08;roundedRect(ctx,-.02,-1.39,.79,.44,.22);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.font='bold .42px system-ui';ctx.textAlign='center';ctx.fillText(q.name||'Player',0,-1.82);ctx.restore()});ctx.restore()}catch(err){console.error('STARSHIP fallback error',err)}}
