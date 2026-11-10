@@ -280,8 +280,7 @@ test('renderer del mapa: Canvas 2D dibuja las salas y pasillos sin excepciones',
   const drawErrors=[];
   page.on('pageerror',error=>drawErrors.push(error.message));
   page.on('console',message=>{
-    if(message.type()==='error' && /STARSHIP draw error|CanvasRenderingContext2D|InvalidStateError/i.test(message.text()))
-      drawErrors.push(message.text());
+    if(message.type()==='error') drawErrors.push(message.text());
   });
   try {
     await page.locator('#explore').click();
@@ -306,7 +305,7 @@ test('renderer del mapa: Canvas 2D dibuja las salas y pasillos sin excepciones',
     expect(drawErrors, 'el render del mapa no debe lanzar errores JavaScript ni errores de Canvas').toEqual([]);
     const spawn=await page.evaluate(()=>{
       const p=window.__STARSHIP_TEST__.playerState();
-      return {player:p,walkable:!!p&&canWalk(p.x,p.y)};
+      return {player:p,walkable:!!p&&window.__STARSHIP_TEST__.collisionProbe(p.x,p.y).walkable};
     });
     expect(spawn.player, 'Explorar debe crear el monguito local').not.toBeNull();
     expect(spawn.walkable, 'la posición inicial debe permitir caminar').toBe(true);
