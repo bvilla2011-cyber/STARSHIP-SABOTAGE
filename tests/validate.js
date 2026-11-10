@@ -31,7 +31,7 @@ assert.equal(MAP.vents.filter(v => v.zone === 'east').length, 3, 'La zona este d
 for (const zone of ['west','east']) {
   const group = MAP.vents.filter(v => v.zone === zone);
   const seen = new Set([group[0].id]), queue = [group[0].id];
-  while (queue.length) for (const id of group.find(v => v.id === queue.shift()).links) if (group.some(v => v.id === id) && !seen.has(id)) { seen.add(id); queue.push(id); }
+  while (queue.length) { const current = queue.shift(); const vent = group.find(v => v.id === current); assert.ok(vent, 'Cada enlace debe apuntar a un conducto de la misma zona'); for (const id of vent.links) if (group.some(v => v.id === id) && !seen.has(id)) { seen.add(id); queue.push(id); } }
   assert.equal(seen.size, 3, 'Los tres conductos de la zona '+zone+' deben estar conectados');
 }
 assert.ok(MAP.vents.every(v => v.links.every(id => MAP.vents.find(q => q.id === id)?.zone === v.zone)), 'No debe haber conexiones entre zonas');
