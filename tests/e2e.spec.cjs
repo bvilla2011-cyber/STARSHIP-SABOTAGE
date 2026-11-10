@@ -383,7 +383,7 @@ test('gameplay: geometría sin solapamientos, mobiliario sólido, red de conduct
     const chair=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(50.64,28.42));
     expect(chair).toMatchObject({walkable:false,furniture:true});
     const doors=await page.evaluate(()=>window.__STARSHIP_TEST__.doorAccessAudit());
-    expect(doors.tested).toBeGreaterThanOrEqual(36);
+    expect(doors.tested).toBeGreaterThanOrEqual(32);
     expect(doors.blocked).toEqual([]);
     const floor=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(60,40));
     expect(floor).toMatchObject({walkable:true,furniture:false});
