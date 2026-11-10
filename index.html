@@ -624,7 +624,7 @@ function openMiniGame(task,station){
  else if(gameType==='filter'){
  let n=6;m.querySelectorAll('[data-debris]').forEach(b=>b.onclick=()=>{b.remove();n--;$('debrisCount').textContent=n+' RESIDUOS';if(!n){$('ventDrop').style.background='#155440';ok('FILTRO LIMPIO');setTimeout(finish,550)}})
  }else if(gameType==='calibrate'){
- let stage=0,angle=0;const needles=[0,1,2].map((_,i)=>({el:$('needle'+i),pos:0}));const timer=setInterval(()=>{angle=(angle+2.7)%100;needles.forEach((n,i)=>{if(i>=stage)return;n.pos=angle;n.el.style.left=angle+'%'})},35);
+ let stage=0,angle=0;const needles=[0,1,2].map((_,i)=>({el:$('needle'+i),pos:0}));const timer=setInterval(()=>{angle=(angle+2.7)%100;needles.forEach((n,i)=>{if(i<stage)return;n.pos=angle;n.el.style.left=angle+'%'})},35);
  needles.forEach((n,i)=>$('cal'+i).onclick=()=>{if(i!==stage)return;const pos=angle%100;if(pos>=42&&pos<=58){$('calState'+i).textContent='SINCRONIZADO ✓';$('calState'+i).style.color='#7cf0b0';stage++;if(stage===3){clearInterval(timer);ok('DISTRIBUIDOR CALIBRADO');setTimeout(finish,600)}}else fail('Aguja fuera de la zona verde. Inténtalo de nuevo.')});
  $('cancelTask').onclick=()=>{clearInterval(timer);m.classList.add('hidden');m.classList.remove('task-modal')};
  }
