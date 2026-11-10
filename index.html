@@ -1075,8 +1075,16 @@ function drawCorridorArchitecture(c,index){
   // Registro de mantenimiento al borde del pasillo.
   const d=len*.68,px=a[0]+ux*d+nx*(half-.62),py=a[1]+uy*d+ny*(half-.62);ctx.save();ctx.translate(px,py);ctx.rotate(Math.atan2(dy,dx));ctx.fillStyle='#0a1924';ctx.fillRect(-.46,-.3,.92,.6);ctx.strokeStyle='#7b9cab';ctx.lineWidth=.06;ctx.strokeRect(-.46,-.3,.92,.6);ctx.strokeStyle='#c0d6df';ctx.lineWidth=.045;for(let k=-1;k<=1;k++){ctx.beginPath();ctx.moveTo(k*.22,-.18);ctx.lineTo(k*.22,.18);ctx.stroke()}ctx.restore();
  }
+ // Carril de guía: azul en arterias principales, ámbar en ramales técnicos.
+ ctx.save();ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.strokeStyle=c.main?'rgba(91,205,221,.22)':'rgba(236,187,99,.20)';ctx.lineWidth=.10;ctx.setLineDash(c.main?[1.25,1.0]:[.34,.62]);ctx.stroke();ctx.setLineDash([]);ctx.restore();
+ // Placa de identificación y flechas de sentido en cada tramo.
+ for(let i=1;i<pts.length;i++){
+  const a=pts[i-1],b=pts[i],dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy);if(len<5)continue;
+  const ux=dx/len,uy=dy/len,nx=-uy,ny=ux,d=len*.52,px=a[0]+ux*d+nx*(half-.62),py=a[1]+uy*d+ny*(half-.62),angle=Math.atan2(dy,dx),tone=c.main?'#73dce8':'#e7bd70';
+  ctx.save();ctx.translate(px,py);ctx.rotate(angle);ctx.fillStyle='#06131e';ctx.fillRect(-.86,-.24,1.72,.48);ctx.strokeStyle=tone;ctx.lineWidth=.055;ctx.strokeRect(-.86,-.24,1.72,.48);ctx.fillStyle=tone;ctx.font='bold .20px monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(c.id.toUpperCase().replace(/_/g,' '),0,-.035);ctx.beginPath();ctx.moveTo(-.68,.12);ctx.lineTo(-.48,.12);ctx.lineTo(-.58,.045);ctx.moveTo(.68,.12);ctx.lineTo(.48,.12);ctx.lineTo(.58,.045);ctx.stroke();ctx.restore();
+ }
  // Nodos de intersección con aro de anclaje y cuatro testigos.
- pts.forEach((p,i)=>{if(i===0||i===pts.length-1){ctx.fillStyle='#0a1a26';ctx.beginPath();ctx.arc(p[0],p[1],.28,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#7e9eae';ctx.lineWidth=.07;ctx.stroke();}});
+ pts.forEach((p,i)=>{ctx.fillStyle='#0a1a26';ctx.beginPath();ctx.arc(p[0],p[1],i===0||i===pts.length-1?.28:.20,0,Math.PI*2);ctx.fill();ctx.strokeStyle=c.main?'#75cbd7':'#d8b46e';ctx.lineWidth=.07;ctx.stroke();for(let k=0;k<4;k++){const a=k*Math.PI/2;ctx.fillStyle=c.main?'#7de0e8':'#e8c579';ctx.fillRect(p[0]+Math.cos(a)*.34-.035,p[1]+Math.sin(a)*.34-.035,.07,.07)}});
  ctx.restore();
 }
 
