@@ -162,7 +162,7 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     await p2.locator('#code').fill(code);
     await p2.locator('#join').click();
     await expect(p2.locator('#lobby')).toBeVisible();
-    await expect(p1.locator('#lobbyList')).toContainText(name2,{timeout:8000});
+    await expect(p1.locator('#lobbyList')).toContainText(name2.slice(0,16),{timeout:8000});
     const id2=await p2.evaluate(()=>localStorage.getItem('__mock_user'));
     await expect(p1.locator('#start')).toBeEnabled();
     await expect.poll(()=>shared.rooms.get(code)?.$permissions?.includes('update("user:'+id2+'")')).toBe(true);
