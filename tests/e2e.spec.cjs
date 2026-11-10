@@ -411,7 +411,7 @@ test('gameplay: geometría sin solapamientos, mobiliario sólido, red de conduct
     await page.locator('#explore').click();
     await expect(page.locator('#game')).toBeVisible();
     const audit=await page.evaluate(()=>window.__STARSHIP_TEST__.geometryAudit());
-    expect(audit).toMatchObject({rooms:7,corridors:4,vents:6,roomOverlaps:[]});
+    expect(audit).toMatchObject({rooms:9,corridors:4,vents:8,roomOverlaps:[]});
     expect(audit.obstacles).toBeGreaterThan(30);
     const table=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(52,29.6));
     expect(table).toMatchObject({walkable:false,furniture:true});
@@ -424,7 +424,7 @@ test('gameplay: geometría sin solapamientos, mobiliario sólido, red de conduct
     const floor=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(60,40));
     expect(floor).toMatchObject({walkable:true,furniture:false});
     const network=await page.evaluate(()=>window.__STARSHIP_TEST__.ventNetwork());
-    expect(network).toHaveLength(6);
+    expect(network).toHaveLength(8);
     const ids=new Set(network.map(v=>v.id));
     for(const vent of network)for(const link of vent.links){
       expect(ids.has(link)).toBe(true);
@@ -432,7 +432,7 @@ test('gameplay: geometría sin solapamientos, mobiliario sólido, red de conduct
     }
     const reachable=new Set([network[0].id]),queue=[network[0].id];
     while(queue.length){const id=queue.shift();for(const link of network.find(v=>v.id===id).links)if(!reachable.has(link)){reachable.add(link);queue.push(link)}}
-    expect(reachable.size).toBe(6);
+    expect(reachable.size).toBe(8);
     const first=await page.evaluate(()=>window.__STARSHIP_TEST__.prepareVent('v1'));
     await page.locator('#vent').click();
     await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.ventPlayerState())).toMatchObject({inVent:true,ventId:'v1'});
