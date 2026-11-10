@@ -136,4 +136,8 @@ assert.ok(html.includes('function processSabotage()'), 'Los sabotajes temporizad
 assert.ok(html.includes('async function syncRoomAccess()'), 'Debe existir sincronización de permisos de sala');
 assert.ok(!html.includes('three.min.js'), 'El proyecto debe conservar el renderer 2.5D Canvas');
 console.log('✓ Sistemas críticos presentes; renderer 2.5D Canvas confirmado');
+assert.ok(html.includes("if(k==='m'&&!e.repeat){e.preventDefault();toggleMapPanel();return}") && html.includes('function toggleMapPanel()'), 'La tecla M debe abrir y cerrar el mapa ampliado');
+assert.ok(html.includes('width="1200" height="840"') && html.includes('g.globalAlpha=.76'), 'El mapa debe ser grande, nítido y translúcido');
+assert.ok(html.includes("const canAct=!!p&&p.alive&&!p.inVent&&!gameState?.meeting") && html.includes("$('emergency').disabled=!sos"), 'Los controles contextuales deben respetar la proximidad y el estado del jugador');
+assert.ok(html.includes('TAREA [E]') && html.includes('REPORTAR [R]') && html.includes('MAPA [M]'), 'El HUD debe mostrar los atajos');
 console.log('QA OK — validación estática y conectividad superadas');
