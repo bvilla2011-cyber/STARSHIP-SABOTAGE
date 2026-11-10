@@ -60,8 +60,8 @@ function blockedByRoomWall(x, y, clearance = .34) {
 }
 const step = .2, width = Math.floor(MAP.w / step) + 1, height = Math.floor(MAP.h / step) + 1;
 const pass = (x, y) => inFloor(x, y) && !blockedByRoomWall(x, y);
-const sx = Math.round(60 / step), sy = Math.round(35 / step);
-assert.ok(pass(60, 35), 'El spawn debe ser transitable');
+const sx = Math.round(60 / step), sy = Math.round(40 / step);
+assert.ok(pass(60, 40), 'El spawn debe ser transitable y quedar libre de la nueva mesa SOS');
 const seen = new Uint8Array(width * height), queue = [sy * width + sx];
 seen[queue[0]] = 1;
 for (let i = 0; i < queue.length; i++) {
