@@ -205,8 +205,12 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     await p1.evaluate(()=>window.__STARSHIP_TEST__.prepareEmergencyMeeting());
     await p1.evaluate(()=>window.__STARSHIP_TEST__.prepareEmergencyMeeting());
     await p1.locator('#emergency').click();
-    await expect(p1.locator('#modal')).toContainText('¿QUIÉN ES EL IMPOSTOR?');
-    await expect(p2.locator('#modal')).toContainText('¿QUIÉN ES EL IMPOSTOR?',{timeout:5000});
+    await expect(p1.locator('#modal')).toContainText('¿QUÉ HA PASADO?');
+    await expect(p2.locator('#modal')).toContainText('¿QUÉ HA PASADO?',{timeout:5000});
+    await p1.locator('#meetingSkip').click();
+    await p2.locator('#meetingSkip').click();
+    await expect(p1.locator('#modal')).toContainText('¿A QUIÉN VOTAS?',{timeout:5000});
+    await expect(p2.locator('#modal')).toContainText('¿A QUIÉN VOTAS?',{timeout:5000});
     await p1.locator('#modal [data-vote="'+id2+'"]').click();
     await p2.locator('#modal [data-vote="'+id1+'"]').click();
     await expect(p1.locator('#modal')).toContainText('RESULTADO DE LA REUNIÓN',{timeout:5000});
