@@ -290,13 +290,17 @@ test('gameplay: la interacción abre y completa los cinco tipos de minijuego con
           expect(synced,'El módulo '+stage+' debe sincronizarse dentro del rango verde').toBe(true);
         }
       } else if(type==='card') {
-        const card=page.locator('#modal #idCard');
-        const b=await card.boundingBox();
-        await page.mouse.move(b.x+b.width/2,b.y+b.height/2);
-        await page.mouse.down();
-        await page.waitForTimeout(500);
-        await page.mouse.move(b.x+b.width/2+45,b.y+b.height/2,{steps:4});
-        await page.mouse.up();
+        await page.evaluate(async()=>{
+          const card=document.querySelector('#modal #idCard');
+          const startX=card.getBoundingClientRect().left+card.getBoundingClientRect().width/2;
+          const startY=card.getBoundingClientRect().top+card.getBoundingClientRect().height/2;
+          // Dispatch the same pointer sequence while preserving the minigame's timed swipe window.
+          card.setPointerCapture=()=>{};
+          card.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:1,clientX:startX,clientY:startY}));
+          await new Promise(resolve=>setTimeout(resolve,500));
+          card.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerId:1,clientX:startX+45,clientY:startY}));
+          card.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:1,clientX:startX+45,clientY:startY}));
+        });
       }
       await expect(page.locator('#modal')).toHaveClass(/hidden/,{timeout:7000});
       await expect.poll(()=>page.evaluate(id=>window.__STARSHIP_TEST__.taskDone(id),taskId)).toBe(true);
