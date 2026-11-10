@@ -932,6 +932,7 @@ async function meeting(isReport=false,bodyId=null){
  if(gameState.meeting)return toast('Ya hay una reunión en curso.');if(isReport&&(!bodyId||gameState.reportedBodies?.includes(bodyId)))return toast('Ese cuerpo ya ha sido reportado.');
  if(!isReport){if(gameState.sabotage?.active)return toast('No puedes usar el botón de emergencia mientras haya un sabotaje activo.');const startedAt=Number(gameState.createdAt||gameState.startedAt||Date.now());if(Date.now()<startedAt+20000)return toast('La reunión de emergencia estará disponible cuando pasen los primeros 20 segundos.');gameState.emergencyUsed=gameState.emergencyUsed||{};if(gameState.emergencyUsed[playerId])return toast('Ya has utilizado tu botón de emergencia en esta partida.');gameState.emergencyUsed[playerId]=true}
  if(isReport){gameState.reportedBodies=gameState.reportedBodies||[];gameState.reportedBodies.push(bodyId);awardCoins(10,'reporte confirmado')}
+ const activeSabotage=gameState.sabotage;if(activeSabotage?.active&&activeSabotage.type!=='lights'){gameState.sabotage={...activeSabotage,active:false,endedAt:Date.now(),resolvedByMeeting:true};}
  players.forEach(q=>{if(q.vote?.startsWith('meeting_'))q.vote=''});
  gameState.meeting={id:'meeting_'+Date.now(),votes:{},chat:[],endsAt:Date.now()+90000,reporterId:playerId,bodyId,isReport,status:'discussion'};
  await saveRoomState(gameState);renderMeetingUI();
