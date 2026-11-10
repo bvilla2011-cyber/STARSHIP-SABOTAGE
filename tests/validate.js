@@ -107,6 +107,8 @@ assert.ok(!html.includes('rowId:target.id,data:{alive:false}') && !html.includes
 assert.ok(!html.includes('Permission.update(Role.any())') && !html.includes('permissions:perms'), 'No debe concederse escritura pública en filas nuevas');
 assert.ok(html.includes('setInterval(pollRoom,450)'), 'El polling debe tener una frecuencia moderada');
 assert.ok(html.includes('async function leaveCurrentRoom()'), 'Debe existir salida con transferencia de anfitrión');
+assert.ok(html.includes('const returning=!!(existing&&existing.roomId===roomId'), 'Los jugadores originales deben poder reconectarse a su partida');
+assert.ok(html.includes('function processSabotage()'), 'Los sabotajes temporizados deben resolverse desde el anfitrión');
 assert.ok(html.includes('async function syncRoomAccess()'), 'Debe existir sincronización de permisos de sala');
 assert.ok(!html.includes('three.min.js'), 'El proyecto debe conservar el renderer 2.5D Canvas');
 console.log('✓ Sistemas críticos presentes; renderer 2.5D Canvas confirmado');
