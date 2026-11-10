@@ -126,8 +126,10 @@ assert.ok(html.includes('permissions:ownerPermissions(playerId)'), 'Las filas de
 assert.ok(html.includes('protocolVersion:2'), 'Las salas nuevas deben declarar versión de protocolo');
 assert.ok(html.includes("ROOMS='rooms_v2',PLAYERS='players_v2'"), 'El cliente debe usar tablas v2 con permisos limitados');
 assert.ok(html.includes("m.id+'|vote:'+choice") && html.includes("q.vote?.startsWith(m.id+'|vote:')"), 'Los votos deben aislarse por reunión y fase');
-assert.ok(html.includes("endsAt:Date.now()+190000") && html.includes("m.endsAt=now+30000"), 'La reunión debe incluir 190 segundos de conversación y 30 de votación');
+assert.ok(html.includes("endsAt:Date.now()+190000") && html.includes("m.endsAt=now+90000"), 'La reunión debe incluir 190 segundos de conversación y 30 de votación');
 assert.ok(html.includes("m.id+'|chat-skip'") && html.includes("VOTO NULO · NO EXPULSAR A NADIE"), 'El debate debe poder saltarse por unanimidad y la votación debe admitir voto nulo');
+assert.ok(html.includes('meetingPlayerColor(msg.id)') && html.includes('meeting-message-dot'), 'El chat debe colorear cada nombre con el color del monguito');
+assert.ok(html.includes('emergencyUsed:{}') && html.includes('targetWasImpostor') && html.includes('remainingImpostors') && html.includes('meeting-result-card'), 'Cada jugador debe tener un único SOS por partida y ver la revelación animada de expulsión');
 assert.ok(html.includes("Nametags por encima de la máscara") && html.includes("nameView"), 'Los nombres deben dibujarse sobre la iluminación y respetar el campo de visión');
 assert.ok(!html.includes('target.alive=q.alive') && !html.includes('own.alive=local.alive'), 'El snapshot de jugadores no debe revivir eliminados');
 assert.ok(!html.includes('rowId:target.id,data:{alive:false}') && !html.includes('rowId:targetId,data:{alive:false}'), 'Un cliente no debe modificar la fila de otro jugador');
@@ -141,7 +143,7 @@ assert.ok(!html.includes('three.min.js'), 'El proyecto debe conservar el rendere
 console.log('✓ Sistemas críticos presentes; renderer 2.5D Canvas confirmado');
 assert.ok(html.includes("if(k==='m'&&!e.repeat){e.preventDefault();toggleMapPanel();return}") && html.includes('function toggleMapPanel()'), 'La tecla M debe abrir y cerrar el mapa ampliado');
 assert.ok(html.includes('width="1200" height="840"') && html.includes('g.globalAlpha=.76'), 'El mapa debe ser grande, nítido y translúcido');
-assert.ok(html.includes("const canAct=!!p&&p.alive&&!p.inVent&&!gameState?.meeting") && html.includes("$('emergency').disabled=!sos"), 'Los controles contextuales deben respetar la proximidad y el estado del jugador');
+assert.ok(html.includes("const canAct=!!p&&p.alive&&!p.inVent&&!gameState?.meeting") && html.includes("$('emergency').disabled=!(sos&&ready&&!used)") && html.includes('startedAt+20000') && html.includes('gameState.emergencyUsed[playerId]'), 'Los controles contextuales deben respetar la proximidad y el estado del jugador');
 assert.ok(html.includes('TAREA [E]') && html.includes('REPORTAR [R]') && html.includes('MAPA [M]'), 'El HUD debe mostrar los atajos');
 assert.ok(html.includes('id="interact" class="action-orb" disabled') && html.includes('id="report" class="report-orb" disabled') && html.includes('id="emergency" class="sos-button" disabled'), 'Las tres acciones contextuales deben arrancar desactivadas hasta calcular proximidad');
 assert.ok(html.includes("if(k==='e'&&!e.repeat)startTask()") && html.includes("if(k==='r'&&!e.repeat)reportNearbyBody()"), 'Las teclas E y R deben activar sus acciones correspondientes');
