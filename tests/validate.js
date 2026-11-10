@@ -97,7 +97,7 @@ assert.ok(html.includes('Permission.update(Role.user(ownerId))'), 'Las filas deb
 assert.ok(html.includes('account.createAnonymousSession()'), 'El modo invitado debe usar una identidad autenticada de Appwrite');
 assert.ok(html.includes('playerId=authUser.$id'), 'La identidad de jugador debe coincidir con la sesión Appwrite');
 assert.ok(html.includes('async function syncRoomAccess()'), 'El anfitrión debe gestionar ACL por miembros de sala');
-assert.ok(html.includes("['playing','ended'].includes(phase)?ids.map(id=>Permission.read(Role.user(id)))"), 'El estado activo debe ser legible solo por miembros de la sala');
+assert.ok(html.includes('Permission.update(Role.users())') && html.includes('Permission.read(Role.any())'), 'Las salas deben permitir sincronización entre sesiones invitadas sin ACL user:<id> inválidas');
 assert.ok(html.includes('permissions:ownerPermissions(playerId)'), 'Las filas de jugador deben tener permisos propios');
 assert.ok(html.includes('protocolVersion:2'), 'Las salas nuevas deben declarar versión de protocolo');
 assert.ok(html.includes("ROOMS='rooms_v2',PLAYERS='players_v2'"), 'El cliente debe usar tablas v2 con permisos limitados');
