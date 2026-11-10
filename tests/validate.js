@@ -125,7 +125,10 @@ assert.ok(html.includes("gameState.sabotage.type==='comms'") && html.includes('C
 assert.ok(html.includes('permissions:ownerPermissions(playerId)'), 'Las filas de jugador deben tener permisos propios');
 assert.ok(html.includes('protocolVersion:2'), 'Las salas nuevas deben declarar versión de protocolo');
 assert.ok(html.includes("ROOMS='rooms_v2',PLAYERS='players_v2'"), 'El cliente debe usar tablas v2 con permisos limitados');
-assert.ok(html.includes("m.id+'|vote:'+choice") && html.includes("q.vote?.startsWith(m.id+'|')"), 'Los votos deben aislarse por reunión');
+assert.ok(html.includes("m.id+'|vote:'+choice") && html.includes("q.vote?.startsWith(m.id+'|vote:')"), 'Los votos deben aislarse por reunión y fase');
+assert.ok(html.includes("endsAt:Date.now()+190000") && html.includes("m.endsAt=now+30000"), 'La reunión debe incluir 190 segundos de conversación y 30 de votación');
+assert.ok(html.includes("m.id+'|chat-skip'") && html.includes("VOTO NULO · NO EXPULSAR A NADIE"), 'El debate debe poder saltarse por unanimidad y la votación debe admitir voto nulo');
+assert.ok(html.includes("Nametags por encima de la máscara") && html.includes("nameView"), 'Los nombres deben dibujarse sobre la iluminación y respetar el campo de visión');
 assert.ok(!html.includes('target.alive=q.alive') && !html.includes('own.alive=local.alive'), 'El snapshot de jugadores no debe revivir eliminados');
 assert.ok(!html.includes('rowId:target.id,data:{alive:false}') && !html.includes('rowId:targetId,data:{alive:false}'), 'Un cliente no debe modificar la fila de otro jugador');
 assert.ok(html.includes('const ownerPermissions=ownerId=>Permission&&Role&&ownerId?') && html.includes('Permission.update(Role.user(ownerId))') && html.includes('Permission.delete(Role.user(ownerId))') && html.includes('permissions:ownerPermissions(playerId)'), 'Las filas individuales deben mantener lectura y escritura restringidas a su propietario');
