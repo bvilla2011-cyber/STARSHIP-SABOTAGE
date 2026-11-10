@@ -332,6 +332,13 @@ test('sabotajes: las cinco reparaciones funcionan y los críticos provocan derro
     const repairs=['lights','reactor','comms','o2','doors'];
     for(const sabotage of repairs){
       const type=await page.evaluate(s=>window.__STARSHIP_TEST__.prepareRepair(s),sabotage);
+      if(sabotage==='comms'){
+        await page.evaluate(()=>window.__STARSHIP_TEST__.prepareTask('wires'));
+        await page.evaluate(()=>window.__STARSHIP_TEST__.tryStartTask());
+        await expect(page.locator('#modal')).toHaveClass(/hidden/);
+        await expect(page.locator('#taskText')).toContainText('COMUNICACIONES INTERFERIDAS');
+        await page.evaluate(()=>window.__STARSHIP_TEST__.prepareRepair('comms'));
+      }
       await page.locator('#interact').click();
       await expect(page.locator('#modal')).not.toHaveClass(/hidden/);
       if(type==='wires'){
