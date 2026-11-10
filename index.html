@@ -754,7 +754,7 @@ if(location.hostname==='127.0.0.1'||location.hostname==='localhost'){
  window.__STARSHIP_TEST__={
   actionAvailability(){return {task:$('interact').disabled,report:$('report').disabled,meeting:$('emergency').disabled}},
   prepareSosButton(){const p=gameState?.players?.[playerId],cafe=MAP.rooms.find(q=>q.id==='cafeteria');if(!p||!cafe)throw new Error('No se puede preparar el botón SOS');p.alive=true;p.inVent=false;p.x=cafe.x+cafe.w/2;p.y=cafe.y+cafe.h/2+.22;return {x:p.x,y:p.y}},
-  prepareReportBody(){const p=gameState?.players?.[playerId];if(!p)throw new Error('No existe jugador local');const id='__dead_body_test__';gameState.players[id]={id,alive:false,expelled:false,x:p.x+2,y:p.y};return id},
+  prepareReportBody(){const p=gameState?.players?.[playerId];if(!p)throw new Error('No existe jugador local');p.alive=true;p.inVent=false;gameState.phase='playing';gameState.meeting=null;const id='__dead_body_test__';gameState.players[id]={id,alive:false,expelled:false,x:p.x+2,y:p.y};return id},
   prepareTask(type){
    const station=MAP.tasks.find(t=>t.type===type);
    const p=gameState?.players?.[playerId];
