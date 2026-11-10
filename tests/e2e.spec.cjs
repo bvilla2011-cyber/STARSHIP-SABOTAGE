@@ -270,17 +270,7 @@ test('gameplay: la interacción abre y completa los cinco tipos de minijuego con
     await expect(page.locator('#game')).toBeVisible();
     const types=['card','wires','route','filter','calibrate'];
     for (const type of types) {
-      const taskId=await page.evaluate(type=>{
-        const station=MAP.tasks.find(t=>t.type===type);
-        if(!station)throw new Error('No hay estación del tipo '+type);
-        const p=gameState.players[playerId];
-        const id=station.id+'_online_assignment';
-        p.tasks=[{id,name:station.name,room:station.room,stationId:station.id}];
-        p.done=[];
-        p.x=station.x;p.y=station.y;
-        gameState.required=999;
-        return id;
-      },type);
+      const taskId=await page.evaluate(type=>window.__STARSHIP_TEST__.prepareTask(type),type);
       await page.locator('#interact').click();
       await expect(page.locator('#modal')).not.toHaveClass(/hidden/);
       if(type==='wires') {
@@ -309,7 +299,7 @@ test('gameplay: la interacción abre y completa los cinco tipos de minijuego con
         await page.mouse.up();
       }
       await expect(page.locator('#modal')).toHaveClass(/hidden/,{timeout:7000});
-      await expect.poll(()=>page.evaluate(id=>gameState.players[playerId].done.includes(id),taskId)).toBe(true);
+      await expect.poll(()=>page.evaluate(id=>window.__STARSHIP_TEST__.taskDone(id),taskId)).toBe(true);
     }
   } finally {
     await context.close();
