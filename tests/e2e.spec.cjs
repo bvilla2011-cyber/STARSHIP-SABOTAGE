@@ -6,7 +6,7 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const PORT = 4173;
 const ORIGIN = 'http://127.0.0.1:' + PORT;
-const shared = { rooms: new Map(), players: new Map() };
+const shared = { rooms_v2: new Map(), players_v2: new Map() };
 let server;
 
 const sdkMock = String.raw`
@@ -165,10 +165,10 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     await expect(p1.locator('#lobbyList')).toContainText(name2.slice(0,16),{timeout:8000});
     const id2=await p2.evaluate(()=>localStorage.getItem('__mock_user'));
     await expect(p1.locator('#start')).toBeEnabled();
-    await expect.poll(()=>shared.rooms.get(code)?.$permissions?.includes('update("user:'+id2+'")')).toBe(true);
+    await expect.poll(()=>shared.rooms_v2.get(code)?.$permissions?.includes('update("user:'+id2+'")')).toBe(true);
 
     const memberWrite=await p2.evaluate(async roomId=>{
-      try { await window.__mockTest.request('/rows/rooms/'+encodeURIComponent(roomId),'PATCH',{data:{status:'waiting'}}); return true; }
+      try { await window.__mockTest.request('/rows/rooms_v2/'+encodeURIComponent(roomId),'PATCH',{data:{status:'waiting'}}); return true; }
       catch(e) { return false; }
     },code);
     expect(memberWrite).toBe(true);
@@ -176,7 +176,7 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     const denied=await p2.evaluate(async roomId=>{
       const member=localStorage.getItem('__mock_user');
       localStorage.setItem('__mock_user','usr_outsider');
-      try { await window.__mockTest.request('/rows/rooms/'+encodeURIComponent(roomId),'PATCH',{data:{status:'hacked'}}); return false; }
+      try { await window.__mockTest.request('/rows/rooms_v2/'+encodeURIComponent(roomId),'PATCH',{data:{status:'hacked'}}); return false; }
       catch(e) { return /Permission denied/.test(e.message); }
       finally { localStorage.setItem('__mock_user',member); }
     },code);
@@ -185,13 +185,13 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     await p1.locator('#start').click();
     await expect(p1.locator('#game')).toBeVisible({timeout:16000});
     await expect(p2.locator('#game')).toBeVisible({timeout:16000});
-    const state=JSON.parse(shared.rooms.get(code).settings);
+    const state=JSON.parse(shared.rooms_v2.get(code).settings);
     const crew=Object.values(state.players).filter(p=>p.role==='crew');
     const impostors=Object.values(state.players).filter(p=>p.role==='impostor');
     expect(impostors).toHaveLength(1);
-    expect(shared.rooms.get(code).$permissions).not.toContain('read("any")');
-    expect(shared.rooms.get(code).$permissions).toContain('read("user:'+id1+'")');
-    expect(shared.rooms.get(code).$permissions).toContain('read("user:'+id2+'")');
+    expect(shared.rooms_v2.get(code).$permissions).not.toContain('read("any")');
+    expect(shared.rooms_v2.get(code).$permissions).toContain('read("user:'+id1+'")');
+    expect(shared.rooms_v2.get(code).$permissions).toContain('read("user:'+id2+'")');
     expect(crew).toHaveLength(1);
     expect(crew[0].tasks).toHaveLength(4);
 
@@ -206,9 +206,9 @@ test('dos clientes crean sala, juegan, votan y transfieren el anfitrión con ACL
     p1.once('dialog',dialog=>dialog.accept());
     await p1.locator('#moreBtn').click();
     await p1.locator('#leaveMatchBtn').click();
-    await expect.poll(()=>shared.rooms.get(code)?.hostId).toBe(id2);
-    await expect.poll(()=>shared.rooms.get(code)?.$permissions?.includes('update("user:'+id2+'")')).toBe(true);
-    const newHostWrite=await p2.evaluate(async roomId=>{try{await window.__mockTest.request('/rows/rooms/'+encodeURIComponent(roomId),'PATCH',{data:{status:'playing'}});return true}catch(e){return false}},code);
+    await expect.poll(()=>shared.rooms_v2.get(code)?.hostId).toBe(id2);
+    await expect.poll(()=>shared.rooms_v2.get(code)?.$permissions?.includes('update("user:'+id2+'")')).toBe(true);
+    const newHostWrite=await p2.evaluate(async roomId=>{try{await window.__mockTest.request('/rows/rooms_v2/'+encodeURIComponent(roomId),'PATCH',{data:{status:'playing'}});return true}catch(e){return false}},code);
     expect(newHostWrite).toBe(true);
   } finally {
     await first.context.close();
