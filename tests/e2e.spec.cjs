@@ -274,6 +274,43 @@ test('auditoría visual responsive: menú, tienda y hangar en escritorio y móvi
 
 
 
+test('controles: mapa grande con M y botones contextuales limitados por proximidad', async ({browser}) => {
+  test.setTimeout(30000);
+  const {context,page}=await openAsGuest(browser);
+  try {
+    await page.locator('#explore').click();
+    await expect(page.locator('#game')).toBeVisible();
+    const map=page.locator('#mapPanel');
+    await expect(map).toHaveClass(/hidden/);
+    await page.keyboard.press('m');
+    await expect(map).not.toHaveClass(/hidden/);
+    const box=await map.boundingBox();
+    expect(box.width).toBeGreaterThan(0.9*1280);
+    expect(box.height).toBeGreaterThan(0.9*800);
+    const mapStyle=await map.evaluate(el=>({background:getComputedStyle(el).backgroundColor}));
+    expect(mapStyle.background.startsWith('rgba(')).toBe(true);
+    await page.keyboard.press('m');
+    await expect(map).toHaveClass(/hidden/);
+    const availability=await page.evaluate(()=>window.__STARSHIP_TEST__.actionAvailability());
+    expect(availability).toEqual({task:true,report:true,meeting:true});
+    await page.evaluate(()=>window.__STARSHIP_TEST__.prepareTask('card'));
+    await expect(page.locator('#interact')).toBeEnabled();
+    await page.keyboard.press('e');
+    await expect(page.locator('#modal')).not.toHaveClass(/hidden/);
+    await page.locator('#cancelTask').click();
+    await page.evaluate(()=>window.__STARSHIP_TEST__.prepareReportBody());
+    await expect(page.locator('#report')).toBeEnabled();
+    await page.keyboard.press('r');
+    await expect(page.locator('#modal')).toContainText('¿QUIÉN ES EL IMPOSTOR?',{timeout:5000});
+    await page.locator('#modal').evaluate(el=>el.classList.add('hidden'));
+    await page.evaluate(()=>window.__STARSHIP_TEST__.prepareEmergencyMeeting());
+    await page.evaluate(()=>window.__STARSHIP_TEST__.prepareSosButton());
+    await expect(page.locator('#emergency')).toBeEnabled();
+    await page.locator('#emergency').click();
+    await expect(page.locator('#modal')).toContainText('¿QUIÉN ES EL IMPOSTOR?',{timeout:5000});
+  } finally { await context.close(); }
+});
+
 test('renderer del mapa: Canvas 2D dibuja las salas y pasillos sin excepciones', async ({browser}) => {
   test.setTimeout(30000);
   const {context,page}=await openAsGuest(browser);
