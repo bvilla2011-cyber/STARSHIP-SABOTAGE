@@ -92,7 +92,7 @@ assert.ok(html.includes('Date.now()+10000'), 'La cuenta atrás de lobby debe ser
 assert.ok(html.includes('blockedByRoomWall('), 'Falta la colisión de paredes');
 assert.ok(html.includes('function playVictimKillAnimation'), 'Falta animación de víctima');
 assert.ok(html.includes('if(i<stage)return;n.pos=angle'), 'Las agujas activas de calibración deben animarse');
-assert.ok(html.includes("players.filter(q=>q.alive&&q.vote).length"), 'El contador de votos debe refrescarse con las votaciones remotas');
+assert.ok(html.includes("players.filter(q=>q.vote?.startsWith(m.id+'|')).length"), 'El contador de votos debe refrescarse con las votaciones remotas');
 assert.ok(html.includes('Role.update(Role.user(ownerId))'), 'Las filas deben ser editables solo por su propietario autorizado');
 assert.ok(html.includes('account.createAnonymousSession()'), 'El modo invitado debe usar una identidad autenticada de Appwrite');
 assert.ok(html.includes('playerId=authUser.$id'), 'La identidad de jugador debe coincidir con la sesión Appwrite');
