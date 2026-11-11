@@ -8,8 +8,8 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: starship-pages
-  cancel-in-progress: true
+  group: starship-pages-v4-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   validate:
     runs-on: ubuntu-24.04
