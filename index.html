@@ -824,7 +824,7 @@ function openMiniGame(task,station){
  const button=(id,label)=>'<button id="'+id+'" style="padding:12px 16px;margin:5px;border:1px solid #7fcde0;border-radius:8px;background:linear-gradient(#31566b,#142d40);color:#fff;font-weight:900">'+label+'</button>';
  let content='';
  if(gameType==='card'){
- content='<div style="display:flex;gap:18px;align-items:center;justify-content:center;flex-wrap:wrap"><div id="idCard" draggable="true" style="width:190px;padding:14px;background:linear-gradient(135deg,#fff1c5,#b9c7c8);color:#172b38;border:3px solid #d5e8ed;border-radius:9px;touch-action:none;cursor:grab"><b>STARSHIP · ID</b><div style="font-size:34px">◉</div><b>'+clean(me?.name||'CREWMATE')+'</b><div style="font-size:11px">CREW ID · 0815</div><div style="height:8px;background:#17212b;margin-top:10px"></div></div><div id="cardSlot" style="width:190px;height:110px;border:2px dashed #8ceaff;border-radius:10px;display:grid;place-items:center;color:#8ceaff">ARRASTRA AQUÍ<br>EL CARNÉ</div></div><p style="text-align:center">Arrastra la tarjeta horizontalmente durante 0,4 a 1,5 segundos, o usa el botón de lectura</p><div style="height:9px;background:#152b3a;border-radius:9px;overflow:hidden"><div id="swipeMeter" style="height:100%;width:0;background:#66e2ae"></div></div>';
+ content='<div style="display:flex;gap:18px;align-items:center;justify-content:center;flex-wrap:wrap"><div id="idCard" draggable="true" style="width:190px;padding:14px;background:linear-gradient(135deg,#fff1c5,#b9c7c8);color:#172b38;border:3px solid #d5e8ed;border-radius:9px;touch-action:none;cursor:grab"><b>STARSHIP · ID</b><div style="font-size:34px">◉</div><b>'+clean(me?.name||'CREWMATE')+'</b><div style="font-size:11px">CREW ID · 0815</div><div style="height:8px;background:#17212b;margin-top:10px"></div></div><div id="cardSlot" style="width:190px;height:110px;border:2px dashed #8ceaff;border-radius:10px;display:grid;place-items:center;color:#8ceaff">ARRASTRA AQUÍ<br>EL CARNÉ</div></div><p style="text-align:center">Arrastra la tarjeta horizontalmente durante 0,4 a 1,5 segundos, o usa el botón de lectura</p><div style="height:9px;background:#152b3a;border-radius:9px;overflow:hidden"><div id="swipeMeter" style="height:100%;width:0;background:#66e2ae"></div></div><button id="cardAssist" class="mission-aux-button">▶ INICIAR LECTURA ASISTIDA (1 SEGUNDO)</button>';
  }else if(gameType==='wires'){
  const colors=[['ROJO','#f05e68'],['AZUL','#58a9f2'],['AMARILLO','#f1ce58'],['ROSA','#e78bc8']];
  content='<p>Conecta cada cable con el terminal del mismo color.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+colors.map((v,i)=>'<button data-wire="'+i+'" style="background:#142838;border:2px solid '+v[1]+';color:'+v[1]+';min-height:48px">● '+v[0]+' → CONECTAR</button>').join('')+'</div><small id="wireCount">0 / 4 CONECTADOS</small>';
@@ -832,19 +832,77 @@ function openMiniGame(task,station){
  content='<p>Arrastra la nave por los cinco puntos de control en orden.</p><div id="routeGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:340px;margin:auto">'+[0,1,2,3,4,5,6,7,8].map(i=>'<button data-route="'+i+'" style="min-height:48px">'+(i===0?'🚀':i===8?'◎':'✦')+'</button>').join('')+'</div><b id="routeCount">PUNTO 1 / 5</b>';
  }else if(gameType==='filter'){
  content='<p>Retira los residuos del filtro y arrástralos al conducto de extracción.</p><div style="display:flex;justify-content:space-around;gap:12px;align-items:center"><div id="debris" style="display:grid;grid-template-columns:repeat(3,48px);gap:9px">'+Array.from({length:6},(_,i)=>'<button data-debris="'+i+'" style="font-size:24px">🍂</button>').join('')+'</div><div id="ventDrop" style="border:2px dashed #76e6d0;border-radius:50%;width:100px;height:100px;display:grid;place-items:center;color:#76e6d0">VENT<br>⬇</div></div><small id="debrisCount">6 RESIDUOS</small>';
+ }else if(gameType==='scan'){
+ content='<div class="medscan-console"><div class="scan-silhouette"><div class="scan-head"></div><div class="scan-torso"><span class="scan-heart">♥</span></div><div class="scan-legs"></div></div><div class="scan-controls"><b>DIAGNÓSTICO BIOMÉTRICO</b><p>Realiza los 3 escaneos: cabeza, corazón y piernas. Pulsa cada botón en orden.</p><div class="scan-progress"><i id="scanProgress"></i></div>'+['CABEZA','CORAZÓN','PIERNAS'].map((v,i)=>button('scanPart'+i,'◉ ESCANEAR '+v)).join('')+'<span id="scanReadout">ESPERANDO AL PACIENTE...</span></div></div>';
+ }else if(gameType==='cipher'){
+ content='<div class="cipher-console"><div class="cipher-secret">CÓDIGO DEL SISTEMA <strong id="cipherCode">◆ ◉ ▲</strong></div><p>Reproduce los tres símbolos en el mismo orden. Cada pulsación registra el siguiente símbolo.</p><div class="mission-stages" id="cipherSlots">□ □ □</div>'+[['◆','RUMBO'],['◉','ÓRBITA'],['▲','POTENCIA']].map(([sym,label])=>'<button data-cipher="'+sym+'" class="mission-dial">'+sym+'<small>'+label+'</small></button>').join('')+'</div>';
+ }else if(gameType==='pulse'){
+ content='<div class="pulse-console"><h3>ESTABILIZACIÓN O₂</h3><div class="pulse-spectrum">'+Array.from({length:16},(_,i)=>'<i style="--i:'+i+'"></i>').join('')+'</div><p>Toca los tres filtros en orden para restablecer el flujo de oxígeno.</p><div class="mission-stages" id="pulseReadout">0 / 3 FILTROS</div>'+['VÁLVULA A','VÁLVULA B','VÁLVULA C'].map((x,i)=>button('pulseValve'+i,'◉ '+x)).join('')+'</div>';
+ }else if(gameType==='sort'){
+ content='<div class="cargo-console"><h3>CLASIFICADOR DE CARGA</h3><p>Selecciona el contenedor correcto según el símbolo que aparece en la pantalla.</p><div class="cargo-target" id="cargoTarget">◈</div><div class="mission-stages" id="cargoCount">0 / 4 CAJAS</div>'+[['◈','MINERALES'],['✚','SUMINISTROS'],['⬡','EQUIPO']].map(([sym,label])=>'<button data-cargo="'+sym+'" class="mission-dial">'+sym+'<small>'+label+'</small></button>').join('')+'</div>';
+ }else if(gameType==='frequency'){
+ content='<div class="frequency-console"><h3>RECALIBRACIÓN DE SEÑAL</h3><p>Mueve el control hasta que coincida con cada frecuencia indicada. Pulsa VALIDAR cuando el indicador esté alineado.</p><div class="frequency-display"><span>OBJETIVO <b id="freqTarget">35</b> MHz</span><strong id="freqValue">50 MHz</strong></div><input id="freqSlider" aria-label="Frecuencia" type="range" min="0" max="100" value="50"><div class="mission-stages" id="freqCount">0 / 3 FRECUENCIAS</div>'+button('freqSubmit','✓ VALIDAR FRECUENCIA')+'</div>';
+ }else if(gameType==='cells'){
+ content='<div class="cells-console"><h3>CELDAS DEL REACTOR</h3><p>Activa cada celda cuando su energía alcance el intervalo seguro (4 a 6). Un error reinicia solo esa celda.</p><div class="cells-grid">'+[0,1,2].map(i=>'<div class="cell"><div class="cell-energy" id="cellEnergy'+i+'">0</div>'+button('cellCharge'+i,'CARGAR CELDA '+(i+1))+'</div>').join('')+'</div><div class="mission-stages" id="cellsCount">0 / 3 ESTABLES</div></div>';
  }else if(gameType==='calibrate'){
  content='<p>Pulsa DETENER cuando la aguja entre en la zona verde. Sincroniza los tres módulos.</p>'+[0,1,2].map(i=>'<div style="margin:14px 0"><div style="display:flex;justify-content:space-between"><b>MÓDULO '+(i+1)+'</b><span id="calState'+i+'">EN ESPERA</span></div><div style="height:12px;background:#203647;border-radius:8px;position:relative;overflow:hidden"><div style="position:absolute;left:42%;width:16%;height:100%;background:#4bd99b;opacity:.8"></div><div id="needle'+i+'" style="position:absolute;left:0;width:5px;height:100%;background:#fff;box-shadow:0 0 8px #fff"></div></div>'+button('cal'+i,'DETENER AGUJA')+'</div>').join('');
  }
- m.innerHTML=shell(gameType==='card'?'Desliza la tarjeta a velocidad correcta.':gameType==='wires'?'Empareja los cuatro circuitos eléctricos.':gameType==='route'?'Establece la ruta de navegación.':gameType==='filter'?'Limpia por completo el filtro de oxígeno.':'Sincroniza los tres distribuidores.',content);
+ m.innerHTML=shell(gameType==='card'?'Desliza la tarjeta a velocidad correcta.':gameType==='wires'?'Empareja los cuatro circuitos eléctricos.':gameType==='route'?'Establece la ruta de navegación.':gameType==='filter'?'Limpia por completo el filtro de oxígeno.':gameType==='scan'?'Escanea cabeza, corazón y piernas en orden.':gameType==='cipher'?'Copia el código de símbolos de acceso.':gameType==='pulse'?'Activa las válvulas de oxígeno en orden.':gameType==='sort'?'Clasifica los cuatro contenedores estelares.':gameType==='frequency'?'Sintoniza tres señales con el control deslizante.':gameType==='cells'?'Carga tres celdas del núcleo hasta 4–6.':'Sincroniza los tres distribuidores.',content);
  window.StarshipCinematics?.taskOpen(gameType);$('cancelTask').onclick=()=>{m.classList.add('hidden');m.classList.remove('task-modal')};
  if(gameType==='card'){
- const card=$('idCard'),slot=$('cardSlot');let down=0,startX=0,moved=false;card.addEventListener('pointerdown',e=>{down=performance.now();startX=e.clientX;moved=false;card.setPointerCapture(e.pointerId)});card.addEventListener('pointermove',e=>{if(!down)return;if(Math.abs(e.clientX-startX)>12)moved=true});card.addEventListener('pointerup',()=>{const elapsed=performance.now()-down;down=0;if(!moved){fail('Debes deslizar, no solo tocar.');return}if(elapsed>350&&elapsed<1500){slot.style.background='#174b3e';slot.textContent='IDENTIDAD VERIFICADA ✓';$('swipeMeter').style.width='100%';ok('LECTURA CORRECTA');setTimeout(finish,650)}else{fail(elapsed<=350?'Demasiado rápido.':'Demasiado lento.');card.animate([{transform:'translateX(0)'},{transform:'translateX(-12px)'},{transform:'translateX(0)'}],250)}})
+ const card=$('idCard'),slot=$('cardSlot');
+ const assist=$('cardAssist');assist.onclick=()=>{assist.disabled=true;assist.textContent='LEYENDO DATOS DEL CARNÉ…';$('swipeMeter').style.width='100%';setTimeout(()=>{if(!m.classList.contains('hidden')){slot.textContent='IDENTIDAD VERIFICADA ✓';ok('LECTURA CORRECTA');finish()}},1050)};let down=0,startX=0,moved=false;card.addEventListener('pointerdown',e=>{down=performance.now();startX=e.clientX;moved=false;card.setPointerCapture(e.pointerId)});card.addEventListener('pointermove',e=>{if(!down)return;if(Math.abs(e.clientX-startX)>12)moved=true});card.addEventListener('pointerup',()=>{const elapsed=performance.now()-down;down=0;if(!moved){fail('Debes deslizar, no solo tocar.');return}if(elapsed>350&&elapsed<1500){slot.style.background='#174b3e';slot.textContent='IDENTIDAD VERIFICADA ✓';$('swipeMeter').style.width='100%';ok('LECTURA CORRECTA');setTimeout(finish,650)}else{fail(elapsed<=350?'Demasiado rápido.':'Demasiado lento.');card.animate([{transform:'translateX(0)'},{transform:'translateX(-12px)'},{transform:'translateX(0)'}],250)}})
  }else if(gameType==='wires'){
  let n=0;m.querySelectorAll('[data-wire]').forEach(b=>b.onclick=()=>{if(b.disabled)return;b.disabled=true;b.textContent='✓ CIRCUITO CONECTADO';b.style.background='#14513f';n++;$('wireCount').textContent=n+' / 4 CONECTADOS';if(n===4){ok('CIRCUITOS RESTABLECIDOS');setTimeout(finish,500)}})
  }else if(gameType==='route'){
  const seq=[0,1,2,5,8];let n=0;m.querySelectorAll('[data-route]').forEach(b=>b.onclick=()=>{if(+b.dataset.route===seq[n]){b.disabled=true;b.style.background='#17634d';n++;$('routeCount').textContent='PUNTO '+Math.min(n+1,5)+' / 5';if(n===5){ok('RUTA ESTABLECIDA');setTimeout(finish,550)}}else{n=0;fail('Te has salido de la trayectoria. Vuelve al inicio.');m.querySelectorAll('[data-route]').forEach(x=>{x.disabled=false;x.style.background=''})}})}
  else if(gameType==='filter'){
  let n=6;m.querySelectorAll('[data-debris]').forEach(b=>b.onclick=()=>{b.remove();n--;$('debrisCount').textContent=n+' RESIDUOS';if(!n){$('ventDrop').style.background='#155440';ok('FILTRO LIMPIO');setTimeout(finish,550)}})
+ }else if(gameType==='scan'){
+ let index=0;const labels=['CABEZA','CORAZÓN','PIERNAS'];
+ [0,1,2].forEach(i=>$('scanPart'+i).onclick=()=>{
+  if(index!==i){fail('Sigue el orden: '+labels[index]);return}
+  $('scanPart'+i).disabled=true;$('scanPart'+i).textContent='✓ '+labels[i]+' VERIFICADO';index++;
+  $('scanProgress').style.width=index/3*100+'%';$('scanReadout').textContent=index<3?'SIGUIENTE: '+labels[index]:'TODOS LOS SIGNOS VITALES ESTABLES';
+  if(index===3){ok('DIAGNÓSTICO APROBADO');setTimeout(finish,650)}
+ });
+ }else if(gameType==='cipher'){
+ const target=['◆','◉','▲'];let index=0;
+ m.querySelectorAll('[data-cipher]').forEach(b=>b.onclick=()=>{
+  const val=b.dataset.cipher;if(val===target[index]){index++;$('cipherSlots').textContent=target.slice(0,index).join(' ')+' '+Array(3-index).fill('□').join(' ');if(index===3){ok('ACCESO CONCEDIDO');setTimeout(finish,550)}}
+  else{index=0;$('cipherSlots').textContent='□ □ □';fail('Código incorrecto. Repite la secuencia.')}
+ });
+ }else if(gameType==='pulse'){
+ let i=0;[0,1,2].forEach(k=>$('pulseValve'+k).onclick=()=>{
+  if(k!==i)return fail('Activa primero la VÁLVULA '+['A','B','C'][i]);
+  $('pulseValve'+k).disabled=true;$('pulseValve'+k).textContent='✓ VÁLVULA '+['A','B','C'][k];i++;
+  $('pulseReadout').textContent=i+' / 3 FILTROS';
+  if(i===3){ok('OXÍGENO ESTABILIZADO');setTimeout(finish,550)}
+ });
+ }else if(gameType==='sort'){
+ const sequence=['◈','✚','⬡','◈'];let i=0;
+ m.querySelectorAll('[data-cargo]').forEach(b=>b.onclick=()=>{
+  if(b.dataset.cargo!==sequence[i])return fail('Contenedor incorrecto. Comprueba el símbolo.');
+  i++;$('cargoCount').textContent=i+' / 4 CAJAS';$('cargoTarget').textContent=sequence[i]||'✓';
+  if(i===4){ok('CARGA CLASIFICADA');setTimeout(finish,600)}
+ });
+ }else if(gameType==='frequency'){
+ const targets=[35,70,20];let i=0;
+ $('freqSlider').oninput=e=>$('freqValue').textContent=e.target.value+' MHz';
+ $('freqSubmit').onclick=()=>{
+  if(Math.abs(Number($('freqSlider').value)-targets[i])>5)return fail('Ajusta el control a ±5 MHz de '+targets[i]);
+  i++;$('freqCount').textContent=i+' / 3 FRECUENCIAS';
+  if(i===3){ok('COMUNICACIÓN RESTABLECIDA');setTimeout(finish,600)}
+  else{$('freqTarget').textContent=String(targets[i]);$('freqSlider').value='50';$('freqValue').textContent='50 MHz'}
+ };
+ }else if(gameType==='cells'){
+ const charge=[0,0,0],completed=[false,false,false];let total=0;
+ [0,1,2].forEach(i=>$('cellCharge'+i).onclick=()=>{
+  if(completed[i])return;charge[i]++;
+  if(charge[i]>6){charge[i]=0;fail('Sobrecarga: celda '+(i+1)+' reiniciada')}
+  $('cellEnergy'+i).textContent=String(charge[i]);
+  if(charge[i]>=4&&charge[i]<=6){completed[i]=true;$('cellCharge'+i).disabled=true;$('cellCharge'+i).textContent='✓ CELDA ESTABLE';total++;$('cellsCount').textContent=total+' / 3 ESTABLES';if(total===3){ok('NÚCLEO ESTABILIZADO');setTimeout(finish,550)}}
+ });
  }else if(gameType==='calibrate'){
  let stage=0,angle=0;const needles=[0,1,2].map((_,i)=>({el:$('needle'+i),pos:0}));const timer=setInterval(()=>{angle=(angle+2.7)%100;needles.forEach((n,i)=>{if(i<stage)return;n.pos=angle;n.el.style.left=angle+'%'})},35);
  needles.forEach((n,i)=>$('cal'+i).onclick=()=>{if(i!==stage)return;const pos=angle%100;if(pos>=42&&pos<=58){$('calState'+i).textContent='SINCRONIZADO ✓';$('calState'+i).style.color='#7cf0b0';stage++;if(stage===3){clearInterval(timer);ok('DISTRIBUIDOR CALIBRADO');setTimeout(finish,600)}}else fail('Aguja fuera de la zona verde. Inténtalo de nuevo.')});
