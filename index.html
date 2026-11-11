@@ -712,6 +712,7 @@ if(location.hostname==='127.0.0.1'||location.hostname==='localhost'){
    return {rooms:MAP.rooms.length,corridors:MAP.corridors.length,vents:MAP.vents.length,roomOverlaps:overlaps,obstacles:MAP.obstacles.length};
   },
   collisionProbe(x,y){return {walkable:canWalk(Number(x),Number(y)),furniture:collidesFurniture(Number(x),Number(y))}},
+  spawnAudit(count=15){const pts=getCafeteriaSpawnPoints(Math.max(1,Math.min(15,Number(count)||15)));return {points:pts,minimumDistance:Math.min(...pts.flatMap((p,i)=>pts.slice(i+1).map(q=>Math.hypot(p.x-q.x,p.y-q.y)))),walkable:pts.every(p=>canWalk(p.x,p.y)),centerExcluded:pts.every(p=>Math.hypot(p.x-61,p.y-35)>3.4)}},
   shadowProbe(x,y,radius=6.7){const pts=visibilityPolygon(Number(x),Number(y),Number(radius));return {segments:MAP_OCCLUSION_SEGMENTS.length,points:pts.length,occludedRays:pts.filter(q=>Math.hypot(q[0]-Number(x),q[1]-Number(y))<Number(radius)-.12).length}},
   shadowGeometryAudit(){return shadowGeometryAudit()},
   doorAccessAudit(){
