@@ -355,6 +355,54 @@ test('renderer del mapa: Canvas 2D dibuja las salas y pasillos sin excepciones',
   }
 });
 
+test('Seguridad: C abre cuatro cámaras simultáneas con imagen en vivo limitada a cada sala', async ({browser}) => {
+  test.setTimeout(45000);
+  const {context,page}=await openAsGuest(browser);
+  const errors=[];
+  page.on('pageerror',err=>errors.push(err.message));
+  page.on('console',msg=>{if(msg.type()==='error'&&/cctv|security|camera|Fallo de las cuatro cámaras/i.test(msg.text()))errors.push(msg.text())});
+  try {
+    await page.locator('#explore').click();
+    await expect(page.locator('#game')).toBeVisible();
+    await page.keyboard.press('c');
+    await expect(page.locator('#securityPanel')).toHaveClass(/hidden/);
+    const pos=await page.evaluate(()=>window.__STARSHIP_TEST__.prepareSecurityCameraTest());
+    expect(pos.inRoom).toBe(true);
+    await expect(page.locator('#securityBtn')).toBeVisible();
+    await page.keyboard.press('c');
+    const panel=page.locator('#securityPanel');
+    await expect(panel).toBeVisible();
+    await expect(panel.locator('.security-feed-card')).toHaveCount(4);
+    await expect(panel.locator('canvas[data-camera]')).toHaveCount(4);
+    const seeded=await page.evaluate(()=>window.__STARSHIP_TEST__.seedSecurityCameraTargets());
+    expect(seeded).toHaveLength(4);
+    await page.waitForTimeout(280);
+    const audit=await page.evaluate(()=>window.__STARSHIP_TEST__.securityCameraAudit());
+    expect(audit.open).toBe(true);
+    expect(audit.rooms).toEqual(['cafeteria','admin','oxygen','reactor']);
+    for(let i=0;i<4;i++){
+      expect(audit.rendered[i].rendered,'La cámara '+(i+1)+' debe renderizar').toBe(true);
+      expect(audit.rendered[i].room).toBe(audit.rooms[i]);
+      expect(audit.rendered[i].players).toContain(seeded[i]);
+      for(let j=0;j<4;j++)if(j!==i)expect(audit.rendered[i].players).not.toContain(seeded[j]);
+      expect(audit.rendered[i].players).not.toContain('__cctv_corridor__');
+      expect(audit.rendered[i].players).not.toContain('__cctv_in_vent__');
+      expect(audit.frameSizes[i][0]).toBeGreaterThan(100);
+      expect(audit.frameSizes[i][1]).toBeGreaterThan(80);
+    }
+    await page.setViewportSize({width:390,height:844});
+    const mobile=await page.evaluate(()=>window.__STARSHIP_TEST__.securityCameraAudit());
+    expect(mobile.frameSizes.every(([w,h])=>w>80&&h>70)).toBe(true);
+    await page.keyboard.press('c');
+    await expect(panel).toHaveClass(/hidden/);
+    await page.keyboard.press('c');
+    await expect(panel).toBeVisible();
+    await page.locator('#securityClose').click();
+    await expect(panel).toHaveClass(/hidden/);
+    expect(errors).toEqual([]);
+  } finally { await context.close(); }
+});
+
 test('gameplay: las nueve modalidades de minijuego funcionan con IDs online', async ({browser}) => {
   test.setTimeout(120000);
   const {context,page}=await openAsGuest(browser);
