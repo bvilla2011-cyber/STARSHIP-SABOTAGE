@@ -82,3 +82,11 @@
 @keyframes ssV3SpinIn{from{transform:rotate(-12deg) scale(.5)}to{transform:rotate(0) scale(1)}}
 @media(max-width:620px){#modal.task-modal .medscan-console{flex-direction:column}#modal.task-modal .scan-silhouette{min-height:180px;transform:scale(.75);margin:-20px 0}#modal.task-modal .cells-grid{gap:4px}#modal.task-modal .cell-energy{font-size:32px}#modal.task-modal .cell button{font-size:8px}#game #hud #actions{max-width:53%}}
 @media(prefers-reduced-motion:reduce){.hero-side:after,#roleReveal .role-card,.skin-card,.pulse-spectrum i,#game #contextActions #emergency{animation:none!important} }
+
+/* Keep every monguito visible in the role assignment (up to fifteen players). */
+#roleReveal .role-reveal-crew{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px!important;justify-items:center;align-content:center;max-width:1080px;min-height:0!important;max-height:56vh;overflow:visible;margin:8px auto 0}
+#roleReveal .role-card{width:100%!important;max-width:100%!important;min-width:0;padding:5px!important}
+#roleReveal .role-card-avatar{height:clamp(82px,14vh,138px)!important}
+#roleReveal .role-card-name{font-size:clamp(8px,1vw,11px)!important;letter-spacing:0!important;padding:5px 3px!important;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;width:100%}
+#roleReveal .role-card-loadout{display:none!important}
+@media(max-width:680px){#roleReveal .role-reveal-crew{grid-template-columns:repeat(4,minmax(0,1fr));gap:3px!important;max-height:61vh}#roleReveal .role-card-avatar{height:clamp(54px,9vh,79px)!important}#roleReveal .role-card-name{font-size:8px!important;padding:4px 2px!important}#roleReveal .role-card{padding:2px!important}}
