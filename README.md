@@ -2,7 +2,7 @@
 
 Juego original de deducción social para navegador, con arte procedural 2D/2.5D, tripulantes e impostores, tareas, fantasmas, sabotajes, reuniones y cosméticos persistentes.
 
-[Jugar](https://bvilla2011-cyber.github.io/STARSHIP-SABOTAGE/?v=4.0.0) · [Informe de la versión](docs/RELEASE-4.0.md)
+[Jugar](https://bvilla2011-cyber.github.io/STARSHIP-SABOTAGE/?v=4.0.0-r2) · [Informe de la versión](docs/RELEASE-4.0.md)
 
 ## Reglas y mapa
 
@@ -97,6 +97,6 @@ Esta prueba utiliza el proyecto Appwrite real y crea usuarios y una sala tempora
 
 ## Publicación
 
-La rama `development/starship-v4` ejecuta la revisión completa. `main` publica únicamente después de superar validación de fuente, pruebas de reglas, Chromium y compatibilidad Firefox/WebKit. `tools/package-site.cjs` empaqueta solo recursos estáticos. Cada referencia de recurso de la versión utiliza `v=4.0.0`; `version.json` identifica el protocolo 4.
+La rama `development/starship-v4` ejecuta la revisión completa. `main` publica únicamente después de superar validación de fuente, pruebas de reglas, Chromium y compatibilidad Firefox/WebKit. `tools/package-site.cjs` empaqueta solo recursos estáticos. Cada referencia de recurso de la revisión final utiliza `v=4.0.0-r2`; `version.json` identifica el protocolo 4.
 
 El informe de versión distingue comprobaciones ejecutadas, inspecciones y limitaciones de entorno. Las capturas y trazas de CI se conservan como artefactos de revisión.

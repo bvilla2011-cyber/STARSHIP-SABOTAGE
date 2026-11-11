@@ -40,6 +40,7 @@ La revisión de referencia se centra en el modo clásico de deducción social. S
 - Appwrite rechaza cabeceras personalizadas reservadas; ahora se utiliza la identidad autenticada que inyecta la plataforma.
 - Las transacciones exigen una duración mínima de 60 segundos; se corrigió ese parámetro.
 - La nueva tienda consultaba un ajuste antes de inicializarlo; se corrigió el orden de arranque.
+- Los botones de Sistemas y Mapa se superponían; ahora comparten un grupo de controles que distribuye el espacio. La prueba táctil pulsa ambos botones.
 - El acceso en móvil horizontal no podía desplazarse hasta el botón de invitado; se corrigió el contenedor.
 - Los residuos del minijuego de filtro tenían movimiento continuo que dificultaba pulsarlos; los objetivos interactivos son estables.
 - La comprobación de victoria podía ignorar a jugadores dentro del margen de reconexión.
@@ -83,4 +84,4 @@ Las capturas de CCTV y ajustes móviles se revisaron visualmente. Las trazas y c
 
 La integración estable se publica mediante el flujo obligatorio de [validación y Pages](https://github.com/bvilla2011-cyber/STARSHIP-SABOTAGE/actions/workflows/pages.yml). El backend utiliza `starship-authority`, protocolo 4, en el proyecto original; no se modificó PADELUM. La versión activa del backend que superó la prueba real es `6af4c02587472b77abee`.
 
-Enlace de la versión: [STARSHIP SABOTAGE 4.0](https://bvilla2011-cyber.github.io/STARSHIP-SABOTAGE/?v=4.0.0). `version.json` permite comprobar la versión pública. El historial de GitHub conserva la implementación, las correcciones de regresiones y este informe; el resultado de Pages está registrado en Actions.
+Enlace de la versión: [STARSHIP SABOTAGE 4.0](https://bvilla2011-cyber.github.io/STARSHIP-SABOTAGE/?v=4.0.0-r2). `version.json` permite comprobar la versión pública. El historial de GitHub conserva la implementación, las correcciones de regresiones y este informe; el resultado de Pages está registrado en Actions.
