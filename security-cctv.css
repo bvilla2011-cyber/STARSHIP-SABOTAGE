@@ -1,0 +1,60 @@
+/* STARSHIP SECURITY CENTER — 4 SIMULTANEOUS REAL-TIME FEEDS */
+#securityPanel{
+ position:fixed!important;inset:0!important;top:0!important;left:0!important;
+ width:100%!important;height:100dvh!important;max-height:none!important;max-width:none!important;
+ z-index:999!important;display:flex!important;flex-direction:column!important;gap:9px!important;
+ padding:clamp(10px,2vw,22px)!important;margin:0!important;
+ border:none!important;border-radius:0!important;
+ background:radial-gradient(ellipse at 50% 15%,#1b4652,#071823 60%,#020b12 100%)!important;
+ box-shadow:inset 0 0 90px #000e!important;overflow:hidden!important;isolation:isolate;
+}
+#securityPanel.hidden{display:none!important}
+#securityPanel::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.28;
+ background:repeating-linear-gradient(90deg,transparent 0 98px,#adf4f70c 99px 100px),
+ repeating-linear-gradient(0deg,transparent 0 98px,#adf4f70c 99px 100px)}
+#securityPanel .security-control-head{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;
+ gap:14px;flex:0 0 auto;padding:5px 1px 10px;border-bottom:1px solid #77dfe76a;min-height:49px}
+#securityPanel .security-control-head h2{font:900 clamp(15px,2.2vw,23px)/1.1 system-ui,sans-serif;
+ letter-spacing:2px;color:#e6feff;margin:0;text-shadow:0 0 16px #75d6ff56}
+#securityPanel .security-control-head p{font:800 10px system-ui;letter-spacing:2px;color:#94dae2;margin:5px 0 0}
+#securityPanel .security-control-head button{height:40px;min-width:134px;padding:7px 12px;
+ background:linear-gradient(115deg,#274454,#112535);border:1px solid #95ecf4;
+ color:#edffff;font:900 11px system-ui;letter-spacing:1px;border-radius:7px}
+#securityPanel .security-control-head button:hover{background:#2e6c7a;border-color:#c2ffff}
+#securityPanel .security-feed-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));
+ width:100%;flex:1 1 auto;min-height:0;min-width:0;gap:clamp(5px,1.2vh,12px);position:relative;z-index:2}
+#securityPanel .security-feed-card{position:relative;min-width:0;min-height:0;overflow:hidden;
+ display:flex;flex-direction:column;border:1px solid #7cb7c475;border-radius:10px;
+ background:linear-gradient(130deg,#112c3a,#020d18);
+ box-shadow:inset 0 0 28px #000a,0 8px 16px #0008}
+#securityPanel .security-feed-card::after{content:"";position:absolute;inset:0;pointer-events:none;
+ border:5px solid #050d15b7;border-radius:10px;box-shadow:inset 0 0 24px #0008}
+#securityPanel .security-feed-card .security-feed-top{display:flex;justify-content:space-between;align-items:center;
+ gap:8px;flex:0 0 auto;padding:6px 11px;background:linear-gradient(90deg,#0c2737,#071726);
+ color:#e8fdff;border-bottom:1px solid #80c8d05b;z-index:3}
+#securityPanel .security-feed-card .security-feed-top strong{font:900 clamp(10px,1.1vw,13px)/1.2 system-ui;
+ letter-spacing:1.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#securityPanel .security-feed-card .security-feed-top small{font:900 9px system-ui;letter-spacing:1.2px;
+ color:#a8ffe0;white-space:nowrap}
+#securityPanel .security-feed-card .security-feed-top small::before{content:"";display:inline-block;width:6px;height:6px;
+ border-radius:50%;background:#65f0ab;box-shadow:0 0 8px #5ef99e;margin-right:6px;
+ animation:ssSecurityPulse 1.35s ease-in-out infinite alternate}
+#securityPanel .security-feed-card canvas{width:100%;height:100%;min-width:0;min-height:0;flex:1 1 auto;
+ display:block;object-fit:contain;background:#010a10}
+#securityPanel .security-control-foot{z-index:2;position:relative;display:flex;justify-content:space-between;align-items:center;
+ flex:0 0 auto;gap:12px;padding:0 3px;font:800 10px system-ui;letter-spacing:1.2px;color:#92d6e0}
+#securityPanel .security-control-foot span:last-child{color:#dff7dd}
+@keyframes ssSecurityPulse{to{opacity:.3;transform:scale(.75)}}
+@media(max-width:680px){
+ #securityPanel{padding:8px!important;gap:5px!important}
+ #securityPanel .security-control-head{min-height:43px;padding:4px 1px 7px;gap:5px}
+ #securityPanel .security-control-head h2{font-size:13px;letter-spacing:1px}
+ #securityPanel .security-control-head p{font-size:8px;letter-spacing:1px}
+ #securityPanel .security-control-head button{min-width:84px;height:36px;padding:5px;font-size:9px}
+ #securityPanel .security-feed-card .security-feed-top{padding:4px 6px}
+ #securityPanel .security-feed-card .security-feed-top strong{font-size:9px;letter-spacing:.5px}
+ #securityPanel .security-feed-card .security-feed-top small{font-size:8px}
+ #securityPanel .security-control-foot{font-size:8px;letter-spacing:0}
+ #securityPanel .security-feed-grid{gap:5px}
+}
+@media(prefers-reduced-motion:reduce){#securityPanel .security-feed-card .security-feed-top small::before{animation:none}}
