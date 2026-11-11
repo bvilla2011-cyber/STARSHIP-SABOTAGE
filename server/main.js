@@ -1,5 +1,5 @@
 import {createRequire} from 'node:module';
-import {randomInt,createHash} from 'node:crypto';
+import {randomInt,createHash,randomUUID} from 'node:crypto';
 const require=createRequire(import.meta.url);
 const Core=require('./core.cjs');
 const DB='starship_db',ROOMS='rooms_v4',PROFILES='profiles_v4',FRAMES='frames_v4',SIGNALS='signals_v4';
@@ -36,6 +36,14 @@ export default async function main({req,res,error}){
    }catch(e){await api('/tablesdb/transactions/'+tx.$id,'PATCH',{rollback:true}).catch(()=>{});if(e.status===409&&attempt<5){await pause(randomInt(15,70)*(attempt+1));continue;}throw e;}
   }
  };
+ let releaseMembership=null;
+ const acquireMembership=async(code)=>{
+  const lockId='acl_'+code,token=randomUUID(),started=Date.now();
+  while(Date.now()-started<12000){
+   try{await create(ROOMS,lockId,{payload:JSON.stringify({token,expires:Date.now()+60000}),version:1,privacy:'private',phase:'lease'});return async()=>{try{const row=await read(ROOMS,lockId);if(JSON.parse(row.payload).token===token)await api(rowPath(ROOMS,lockId),'DELETE');}catch(e){if(e.status!==404)error('Membership lease release failed.');}};}catch(e){if(e.status!==409)throw e;try{const existing=await read(ROOMS,lockId);if(JSON.parse(existing.payload).expires<Date.now())await api(rowPath(ROOMS,lockId),'DELETE');}catch(readError){if(readError.status!==404)throw readError;}await pause(randomInt(80,180));}
+  }
+  Core.fail('La sala está actualizando sus conexiones. Inténtalo de nuevo.',503);
+ };
  try{
   Core.assert(jwt,'Inicia sesión para continuar.',401);
   const uid=req.headers['x-appwrite-user-id'];Core.assert(uid,'Sesión no válida.',401);
@@ -48,7 +56,7 @@ export default async function main({req,res,error}){
   const frameData=(room,p)=>({roomId:room.code,payload:JSON.stringify({id:p.id,x:p.x,y:p.y,moveAt:p.moveAt,lastSeen:p.lastSeen,teleport:p.teleport,moving:p.moving,faceX:p.faceX,lastInputSeq:p.lastInputSeq||0,lastActive:p.lastActive||p.lastSeen,inVent:p.inVent,at:Date.now()})});
   const readPermissions=(room)=>Object.values(room.players).filter(p=>!p.left&&!room.banned.includes(p.id)).map(p=>'read("user:'+p.id+'")');
   const putSignal=async(room,p,tx)=>{const permissions=[...readPermissions(room),'update("user:'+p.id+'")'];try{await api('/tablesdb/'+DB+'/tables/'+SIGNALS+'/rows','POST',{rowId:frameId(room.code,p.id),data:{roomId:room.code,userId:p.id,payload:'{}'},permissions,transactionId:tx});}catch(e){if(e.status!==409)throw e;await api(rowPath(SIGNALS,frameId(room.code,p.id)),'PATCH',{permissions,transactionId:tx});}};
-  const putFrame=async(room,p,tx,rows)=>{const fid=frameId(room.code,p.id),data=frameData(room,p),permissions=readPermissions(room);if(rows?.some(r=>r.$id===fid))return api(rowPath(FRAMES,fid),'PATCH',{data,permissions,...(tx?{transactionId:tx}:{})});try{return await api('/tablesdb/'+DB+'/tables/'+FRAMES+'/rows','POST',{rowId:fid,data,permissions,...(tx?{transactionId:tx}:{})});}catch(e){if(e.status!==409)throw e;return api(rowPath(FRAMES,fid),'PATCH',{data,permissions,...(tx?{transactionId:tx}:{})});}};
+  const putFrame=async(room,p,tx,rows)=>{const fid=frameId(room.code,p.id),data=frameData(room,p),permissions=readPermissions(room);if(rows?.some(r=>r.$id===fid))return api(rowPath(FRAMES,fid),'PATCH',{data,...(tx?{transactionId:tx}:{})});try{return await api('/tablesdb/'+DB+'/tables/'+FRAMES+'/rows','POST',{rowId:fid,data,permissions,...(tx?{transactionId:tx}:{})});}catch(e){if(e.status!==409)throw e;return api(rowPath(FRAMES,fid),'PATCH',{data,...(tx?{transactionId:tx}:{})});}};
   if(body.action==='sync'){
    const code=String(body.code||'').toUpperCase();Core.assert(/^[A-Z0-9]{6}$/.test(code),'Código incorrecto.');
    const [row,frames]=await Promise.all([read(ROOMS,code),readFrames(code)]);let room=JSON.parse(row.payload);applyFrames(room,frames);
@@ -100,16 +108,15 @@ export default async function main({req,res,error}){
    return res.json({ok:true,state:Core.snapshot(room,uid,now),profile:profileView(),serverTime:now});
   }
   const code=String(body.code||'').toUpperCase();Core.assert(/^[A-Z0-9]{6}$/.test(code),'Introduce un código de 6 caracteres.');
-  let finalState,result;
+  const membershipChange=['join','leave','kick'].includes(body.action);if(membershipChange)releaseMembership=await acquireMembership(code);
+  let finalState,result,projectedRoom,projectedFrames;
   await transaction(ROOMS,code,async(room,tx)=>{
    const currentNow=Date.now();
    if(body.action==='join'){await write(PROFILES,uid,{version:currentNow},tx);profile=JSON.parse((await read(PROFILES,uid,tx)).payload);}
    if(body.action==='join'&&profile.activeRoom&&profile.activeRoom!==code){const old=await read(ROOMS,profile.activeRoom).catch(()=>null);if(old){const r=JSON.parse(old.payload);Core.assert(!r.players[uid]||r.players[uid].left||r.phase==='ended'||currentNow-r.updatedAt>120000,'Tu cuenta está conectada a otra sala.');}}
    const frames=await readFrames(code);applyFrames(room,frames);
    result=Core.action(room,uid,{...body,profile:appearance},currentNow);
-   if(body.action!=='leave')await putFrame(room,room.players[uid],tx,frames);
-   if(body.action==='join')await putSignal(room,room.players[uid],tx);
-   if(['join','leave','kick'].includes(body.action)){const permissions=readPermissions(room);for(const player of Object.values(room.players)){try{await api(rowPath(SIGNALS,frameId(code,player.id)),'PATCH',{permissions:[...permissions,...(!player.left&&!room.banned.includes(player.id)?['update(\"user:'+player.id+'\")']:[])],transactionId:tx});}catch(e){if(e.status!==404)throw e;}}for(const frame of frames){if(frame.$id===frameId(code,uid)&&body.action!=='leave')continue;await api(rowPath(FRAMES,frame.$id),'PATCH',{permissions,transactionId:tx});}}
+   projectedRoom=room;projectedFrames=frames;
    // Room rewards and wallet changes are committed in the same transaction.
    const earned=room.rewards[uid]||0,paid=room.paid[uid]||0;
    if(earned>paid||['join','leave'].includes(body.action)){
@@ -121,6 +128,20 @@ export default async function main({req,res,error}){
    await write(ROOMS,code,{phase:room.phase,privacy:room.settings.privacy},tx);
    if(body.action!=='leave')finalState=Core.snapshot(room,uid,currentNow);
   });
+  // Frame data and peer ACLs are projections after the authoritative room
+  // transaction. Never include continuously changing movement rows in that
+  // transaction, otherwise every join can conflict with normal heartbeats.
+  if(body.action!=='leave')await putFrame(projectedRoom,projectedRoom.players[uid],null,projectedFrames);
+  if(membershipChange){
+   if(body.action==='join')await putSignal(projectedRoom,projectedRoom.players[uid]);
+   const params=new URLSearchParams();params.append('queries[]',q('equal','roomId',[code]));params.append('queries[]',q('limit',null,[100]));
+   const [frames,signals]=await Promise.all([readFrames(code),api('/tablesdb/'+DB+'/tables/'+SIGNALS+'/rows?'+params)]);
+   const permissions=readPermissions(projectedRoom),updates=[];
+   for(const frame of frames)updates.push(api(rowPath(FRAMES,frame.$id),'PATCH',{permissions}));
+   for(const signal of signals.rows||[]){const player=projectedRoom.players[signal.userId],owner=player&&!player.left&&!projectedRoom.banned.includes(player.id)?['update("user:'+player.id+'")']:[];updates.push(api(rowPath(SIGNALS,signal.$id),'PATCH',{permissions:[...permissions,...owner]}));}
+   await Promise.all(updates);
+  }
   return res.json({ok:true,state:finalState,...result,profile:profileView(),serverTime:Date.now()});
  }catch(e){if((e.status||500)>=500)error('Authority failed: '+e.message);return res.json({ok:false,message:e.status&&e.status<500?e.message:'El servidor no ha podido completar la acción. Inténtalo de nuevo.',type:e.type||'game_error'},e.status||500);}
+ finally{if(releaseMembership)await releaseMembership();}
 }
