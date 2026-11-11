@@ -90,3 +90,21 @@
 #roleReveal .role-card-name{font-size:clamp(8px,1vw,11px)!important;letter-spacing:0!important;padding:5px 3px!important;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;width:100%}
 #roleReveal .role-card-loadout{display:none!important}
 @media(max-width:680px){#roleReveal .role-reveal-crew{grid-template-columns:repeat(4,minmax(0,1fr));gap:3px!important;max-height:61vh}#roleReveal .role-card-avatar{height:clamp(54px,9vh,79px)!important}#roleReveal .role-card-name{font-size:8px!important;padding:4px 2px!important}#roleReveal .role-card{padding:2px!important}}
+
+
+/* Free-form multiplayer lobby chat stored with each player's own data. */
+.lobby-chat-panel{position:relative;background:linear-gradient(155deg,#102a3fe8,#061321f4);border:1px solid #86ddea79;border-radius:13px;padding:10px;margin:12px 0;box-shadow:inset 0 1px 0 #dffaff14,0 8px 23px #0007}
+.lobby-chat-header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 5px 9px;border-bottom:1px solid #c8ecf02b;font-size:10px;letter-spacing:1.6px;color:#bdf6ff}
+.lobby-chat-header small{font-size:8px;letter-spacing:1px;color:#7fe7d3}
+.lobby-chat-log{height:clamp(100px,17vh,175px);overflow:auto;padding:8px 5px;scrollbar-color:#4a92ad #071722}
+.lobby-chat-message{display:flex;gap:9px;align-items:flex-start;background:#152f43a6;border:1px solid #87d7eb22;border-radius:9px;padding:8px;margin:5px 0;animation:ssV3MessageIn .2s ease-out both}
+.lobby-chat-avatar{display:inline-block;flex:0 0 13px;width:13px;height:13px;margin-top:5px;border:2px solid #e9faff;border-radius:5px;background:var(--chat-color,#8adee9);box-shadow:0 0 10px var(--chat-color,#8adee9)}
+.lobby-chat-message>span:last-child{display:block;min-width:0;flex:1}
+.lobby-chat-message b{display:inline-block;font-size:11px;color:#e7faff;margin-right:9px}
+.lobby-chat-message small{display:inline-block;font-size:9px;color:#9bd6e2}
+.lobby-chat-message em{display:block;font-style:normal;font-size:12px;line-height:1.4;color:#f0ffff;margin-top:3px;overflow-wrap:anywhere}
+.lobby-chat-compose{display:flex;gap:7px;margin-top:5px}
+.lobby-chat-compose input{flex:1;min-width:0;padding:10px 11px;background:#071b2b;border:1px solid #95dbec;color:#effaff;border-radius:8px;font-size:12px}
+.lobby-chat-compose input:focus{outline:1px solid #a4ffeb;box-shadow:0 0 13px #75eafa36}
+.lobby-chat-compose button{flex:0 0 auto;padding:9px 10px;font-size:10px;background:linear-gradient(115deg,#186d7e,#123a4e);border:1px solid #9deaff}
+@media(max-width:520px){.lobby-chat-header{flex-wrap:wrap}.lobby-chat-header small{font-size:7px}.lobby-chat-panel{margin:7px 0;padding:7px}.lobby-chat-log{height:116px}.lobby-chat-compose button{padding:8px}}
