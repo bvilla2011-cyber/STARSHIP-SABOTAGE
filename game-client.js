@@ -235,7 +235,7 @@ async function joinRoom(){try{makeMe();const code=$('code').value.trim().toUpper
 function makeMe(){applyMonguitoColor();if(!authUser?.$id)throw new Error('Inicia sesión o entra como invitado antes de jugar.');playerId=authUser.$id;me={id:playerId,name:$('name').value.trim().slice(0,16)||'Tripulante',color:$('color').value,cosmetics:getLoadout(),x:SPAWN_X,y:SPAWN_Y,alive:true,ready:true,role:'crew',done:[]}}
 async function enterRoom(){throw new Error('Actualiza el juego para entrar en una sala v4.');}
 let roomAclSignature='';async function syncRoomAccess(){}
-let pollInFlight=false;async function pollRoom(){if(pollInFlight||!roomId||soloMode)return;pollInFlight=true;try{await authority('sync',{code:roomId,position:networkPosition()});v4LastSuccess=Date.now();setConnectionState('online');}catch(e){setConnectionState('reconnecting');if(e.status===403||e.status===404){clearTimeout(poll);poll=null;toast(e.message);return}}finally{pollInFlight=false;if(roomId&&!soloMode)poll=setTimeout(pollRoom,document.hidden?2000:450)}}
+let pollInFlight=false;async function pollRoom(){if(pollInFlight||!roomId||soloMode)return;pollInFlight=true;try{await authority('sync',{code:roomId,position:networkPosition()});v4LastSuccess=Date.now();setConnectionState('online');}catch(e){setConnectionState('reconnecting');if(e.status===403||e.status===404){clearTimeout(poll);poll=null;toast(e.message);return}}finally{pollInFlight=false;if(roomId&&!soloMode)poll=setTimeout(pollRoom,document.hidden?2500:900+Math.random()*120)}}
 function avatarAppearance(q){return window.StarshipVisual.appearance(q||{},SHOP_ITEMS)}
 function refreshUniversalHero(){const hero=$('heroMonguito');if(!hero)return;let holder=hero.querySelector('.universal-hero');if(!holder){holder=document.createElement('div');holder.className='universal-hero';hero.appendChild(holder)}holder.innerHTML=window.StarshipVisual.svg(avatarAppearance({color:$('color')?.value||'#e85d75',cosmetics:getLoadout(),name:'MONGUITO'}),{motion:'idle'})}
 let lobbyLastChatStamp='';
@@ -1026,7 +1026,67 @@ let v4ClockOffset=0,v4Queue=Promise.resolve(),v4Jwt=null,v4TaskSession=null,v4La
 const v4Samples=[],v4SeenEvents=new Set();
 const v4Preferences=Object.assign({master:.65,music:.18,effects:.8,quality:'medium',reduceMotion:false,contrast:false,scale:1,language:localStorage.getItem('starship_language')||'es'},JSON.parse(localStorage.getItem('starship_settings4')||'{}'));
 const tr=text=>window.StarshipI18n?.translate(String(text),gameLang)||String(text);
-function networkPosition(){const p=gameState?.players?.[playerId];return p?{x:p.x,y:p.y,moving:!!p._moving,faceX:p._faceX||1}:undefined;}
+// Room-only realtime frames back up a 20 Hz peer movement stream. All critical
+// actions still use validated server positions; peer packets carry no roles.
+const v4Peers=new Map(),v4PeerFrames=new Map(),v4Signals={},v4SignalSeen=new Map();
+let v4Realtime=null,v4FrameSubscription=null,v4SignalSubscription=null,v4SignalRow='',v4SignalFlush=0,v4PeerTicker=0;
+async function startRealtime4(){
+ if(!AppwriteSDK?.Realtime||soloMode||!roomId)return;
+ try{
+  if(v4FrameSubscription)await v4FrameSubscription.close();if(v4SignalSubscription)await v4SignalSubscription.close();
+  v4Realtime=v4Realtime||new AppwriteSDK.Realtime(new Client().setEndpoint(ENDPOINT).setProject(PROJECT));
+  v4FrameSubscription=await v4Realtime.subscribe('tablesdb.'+DB+'.tables.frames_v4.rows',event=>{
+   const row=event.payload;if(row?.roomId!==roomId)return;let frame;try{frame=JSON.parse(row.payload)}catch(e){return;}applyRealtimeFrame4(frame,false);
+  });
+  v4SignalSubscription=await v4Realtime.subscribe('tablesdb.'+DB+'.tables.signals_v4.rows',event=>receiveSignals4(event.payload));
+  const rows=await getDb().listRows({databaseId:DB,tableId:'signals_v4',queries:[Query.equal('roomId',roomId),Query.limit(100)]});
+  for(const row of rows.rows){if(row.userId===playerId)v4SignalRow=row.$id;else receiveSignals4(row);}
+  updatePeers4();
+  clearInterval(v4PeerTicker);v4PeerTicker=setInterval(()=>{
+   const p=gameState?.players?.[playerId];if(!p||gameState.phase!=='playing'||gameState.meeting||document.hidden)return;
+   const packet=JSON.stringify({x:p.x,y:p.y,teleport:p.teleport,moving:!!p._moving,faceX:p._faceX||1,at:Date.now()+v4ClockOffset});
+   for(const peer of v4Peers.values())if(peer.channel?.readyState==='open'&&peer.channel.bufferedAmount<8192)peer.channel.send(packet);
+  },50);
+ }catch(e){console.warn('Realtime fallback:',e.message);}
+}
+function applyRealtimeFrame4(frame,peer){
+ const p=gameState?.players?.[frame.id];if(!p||frame.id===playerId||frame.teleport!==p.teleport||gameState.phase!=='playing'||gameState.meeting)return;
+ if(!Number.isFinite(frame.x)||!Number.isFinite(frame.y)||frame.x<0||frame.y<0||frame.x>MAP.w||frame.y>MAP.h)return;
+ const now=performance.now(),previous=v4PeerFrames.get(frame.id),elapsed=previous?Math.max(.03,(now-previous.receivedAt)/1000):1;
+ if(peer&&previous&&Math.hypot(frame.x-previous.x,frame.y-previous.y)>(gameState.settings.speed||5.2)*Math.min(elapsed,2)+1)return;
+ if(peer){v4PeerFrames.set(frame.id,{...frame,receivedAt:now});}
+ else if(previous&&now-previous.receivedAt<1200)return;
+ const oldX=p._targetX??p.x,oldY=p._targetY??p.y,dt=Math.max(.04,(now-(p._receivedAt||now-450))/1000);
+ p._targetX=frame.x;p._targetY=frame.y;p._receivedAt=now;p._moving=!!frame.moving;p._faceX=frame.faceX||p._faceX;
+ p._netVx=frame.moving?Math.max(-7,Math.min(7,(frame.x-oldX)/dt)):0;p._netVy=frame.moving?Math.max(-7,Math.min(7,(frame.y-oldY)/dt)):0;
+}
+function updatePeers4(){
+ if(!v4SignalRow||!window.RTCPeerConnection||!gameState||soloMode)return;
+ for(const p of Object.values(gameState.players)){if(p.id===playerId||v4Peers.has(p.id)||!p.connected)continue;makePeer4(p.id,p.id>playerId);}
+ for(const [uid,peer] of v4Peers)if(!gameState.players[uid]){peer.pc.close();v4Peers.delete(uid);v4PeerFrames.delete(uid);}
+}
+function wireChannel4(peer,uid,channel){
+ peer.channel=channel;channel.onmessage=event=>{if(typeof event.data!=='string'||event.data.length>512)return;try{const frame=JSON.parse(event.data);applyRealtimeFrame4({...frame,id:uid},true)}catch(e){}};
+ channel.onclose=()=>v4PeerFrames.delete(uid);
+}
+async function makePeer4(uid,initiator){
+ const pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]}),peer={pc,channel:null,created:Date.now()};v4Peers.set(uid,peer);
+ pc.ondatachannel=event=>wireChannel4(peer,uid,event.channel);
+ pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed'||pc.connectionState==='closed'){v4PeerFrames.delete(uid);if(v4Peers.get(uid)===peer){v4Peers.delete(uid);setTimeout(updatePeers4,3000);}}};
+ try{if(initiator){wireChannel4(peer,uid,pc.createDataChannel('movement',{ordered:false,maxRetransmits:0}));await pc.setLocalDescription(await pc.createOffer());await gatherIce4(pc);sendSignal4(uid,pc.localDescription);}}catch(e){pc.close();v4Peers.delete(uid);}
+ return peer;
+}
+function gatherIce4(pc){if(pc.iceGatheringState==='complete')return Promise.resolve();return new Promise(resolve=>{const done=()=>{pc.removeEventListener('icegatheringstatechange',change);resolve();},change=()=>{if(pc.iceGatheringState==='complete')done();};pc.addEventListener('icegatheringstatechange',change);setTimeout(done,1800);});}
+function sendSignal4(uid,description){v4Signals[uid]={type:description.type,sdp:description.sdp,at:Date.now()};clearTimeout(v4SignalFlush);v4SignalFlush=setTimeout(async()=>{if(!v4SignalRow)return;try{await getDb().updateRow({databaseId:DB,tableId:'signals_v4',rowId:v4SignalRow,data:{payload:JSON.stringify(v4Signals)}});}catch(e){console.warn('Peer signalling fallback:',e.message);}},120);}
+async function receiveSignals4(row){
+ if(!row||row.roomId!==roomId||row.userId===playerId||!gameState?.players?.[row.userId])return;
+ let data;try{data=JSON.parse(row.payload)}catch(e){return;}const signal=data[playerId],uid=row.userId;
+ if(!signal||!['offer','answer'].includes(signal.type)||typeof signal.sdp!=='string'||signal.sdp.length>12000||Date.now()-signal.at>90000||v4SignalSeen.get(uid)===signal.at)return;
+ v4SignalSeen.set(uid,signal.at);let peer=v4Peers.get(uid);
+ try{if(!peer)peer=await makePeer4(uid,false);if(signal.type==='offer'){await peer.pc.setRemoteDescription({type:'offer',sdp:signal.sdp});await peer.pc.setLocalDescription(await peer.pc.createAnswer());await gatherIce4(peer.pc);sendSignal4(uid,peer.pc.localDescription);}else if(peer.pc.signalingState==='have-local-offer')await peer.pc.setRemoteDescription({type:'answer',sdp:signal.sdp});}catch(e){console.warn('Peer negotiation fallback:',e.message);}
+}
+
+function networkPosition(){const p=gameState?.players?.[playerId];return p?{x:p.x,y:p.y,teleport:p.teleport,moving:!!p._moving,faceX:p._faceX||1}:undefined;}
 function authority(action,extra={}){
  const execute=async()=>{
   if(!authUser?.$id)throw Error(tr('Inicia sesión para continuar.'));
@@ -1049,7 +1109,7 @@ async function gameAction(action,args={}){
  return authority(action,{code:roomId,position:networkPosition(),...args});
 }
 async function enterAuthorityRoom(r){
- soloMode=false;roomId=roomCode=r.state.code;localStorage.setItem('starship_active_room',roomCode);$('roomCode').textContent=roomCode;$('connect').classList.add('hidden');$('lobby').classList.remove('hidden');clearTimeout(poll);poll=setTimeout(pollRoom,450);renderLobby();
+ soloMode=false;roomId=roomCode=r.state.code;localStorage.setItem('starship_active_room',roomCode);$('roomCode').textContent=roomCode;$('connect').classList.add('hidden');$('lobby').classList.remove('hidden');clearTimeout(poll);poll=setTimeout(pollRoom,900);startRealtime4();renderLobby();
 }
 function setConnectionState(state){const el=$('connection4');if(!el)return;const sorted=[...v4Samples].sort((a,b)=>a-b),p95=Math.round(sorted[Math.floor(sorted.length*.95)]||0);el.dataset.state=state;el.textContent=state==='online'?tr('ONLINE')+' · '+Math.round(v4Samples.at(-1)||0)+' ms':tr('RECONECTANDO…');el.title='p95 '+p95+' ms · '+v4Samples.length+' samples';}
 function adoptState4(next,sent){
@@ -1063,7 +1123,7 @@ function adoptState4(next,sent){
    if(!warp){const accepted=sent&&Math.hypot(n.x-sent.x,n.y-sent.y)<.65;const sx=n.x,sy=n.y;n.x=old.x;n.y=old.y;if(sent&&!accepted)v4Correction={x:sx,y:sy};else v4Correction=null;}
    Object.assign(n,{_moving:old._moving,_faceX:old._faceX,_walkPhase:old._walkPhase});
   }else{
-   const nx=n.x,ny=n.y,dt=Math.max(.05,(next.serverTime-(previous?.serverTime||next.serverTime-450))/1000),vx=(nx-(old._netX??old.x))/dt,vy=(ny-(old._netY??old.y))/dt;
+   const peer=v4PeerFrames.get(uid);if(peer&&now-peer.receivedAt<1600&&peer.teleport===n.teleport&&next.phase==='playing'&&!next.meeting){n.x=peer.x;n.y=peer.y;}const nx=n.x,ny=n.y,dt=Math.max(.05,(next.serverTime-(previous?.serverTime||next.serverTime-450))/1000),vx=(nx-(old._netX??old.x))/dt,vy=(ny-(old._netY??old.y))/dt;
    Object.assign(n,{_targetX:nx,_targetY:ny,_netX:nx,_netY:ny,_receivedAt:now,_netVx:n.moving?Math.max(-7,Math.min(7,vx)):0,_netVy:n.moving?Math.max(-7,Math.min(7,vy)):0,_walkPhase:old._walkPhase,_faceX:n.faceX||old._faceX});
    if(!warp){n.x=old.x;n.y=old.y;}
   }
@@ -1083,7 +1143,7 @@ function adoptState4(next,sent){
   $('modal').classList.add('hidden');closeSecurityCameras();finishMatch(next.winner);
  }
  for(const event of next.events||[]){if(v4SeenEvents.has(event.id))continue;v4SeenEvents.add(event.id);if(v4SeenEvents.size>256)v4SeenEvents.delete(v4SeenEvents.values().next().value);if(Date.now()+v4ClockOffset-event.at>5000)continue;window.StarshipAudio?.play(event.type);if(event.type==='sabotage')window.StarshipCinematics?.play('sabotage',{system:event.system,key:event.id});}
- refreshActionAvailability();
+ refreshActionAvailability();updatePeers4();
 }
 function correctLocal4(dt){if(!v4Correction)return;const p=gameState?.players?.[playerId];if(!p){v4Correction=null;return;}const d=Math.hypot(v4Correction.x-p.x,v4Correction.y-p.y),t=1-Math.exp(-12*dt);p.x+=(v4Correction.x-p.x)*t;p.y+=(v4Correction.y-p.y)*t;if(d<.05)v4Correction=null;}
 function refreshActionAvailability(){
