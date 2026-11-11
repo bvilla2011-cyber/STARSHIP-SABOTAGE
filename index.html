@@ -599,7 +599,7 @@ function buildOcclusionSegments(){
   wall(r.x,r.y,r.x,r.y+r.h,r.doors?.filter(d=>d.side==='left'),true);
   wall(r.x+r.w,r.y,r.x+r.w,r.y+r.h,r.doors?.filter(d=>d.side==='right'),true);
  }
- // El mobiliario sigue siendo sólido para el jugador, pero no proyecta sombras.
+ // No furniture casts dynamic visibility shadows.
  // Las aristas de los pasillos se recortan en habitaciones y cruces: así no
  // atraviesan las puertas ni crean paredes invisibles entre corredores conectados.
  const corridors=MAP.corridors||[];
