@@ -709,6 +709,7 @@ if(location.hostname==='127.0.0.1'||location.hostname==='localhost'){
   prepareRepair(type){const ids={lights:'electrical_wires',reactor:'reactor_start',comms:'comms_fix',o2:'o2_filter',doors:'admin_card'},station=MAP.repairs.find(r=>r.id===ids[type]),p=gameState?.players?.[playerId];if(!station||!p)throw new Error('No se puede preparar la reparación '+type);p.role='crew';p.alive=true;p.x=station.x;p.y=station.y;gameState.sabotage={active:true,type,target:station.id,endsAt:0};updateTasks();return station.type},
   prepareVent(id){const v=MAP.vents.find(x=>x.id===id),p=gameState?.players?.[playerId];if(!v||!p)throw new Error('No se puede preparar el conducto '+id);p.role='impostor';p.alive=true;p.inVent=false;p.ventId=null;p.x=v.x;p.y=v.y;$('vent').classList.remove('hidden');return v.room},
   ventPlayerState(){const p=gameState?.players?.[playerId];return p?{inVent:!!p.inVent,ventId:p.ventId||null}:null},
+  ventTargets(){return ventTargetButtons.map(t=>({id:t.id,action:t.action,x:t.x,y:t.y,w:t.w,h:t.h}))},
   allowEmergency(){gameState=gameState||{};gameState.createdAt=Date.now()-21000;gameState.emergencyUsed=gameState.emergencyUsed||{};delete gameState.emergencyUsed[playerId];return true},
   sabotageActive(){return !!gameState?.sabotage?.active},
   geometryAudit(){
