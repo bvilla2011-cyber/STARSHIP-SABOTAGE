@@ -542,7 +542,242 @@
         ]
       }
     ],
-    "obstacles": [],
+    "obstacles": [
+      {
+        "id": "cargo_n_fixture_0",
+        "room": "cargo_n",
+        "kind": "rect",
+        "x": 8.05,
+        "y": 10,
+        "w": 1.35,
+        "h": 1.55
+      },
+      {
+        "id": "cargo_n_fixture_1",
+        "room": "cargo_n",
+        "kind": "rect",
+        "x": 8.05,
+        "y": 12.25,
+        "w": 1.35,
+        "h": 1.55
+      },
+      {
+        "id": "cargo_n_fixture_2",
+        "room": "cargo_n",
+        "kind": "rect",
+        "x": 8.05,
+        "y": 14.5,
+        "w": 1.35,
+        "h": 1.55
+      },
+      {
+        "id": "cargo_n_fixture_3",
+        "room": "cargo_n",
+        "kind": "rect",
+        "x": 20.75,
+        "y": 12.3,
+        "w": 0.65,
+        "h": 3.4
+      },
+      {
+        "id": "comms_n_fixture_4",
+        "room": "comms_n",
+        "kind": "rect",
+        "x": 28.05,
+        "y": 10,
+        "w": 1.15,
+        "h": 8
+      },
+      {
+        "id": "admin_fixture_5",
+        "room": "admin",
+        "kind": "rect",
+        "x": 8.05,
+        "y": 24,
+        "w": 0.85,
+        "h": 1.5
+      },
+      {
+        "id": "admin_fixture_6",
+        "room": "admin",
+        "kind": "rect",
+        "x": 8.05,
+        "y": 26.25,
+        "w": 0.85,
+        "h": 1.5
+      },
+      {
+        "id": "admin_fixture_7",
+        "room": "admin",
+        "kind": "rect",
+        "x": 8.05,
+        "y": 28.5,
+        "w": 0.85,
+        "h": 1.5
+      },
+      {
+        "id": "admin_fixture_8",
+        "room": "admin",
+        "kind": "rect",
+        "x": 20.9,
+        "y": 26.4,
+        "w": 0.55,
+        "h": 2.2
+      },
+      {
+        "id": "electrical_fixture_9",
+        "room": "electrical",
+        "kind": "rect",
+        "x": 28.05,
+        "y": 24,
+        "w": 1.05,
+        "h": 1.35
+      },
+      {
+        "id": "electrical_fixture_10",
+        "room": "electrical",
+        "kind": "rect",
+        "x": 28.05,
+        "y": 26.15,
+        "w": 1.05,
+        "h": 1.35
+      },
+      {
+        "id": "electrical_fixture_11",
+        "room": "electrical",
+        "kind": "rect",
+        "x": 28.05,
+        "y": 28.3,
+        "w": 1.05,
+        "h": 1.35
+      },
+      {
+        "id": "electrical_fixture_12",
+        "room": "electrical",
+        "kind": "rect",
+        "x": 37.9,
+        "y": 26.4,
+        "w": 0.55,
+        "h": 3.2
+      },
+      {
+        "id": "medbay_fixture_13",
+        "room": "medbay",
+        "kind": "rect",
+        "x": 27.85,
+        "y": 38.25,
+        "w": 1.15,
+        "h": 3.1
+      },
+      {
+        "id": "medbay_fixture_14",
+        "room": "medbay",
+        "kind": "rect",
+        "x": 37,
+        "y": 38.25,
+        "w": 1.15,
+        "h": 3.1
+      },
+      {
+        "id": "security_fixture_15",
+        "room": "security",
+        "kind": "rect",
+        "x": 64,
+        "y": 11,
+        "w": 1.65,
+        "h": 1.05
+      },
+      {
+        "id": "security_fixture_16",
+        "room": "security",
+        "kind": "rect",
+        "x": 66,
+        "y": 11,
+        "w": 1.65,
+        "h": 1.05
+      },
+      {
+        "id": "security_fixture_17",
+        "room": "security",
+        "kind": "rect",
+        "x": 68,
+        "y": 11,
+        "w": 1.65,
+        "h": 1.05
+      },
+      {
+        "id": "security_fixture_18",
+        "room": "security",
+        "kind": "rect",
+        "x": 68,
+        "y": 17.5,
+        "w": 4,
+        "h": 0.5
+      },
+      {
+        "id": "navigation_fixture_19",
+        "room": "navigation",
+        "kind": "rect",
+        "x": 8,
+        "y": 54,
+        "w": 13,
+        "h": 1.1
+      },
+      {
+        "id": "shields_fixture_20",
+        "room": "shields",
+        "kind": "rect",
+        "x": 28,
+        "y": 54,
+        "w": 10,
+        "h": 1
+      },
+      {
+        "id": "laboratory_fixture_21",
+        "room": "laboratory",
+        "kind": "rect",
+        "x": 45.85,
+        "y": 53.25,
+        "w": 1.15,
+        "h": 3.1
+      },
+      {
+        "id": "laboratory_fixture_22",
+        "room": "laboratory",
+        "kind": "rect",
+        "x": 57,
+        "y": 53.25,
+        "w": 1.15,
+        "h": 3.1
+      },
+      {
+        "id": "engine_s_fixture_23",
+        "room": "engine_s",
+        "kind": "rect",
+        "x": 67.8,
+        "y": 55.75,
+        "w": 1.1,
+        "h": 2.5
+      },
+      {
+        "id": "engine_s_fixture_24",
+        "room": "engine_s",
+        "kind": "rect",
+        "x": 69.45,
+        "y": 55.75,
+        "w": 1.1,
+        "h": 2.5
+      },
+      {
+        "id": "engine_s_fixture_25",
+        "room": "engine_s",
+        "kind": "rect",
+        "x": 71.10000000000001,
+        "y": 55.75,
+        "w": 1.1,
+        "h": 2.5
+      }
+    ],
     "tasks": [
       {
         "id": "t_card_n",
