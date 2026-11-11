@@ -143,7 +143,7 @@ function renderFeed({canvas,room,state,camera,index,time,appearance,world}){
 }
 function render({panel,map,state,cameras,appearance,time=performance.now(),world}){
  if(!panel||panel.classList.contains('hidden')||!map?.rooms)return [];
- if(time-lastFrame<65)return [];
+ if(time-lastFrame<33)return [];
  lastFrame=time;
  const out=[];
  panel.querySelectorAll('canvas[data-camera]').forEach(canvas=>{

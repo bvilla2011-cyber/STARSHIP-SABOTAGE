@@ -222,3 +222,8 @@
 @keyframes skinAura{to{transform:scale(1.38);opacity:.65}}
 @keyframes skinPolish{0%,68%{transform:translateX(-145%)}94%,100%{transform:translateX(145%)}}
 @media(prefers-reduced-motion:reduce){.skin-card *,.skin-card:before{animation:none!important}}
+
+
+/* Meeting refreshes update content in place; keep the cinematic entrance single-shot. */
+#modal .meeting-card,#modal .meeting-result-card{animation:none!important}
+#end .victory-emblem{animation:ssWinDance .9s ease-out 1 both!important}
