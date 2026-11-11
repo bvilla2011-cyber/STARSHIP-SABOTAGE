@@ -42,7 +42,9 @@ assert.ok(html.includes('40000'), 'El cooldown de asesinato debe ser de 40 segun
 assert.ok(html.includes('35000'), 'El cooldown de sabotaje debe ser de 35 segundos');
 assert.ok(html.includes('6.7*0.035'), 'Las luces deben reducir la visión al 3,5 %');
 assert.equal((html.match(/data-camera="[0-3]"/g) || []).length, 4, 'Seguridad debe ofrecer cuatro cámaras');
-assert.ok(MAP.obstacles.length > 30, 'Cada sala debe definir colisionadores para su mobiliario');
+assert.equal(MAP.obstacles.length, 5, 'Solo las cinco mesas de cafetería tienen colisión');
+assert.ok(MAP.obstacles.every(o=>o.room==='cafeteria'&&o.kind==='ellipse'),'Los bloques industriales y las sillas no deben bloquear');
+assert.ok(MAP.obstacles.some(o=>o.id==='sos_table'&&o.rx===1.72&&o.ry===1.12),'La mesa SOS central debe ser sólida');
 for (let i = 0; i < MAP.rooms.length; i++) for (let j = i + 1; j < MAP.rooms.length; j++) {
   const a = MAP.rooms[i], b = MAP.rooms[j];
   assert.ok(!(a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y), 'Salas solapadas: ' + a.id + ' / ' + b.id);
@@ -80,8 +82,8 @@ function blockedByRoomWall(x, y, clearance = .34) {
 }
 const step = .2, width = Math.floor(MAP.w / step) + 1, height = Math.floor(MAP.h / step) + 1;
 const pass = (x, y) => inFloor(x, y) && !blockedByRoomWall(x, y);
-const sx = Math.round(61 / step), sy = Math.round(35 / step);
-assert.ok(pass(61, 35), 'El spawn debe ser transitable y quedar libre de la mesa SOS');
+const sx = Math.round(61 / step), sy = Math.round(40 / step);
+assert.ok(pass(61, 40), 'El punto de referencia de spawn debe ser transitable fuera de la mesa SOS');
 const seen = new Uint8Array(width * height), queue = [sy * width + sx];
 seen[queue[0]] = 1;
 for (let i = 0; i < queue.length; i++) {
@@ -115,8 +117,8 @@ for (const token of ['async function eliminate(', 'async function useVent(', 'as
 }
 assert.ok(html.includes('Date.now()+10000'), 'La cuenta atrás de lobby debe ser de 10 segundos');
 assert.ok(html.includes('blockedByRoomWall('), 'Falta la colisión de paredes');
-assert.ok(html.includes('function collidesFurniture(') && html.includes("o.kind==='circle'"), 'El mobiliario debe tener colisión circular o rectangular');
-assert.ok(html.includes('ctx.ellipse(cx,cy,1.72,1.12') && html.includes("fillText('SOS',cx,cy+.32)") && !MAP.obstacles.some(o=>o.room==='cafeteria'&&o.kind==='ellipse'&&Math.abs(o.x-61)<.01&&Math.abs(o.y-35)<.01), 'La mesa SOS debe verse sin bloquear el paso');
+assert.ok(html.includes('function collidesFurniture(') && html.includes("o.kind==='ellipse'"), 'Las mesas deben conservar colisión elíptica');
+assert.ok(html.includes('ctx.ellipse(cx,cy,1.72,1.12') && html.includes("fillText('SOS',cx,cy+.32)") && MAP.obstacles.some(o=>o.id==='sos_table'&&Math.abs(o.x-61)<.01&&Math.abs(o.y-35)<.01), 'La mesa SOS debe verse y bloquear el paso');
 assert.ok(html.includes("canvas.addEventListener('click'") && html.includes("cafe.x+cafe.w/2"), 'El botón SOS debe responder al clic y a la interacción cercana');
 assert.ok(html.includes('for(let i=0;i<72;i++)angles.push'), 'Las sombras deben usar mayor resolución angular');
 
@@ -125,7 +127,7 @@ assert.ok(html.includes("canvas.addEventListener('click'") && html.includes('fun
 assert.ok(html.includes('for(let i=0;i<72;i++)angles.push'), 'La visibilidad y las sombras deben usar mayor resolución angular');
 
 assert.ok(html.includes("const visionRadius=lightsSabotage?6.7*0.035:(p.role==='impostor'?10.5:6.7)"), 'La visión normal debe ampliarse ligeramente y el sabotaje debe limitarla');
-assert.ok(html.includes('El mobiliario sigue siendo sólido para el jugador, pero no proyecta sombras.'), 'Los muebles no deben proyectar sombras');
+assert.ok(html.includes('No furniture casts dynamic visibility shadows.'), 'Los muebles decorativos no deben proyectar sombras');
 assert.ok(html.includes('const corridors=MAP.corridors||[]') && html.includes('corridorId:corridor.id'), 'Los bordes de los pasillos deben bloquear la luz');
 assert.ok(html.includes('function segmentRectInterval') && html.includes('function shadowGeometryAudit()'), 'Las sombras de pasillos deben recortarse en habitaciones y cruces');
 assert.ok(!html.includes('for(const o of MAP.obstacles||[]){\n  if(o.kind===\'rect\')'), 'Los obstáculos de mobiliario no deben formar parte de la oclusión de luz');
