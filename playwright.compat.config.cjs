@@ -1,0 +1,1 @@
+const {defineConfig}=require(process.env.PLAYWRIGHT_TEST_MODULE||'@playwright/test');module.exports=defineConfig({testDir:'./tests',testMatch:'compat.spec.cjs',workers:1,timeout:60000,projects:[{name:'firefox',use:{browserName:'firefox'}},{name:'webkit',use:{browserName:'webkit'}}],use:{headless:true,trace:'retain-on-failure'},reporter:'list'});

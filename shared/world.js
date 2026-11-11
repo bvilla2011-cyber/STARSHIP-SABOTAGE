@@ -1329,6 +1329,54 @@
       "category": "abajo",
       "kind": "bottom",
       "trim": "#9a87f5"
+    },
+    {
+      "id": "skin_solar",
+      "name": "Ingeniero solar",
+      "icon": "☀️",
+      "price": 1850,
+      "desc": "Exotraje de mantenimiento con placas de cobre y señales de navegación ámbar.",
+      "category": "skin",
+      "kind": "full",
+      "outfit": "hazmat",
+      "suit": "#c7833e",
+      "trim": "#ffe7a0"
+    },
+    {
+      "id": "skin_aurora",
+      "name": "Guardia aurora",
+      "icon": "🌠",
+      "price": 2350,
+      "desc": "Uniforme polar violeta con protecciones de hielo y reflejos verde menta.",
+      "category": "skin",
+      "kind": "full",
+      "outfit": "arctic",
+      "suit": "#756ec4",
+      "trim": "#a8f8de"
+    },
+    {
+      "id": "skin_warden",
+      "name": "Centinela orbital",
+      "icon": "🛰️",
+      "price": 2450,
+      "desc": "Armadura azul de guardia con placas de mando y emblemas de la flota.",
+      "category": "skin",
+      "kind": "full",
+      "outfit": "samurai",
+      "suit": "#397ea3",
+      "trim": "#a1ecff"
+    },
+    {
+      "id": "skin_eclipse",
+      "name": "Explorador eclipse",
+      "icon": "🌘",
+      "price": 2250,
+      "desc": "Traje de exploración grafito con capucha de fibra óptica y bordes coral.",
+      "category": "skin",
+      "kind": "full",
+      "outfit": "ninja",
+      "suit": "#45465f",
+      "trim": "#ff9eab"
     }
   ]
 };});

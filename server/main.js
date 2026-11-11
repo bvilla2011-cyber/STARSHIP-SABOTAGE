@@ -44,8 +44,8 @@ export default async function main({req,res,error}){
   Core.assert(body.protocolVersion===4,'Actualiza el juego para continuar.',426);
   const frameId=(code,playerId)=>code+'.'+createHash('sha256').update(playerId).digest('hex').slice(0,24);
   const readFrames=async(code)=>{const params=new URLSearchParams();params.append('queries[]',q('equal','roomId',[code]));params.append('queries[]',q('limit',null,[100]));return (await api('/tablesdb/'+DB+'/tables/'+FRAMES+'/rows?'+params)).rows||[];};
-  const applyFrames=(room,rows)=>{for(const row of rows){let f;try{f=JSON.parse(row.payload)}catch(e){continue;}const p=room.players[f.id];if(!p||p.left||p.teleport!==f.teleport)continue;Object.assign(p,{x:f.x,y:f.y,moveAt:f.moveAt,lastSeen:Math.max(p.lastSeen,f.lastSeen),moving:f.moving,faceX:f.faceX});}};
-  const frameData=(room,p)=>({roomId:room.code,payload:JSON.stringify({id:p.id,x:p.x,y:p.y,moveAt:p.moveAt,lastSeen:p.lastSeen,teleport:p.teleport,moving:p.moving,faceX:p.faceX,inVent:p.inVent,at:Date.now()})});
+  const applyFrames=(room,rows)=>{for(const row of rows){let f;try{f=JSON.parse(row.payload)}catch(e){continue;}const p=room.players[f.id];if(!p||p.left||p.teleport!==f.teleport)continue;Object.assign(p,{x:f.x,y:f.y,moveAt:f.moveAt,lastSeen:Math.max(p.lastSeen,f.lastSeen),moving:f.moving,faceX:f.faceX,lastInputSeq:f.lastInputSeq||0,lastActive:Math.max(p.lastActive||0,f.lastActive||0)});}};
+  const frameData=(room,p)=>({roomId:room.code,payload:JSON.stringify({id:p.id,x:p.x,y:p.y,moveAt:p.moveAt,lastSeen:p.lastSeen,teleport:p.teleport,moving:p.moving,faceX:p.faceX,lastInputSeq:p.lastInputSeq||0,lastActive:p.lastActive||p.lastSeen,inVent:p.inVent,at:Date.now()})});
   const readPermissions=(room)=>Object.values(room.players).filter(p=>!p.left&&!room.banned.includes(p.id)).map(p=>'read("user:'+p.id+'")');
   const putSignal=async(room,p,tx)=>{const permissions=[...readPermissions(room),'update("user:'+p.id+'")'];try{await api('/tablesdb/'+DB+'/tables/'+SIGNALS+'/rows','POST',{rowId:frameId(room.code,p.id),data:{roomId:room.code,userId:p.id,payload:'{}'},permissions,transactionId:tx});}catch(e){if(e.status!==409)throw e;await api(rowPath(SIGNALS,frameId(room.code,p.id)),'PATCH',{permissions,transactionId:tx});}};
   const putFrame=async(room,p,tx,rows)=>{const fid=frameId(room.code,p.id),data=frameData(room,p),permissions=readPermissions(room);if(rows?.some(r=>r.$id===fid))return api(rowPath(FRAMES,fid),'PATCH',{data,permissions,...(tx?{transactionId:tx}:{})});try{return await api('/tablesdb/'+DB+'/tables/'+FRAMES+'/rows','POST',{rowId:fid,data,permissions,...(tx?{transactionId:tx}:{})});}catch(e){if(e.status!==409)throw e;return api(rowPath(FRAMES,fid),'PATCH',{data,permissions,...(tx?{transactionId:tx}:{})});}};
@@ -73,7 +73,10 @@ export default async function main({req,res,error}){
   const profileView=()=>({coins:profile.coins,owned:profile.owned,loadout:profile.loadout,equipped:profile.loadout.arriba,history:profile.history});
   const appearance={name:String(body.name||'Tripulante').slice(0,16),color:body.color,loadout:profile.loadout};
   if(body.action==='health')return res.json({ok:true,version:'4.0.0',serverTime:now});
-  if(body.action==='profile')return res.json({ok:true,profile:profileView(),shop:Core.Rules.daily(now),serverTime:now});
+  if(body.action==='profile'){
+   if(!profile.giftClaimed){const query='?queries[]='+encodeURIComponent(q('equal','userId',[uid]));const gifts=await api('/tablesdb/'+DB+'/tables/gift_claims/rows'+query).catch(()=>({rows:[]}));if(gifts.rows?.some(g=>g.campaign==='BVILLA3000'))await transaction(PROFILES,uid,async p=>{if(!p.giftClaimed){p.coins+=3000;p.giftClaimed=true;p.history.push({id:'BVILLA3000',amount:3000,reason:'verified_gift',at:now});p.history=p.history.slice(-120);}profile=p;});}
+   return res.json({ok:true,profile:profileView(),shop:Core.Rules.daily(now),serverTime:now});
+  }
   if(body.action==='buy'||body.action==='equip'){
    await transaction(PROFILES,uid,async p=>{if(body.action==='buy')Core.buy(p,body.itemId,now);else Core.equip(p,body.loadout||{});profile=p;});
    return res.json({ok:true,profile:profileView(),serverTime:now});

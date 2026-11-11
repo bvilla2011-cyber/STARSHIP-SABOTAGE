@@ -132,12 +132,12 @@ function renderFeed({canvas,room,state,camera,index,time,appearance,world}){
  const vign=c.createRadialGradient(width*.5,height*.5,height*.13,width*.5,height*.5,Math.max(width,height)*.75);
  vign.addColorStop(0,'#030c1300');vign.addColorStop(1,'#02070eaf');c.fillStyle=vign;c.fillRect(0,0,width,height);
  c.fillStyle='#061928b9';round(c,9,8,Math.min(width-18,137),23,5);c.fill();
- c.font='900 11px system-ui';c.textAlign='left';c.fillStyle='#e1f9fa';c.fillText('CAM 0'+(index+1)+' · '+camera.name.slice(0,15),16,24);
+ c.font='900 11px system-ui';c.textAlign='left';c.fillStyle='#e1f9fa';c.fillText('CAM 0'+(index+1)+' · '+(window.StarshipI18n?.translate(camera.name)||camera.name).slice(0,15),16,24);
  c.fillStyle='#ff4766';c.beginPath();c.arc(width-29,17,5,0,TAU);c.fill();
  c.fillStyle='#ffd1d9';c.font='800 10px system-ui';c.textAlign='right';c.fillText('● LIVE',width-39,20);
  const clock=new Date(Date.now()).toLocaleTimeString('es-ES',{hour12:false});
  c.fillStyle='#c1eff7';c.font='800 10px monospace';c.textAlign='right';c.fillText(clock,width-10,height-10);
- c.fillStyle='#b5f1d7';c.font='800 9px monospace';c.textAlign='left';c.fillText('SECTOR AISLADO · TRANSMISIÓN',10,height-10);
+ c.fillStyle='#b5f1d7';c.font='800 9px monospace';c.textAlign='left';c.fillText(window.StarshipI18n?.translate('SECTOR AISLADO · TRANSMISIÓN')||'SECTOR AISLADO · TRANSMISIÓN',10,height-10);
  c.restore();
  return {room:room.id,players:shown,rendered:true};
 }

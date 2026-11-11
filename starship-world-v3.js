@@ -17,7 +17,7 @@ function plaque(c,x,y,w,label,col,t){
  rect(c,x,y,w,.5,'#071825','#c4d0d54d',.04);
  rect(c,x+.07,y+.09,.07,.32,col);
  c.font='700 .19px system-ui';c.textAlign='left';c.textBaseline='middle';c.fillStyle='#e5f9ff';
- c.fillText(label,x+.23,y+.25,w-.32);
+ c.fillText(window.StarshipI18n?.translate(label)||label,x+.23,y+.25,w-.32);
  rect(c,x+w-.22,y+.11,.13,.13,Math.sin(t*2+x)>0?'#a2ffb5':'#1b5549');
 }
 function microPanel(c,x,y,w,h,t,col,i){
