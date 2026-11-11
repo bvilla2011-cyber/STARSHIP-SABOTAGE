@@ -701,6 +701,32 @@ const SPAWN_X=61,SPAWN_Y=40;
 if(location.hostname==='127.0.0.1'||location.hostname==='localhost'){
  window.__STARSHIP_TEST__={
   actionAvailability(){return {task:!$('interact').disabled,report:!$('report').disabled,meeting:!$('emergency').disabled}},
+  prepareSecurityCameraTest(){
+   const p=gameState?.players?.[playerId],room=MAP.rooms.find(r=>r.id==='security');
+   if(!p||!room)throw new Error('No existe partida de pruebas o sala Seguridad');
+   p.x=room.x+room.w/2;p.y=room.y+room.h/2;
+   p.alive=true;p.inVent=false;p.ventId=null;
+   gameState.phase='playing';gameState.meeting=null;securityCameraIndex=-1;
+   return {inRoom:pointInRoom(p.x,p.y,room),position:{x:p.x,y:p.y}};
+  },
+  seedSecurityCameraTargets(){
+   const ids=[];
+   for(let i=0;i<SECURITY_CAMERAS.length;i++){
+    const room=MAP.rooms.find(r=>r.id===SECURITY_CAMERAS[i].roomId);
+    const id='__cctv_target_'+i+'__';
+    gameState.players[id]={id,name:'CAM_TEST_'+i,x:room.x+room.w/2,y:room.y+room.h/2,alive:true,role:'crew',cosmetics:{}};
+    ids.push(id);
+   }
+   gameState.players.__cctv_corridor__={id:'__cctv_corridor__',name:'OUTSIDE',x:44,y:21,alive:true,role:'crew'};
+   gameState.players.__cctv_in_vent__={id:'__cctv_in_vent__',name:'IN_VENT',x:14,y:28,inVent:true,alive:true,role:'impostor'};
+   return ids;
+  },
+  securityCameraAudit(){
+   const canvases=[...$('securityPanel').querySelectorAll('canvas[data-camera]')];
+   const rooms=SECURITY_CAMERAS.map(c=>c.roomId);
+   const rendered=canvases.map((canvas,i)=>window.StarshipCCTV?.renderFeed({canvas,room:MAP.rooms.find(r=>r.id===rooms[i]),state:gameState,camera:SECURITY_CAMERAS[i],index:i,time:performance.now(),appearance:avatarAppearance,world:window.StarshipWorldV3}));
+   return {open:securityCameraIndex>=0,rooms,frameSizes:canvases.map(c=>[c.width,c.height]),rendered};
+  },
   prepareSosButton(){const p=gameState?.players?.[playerId],cafe=MAP.rooms.find(q=>q.id==='cafeteria');if(!p||!cafe)throw new Error('No se puede preparar el botón SOS');p.alive=true;p.inVent=false;p.x=cafe.x+cafe.w/2;p.y=cafe.y+cafe.h/2+.22;/* Harness only: exercise SOS after its real twenty-second lockout. */gameState.createdAt=Date.now()-21000;gameState.startedAt=gameState.createdAt;gameState.emergencyUsed={};return {x:p.x,y:p.y}},
   prepareReportBody(){const p=gameState?.players?.[playerId];if(!p)throw new Error('No existe jugador local');p.alive=true;p.inVent=false;gameState.phase='playing';gameState.meeting=null;const id='__dead_body_test__';gameState.players[id]={id,alive:false,expelled:false,x:p.x+2,y:p.y};return id},
   prepareTask(type){
