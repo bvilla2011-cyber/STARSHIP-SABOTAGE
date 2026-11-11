@@ -177,3 +177,48 @@
 #modal .vote-choice:hover:not(:disabled) .meeting-monguito{transform:rotate(-8deg) scale(1.18)}
 #modal .meeting-message{align-items:center}
 @keyframes ssEjectPortrait{from{opacity:0;transform:translateY(30px) scale(.5) rotate(-90deg)}65%{opacity:1;transform:scale(1.11) rotate(9deg)}to{transform:scale(1) rotate(0)}}
+
+
+/* === STARSHIP COLLECTOR'S ATELIER / PREMIUM SKIN SHOWROOM ===
+   One scene design for all inventory items, large detail previews and loot cards. */
+.skin-card{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#183d54 0%,#081726 68%,#040c17 100%);border:1px solid #78bed14b;border-radius:15px}
+.skin-card:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:linear-gradient(120deg,#ffffff00 30%,#ebfeff24 44%,#ffffff00 54%);transform:translateX(-145%);animation:skinPolish 7s ease-in-out infinite}
+.skin-card:after{content:"";position:absolute;left:8%;right:8%;bottom:13%;height:2px;background:linear-gradient(90deg,transparent,var(--skin-accent,#83e8ff),transparent);opacity:.75;box-shadow:0 0 18px var(--skin-accent,#83e8ff);pointer-events:none}
+.skin-card .skin-nebula{position:absolute;inset:6%;border-radius:50%;background:radial-gradient(ellipse at 50% 48%,var(--skin-glow,#56a3ff34),transparent 64%);filter:blur(7px);transform:scale(1.12);animation:skinAura 4s ease-in-out infinite alternate;pointer-events:none}
+.skin-card .skin-orbit{position:absolute;z-index:1;pointer-events:none;top:50%;left:50%;width:71%;height:30%;border:1px solid var(--skin-accent,#a9eaff);opacity:.38;border-radius:50%;transform:translate(-50%,-50%) rotate(-25deg);animation:skinOrbit 8s linear infinite}
+.skin-card .orbit-beta{height:60%;width:52%;opacity:.19;animation-direction:reverse;animation-duration:13s}
+.skin-card .shop-character-svg{position:relative;z-index:3;width:80%;height:85%;max-width:100%;max-height:100%;margin:auto;filter:drop-shadow(0 10px 12px #000c) drop-shadow(0 0 13px var(--skin-glow,#9ae1ff28));animation:skinFloat 3.1s ease-in-out infinite alternate;transition:transform .4s cubic-bezier(.2,.8,.2,1),filter .4s}
+.skin-card .skin-rarity{position:absolute;bottom:4%;left:50%;transform:translateX(-50%);z-index:5;font:900 9px/1.2 system-ui,sans-serif;white-space:nowrap;letter-spacing:2px;color:var(--skin-accent,#bceaff);text-shadow:0 0 14px currentColor;background:#031322d9;padding:5px 8px;border:1px solid currentColor;border-radius:4px;pointer-events:none}
+.skin-card-large .shop-character-svg{width:88%;height:88%}
+.shop-item:hover .skin-card .shop-character-svg,.shop-detail-art:hover .shop-character-svg{transform:translateY(-7px) scale(1.08) rotate(-2deg);filter:drop-shadow(0 14px 16px #000c) drop-shadow(0 0 19px var(--skin-accent,#9ae1ff))}
+.shop-item:hover .skin-card{border-color:var(--skin-accent,#9ae1ff);box-shadow:0 0 25px var(--skin-glow,#8ddfff48)}
+.skin-art-skin_neon{--skin-accent:#d5ff78;--skin-glow:#80dc304e;background:radial-gradient(ellipse at center,#2c5028,#102a24 58%,#06100f)}
+.skin-art-skin_void{--skin-accent:#c5aeff;--skin-glow:#9559ff68;background:radial-gradient(ellipse at center,#342459,#10142a 58%,#080918)}
+.skin-art-skin_lava{--skin-accent:#ffcc6b;--skin-glow:#ff703368;background:radial-gradient(ellipse at center,#653022,#2b171d 58%,#0e090e)}
+.skin-art-skin_ice{--skin-accent:#e2ffff;--skin-glow:#7de7ff65;background:radial-gradient(ellipse at center,#3d7997,#122e42 58%,#061421)}
+.skin-art-top_commander{--skin-accent:#ffe39a;--skin-glow:#f7b84a51}
+.skin-art-top_hazard{--skin-accent:#ffd36d;--skin-glow:#e1a8394c}
+.skin-art-top_space{--skin-accent:#9cefff;--skin-glow:#62c8ec4b}
+.skin-art-top_punk{--skin-accent:#ffa9d4;--skin-glow:#fb67ae46}
+.skin-art-bottom_boots{--skin-accent:#a3f9ff;--skin-glow:#58e1ff3c}
+.skin-art-bottom_gold{--skin-accent:#ffe5a6;--skin-glow:#efb74a5a}
+.skin-art-bottom_neon{--skin-accent:#a0ff88;--skin-glow:#58ef7644}
+.skin-art-bottom_void{--skin-accent:#d3b6ff;--skin-glow:#ae7bfc44}
+.skin-art-crown,.skin-art-star{--skin-accent:#ffec91;--skin-glow:#e9ad4954}
+.skin-art-antenna,.skin-art-robot{--skin-accent:#9df6ff;--skin-glow:#55e9fb4a}
+.skin-art-halo{--skin-accent:#fff3b6;--skin-glow:#e3c95c51}
+.skin-art-horns{--skin-accent:#ffc1c4;--skin-glow:#ff6c8e52}
+.skin-art-flower{--skin-accent:#ffd8ed;--skin-glow:#ff8bc653}
+.skin-art-cap{--skin-accent:#f9d99c;--skin-glow:#e4b0764f}
+/* Suit fabric effects visible in every context, including lobby and voting. */
+.monguito-costume-hazmat [d*="M80 147"]{filter:drop-shadow(0 0 2px #c9ff6f)}
+.monguito-costume-ninja [d*="M78 119"]{filter:drop-shadow(0 0 2px #a78bff)}
+.monguito-costume-samurai [d*="M76 163"]{filter:drop-shadow(0 0 3px #ffb370)}
+.monguito-costume-arctic [d*="M92 149"]{filter:drop-shadow(0 0 2px #efffff)}
+.monguito-costume-top_space [d*="M100 152"]{filter:drop-shadow(0 0 3px #83efff)}
+.monguito-costume-bottom_neon [d*="M70 204"]{filter:drop-shadow(0 0 2px #c4ff82)}
+@keyframes skinFloat{from{transform:translateY(0) rotate(-1deg)}to{transform:translateY(-8px) rotate(1deg)}}
+@keyframes skinOrbit{to{transform:translate(-50%,-50%) rotate(335deg)}}
+@keyframes skinAura{to{transform:scale(1.38);opacity:.65}}
+@keyframes skinPolish{0%,68%{transform:translateX(-145%)}94%,100%{transform:translateX(145%)}}
+@media(prefers-reduced-motion:reduce){.skin-card *,.skin-card:before{animation:none!important}}

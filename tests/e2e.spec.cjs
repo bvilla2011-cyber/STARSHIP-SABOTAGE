@@ -404,7 +404,7 @@ test('gameplay: la interacción abre y completa los cinco tipos de minijuego con
 });
 
 
-test('gameplay: geometría sin solapamientos, mobiliario sólido, red de conductos conectada y visión por luz', async ({browser}) => {
+test('gameplay: colisión de mesas de cafetería, objetos decorativos transitables y visión por luz', async ({browser}) => {
   test.setTimeout(45000);
   const {context,page}=await openAsGuest(browser);
   try {
@@ -412,12 +412,23 @@ test('gameplay: geometría sin solapamientos, mobiliario sólido, red de conduct
     await expect(page.locator('#game')).toBeVisible();
     const audit=await page.evaluate(()=>window.__STARSHIP_TEST__.geometryAudit());
     expect(audit).toMatchObject({rooms:9,corridors:2,vents:6,roomOverlaps:[]});
-    expect(audit.obstacles).toBeGreaterThan(30);
+    expect(audit.obstacles).toBe(5);
     const table=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(52,29.6));
     expect(table).toMatchObject({walkable:false,furniture:true});
-    // Las sillas del comedor también son sólidos independientes de las mesas.
+    // Las sillas son decorativas: no generan colisión.
     const chair=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(50.64,28.42));
-    expect(chair).toMatchObject({walkable:false,furniture:true});
+    expect(chair).toMatchObject({walkable:true,furniture:false});
+    const sos=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(61,35));
+    expect(sos).toMatchObject({walkable:false,furniture:true});
+    const equipment=await page.evaluate(()=>window.__STARSHIP_TEST__.collisionProbe(14,42));
+    expect(equipment).toMatchObject({walkable:true,furniture:false});
+    for(let i=0;i<12;i++){
+      const ring=await page.evaluate(()=>window.__STARSHIP_TEST__.spawnAudit(15));
+      expect(ring.points).toHaveLength(15);
+      expect(ring.walkable).toBe(true);
+      expect(ring.centerExcluded).toBe(true);
+      expect(ring.minimumDistance).toBeGreaterThanOrEqual(1.68-0.0001);
+    }
     const doors=await page.evaluate(()=>window.__STARSHIP_TEST__.doorAccessAudit());
     expect(doors.tested).toBeGreaterThanOrEqual(12);
     expect(doors.blocked).toEqual([]);
