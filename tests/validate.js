@@ -23,7 +23,10 @@ assert.equal([...MAP.corridors].map(c => c.id).join(','), 'upper_link,middle_lin
 assert.equal(Array.from(MAP.corridors[0].points, p => p.join(',')).join(';'), '7,21;61,21', 'El corredor superior debe acabar recto y alineado con las paredes');
 assert.equal(Array.from(MAP.corridors[1].points, p => p.join(',')).join(';'), '7,35;45,35', 'El corredor central debe acabar recto y alineado con las paredes');
 assert.equal(MAP.rooms.find(r => r.id === 'security').doors.length, 0, 'Seguridad debe tener la pared izquierda cerrada, sin puerta');
-assert.equal(MAP.tasks.length, 6, 'El mapa debe conservar las seis tareas de la nave');
+assert.equal(MAP.tasks.length, 10, 'El nuevo mapa debe ofrecer diez misiones, ocho diferentes y cables repetidos');
+const counts=MAP.tasks.reduce((o,t)=>(o[t.type]=(o[t.type]||0)+1,o),{});
+assert.equal(counts.wires,2,'Cableado es el único tipo de misión repetido');
+assert.ok(Object.entries(counts).every(([type,n])=>type==='wires'||n===1),'Las demás misiones deben ser únicas');
 assert.equal(MAP.repairs.length, 6, 'El mapa debe incluir las seis estaciones de reparación');
 assert.equal(MAP.vents.length, 6, 'El mapa debe tener exactamente seis conductos');
 assert.equal(MAP.vents.filter(v => v.zone === 'west').length, 3, 'La zona oeste debe tener tres conductos');
@@ -40,7 +43,7 @@ assert.ok(MAP.rooms.some(r => r.id === 'security'), 'Debe existir la sala de Seg
 assert.equal(MAP.repairs.filter(r => r.type === 'code').length, 2, 'O₂ debe tener dos terminales de código');
 assert.ok(html.includes('40000'), 'El cooldown de asesinato debe ser de 40 segundos');
 assert.ok(html.includes('35000'), 'El cooldown de sabotaje debe ser de 35 segundos');
-assert.ok(html.includes('6.7*0.035'), 'Las luces deben reducir la visión al 3,5 %');
+assert.ok(html.includes('6.7*0.34'), 'El sabotaje de luces conserva 34% de visibilidad radial, con sombras de paredes');
 assert.equal((html.match(/data-camera="[0-3]"/g) || []).length, 4, 'Seguridad debe ofrecer cuatro cámaras');
 assert.equal(MAP.obstacles.length, 5, 'Solo las cinco mesas de cafetería tienen colisión');
 assert.ok(MAP.obstacles.every(o=>o.room==='cafeteria'&&o.kind==='ellipse'),'Los bloques industriales y las sillas no deben bloquear');
@@ -106,10 +109,12 @@ for (const vent of MAP.vents) for (const link of vent.links) {
   assert.ok(ventIds.has(link), 'Conducto conectado a un ID inexistente: ' + link);
   assert.ok(MAP.vents.find(v => v.id === link).links.includes(vent.id), 'Conexión de conductos no recíproca: ' + vent.id + ' ↔ ' + link);
 }
-const types = new Set(['card','wires','filter','sequence','scan','route','fuel','upload']);
+const types = new Set(['card','wires','filter','sequence','scan','route','fuel','upload','cipher','pulse','sort','frequency','cells']);
 for (const task of MAP.tasks) assert.ok(types.has(task.type), 'Minijuego no soportado: ' + task.type);
 const repairIds = new Set(MAP.repairs.map(r => r.id));
 for (const id of ['electrical_wires','reactor_start','comms_fix','admin_card']) assert.ok(repairIds.has(id), 'Falta estación de reparación: ' + id);
+assert.ok(!html.includes('id="claimMillionPesos"'),'No se debe mostrar el botón de monedas gratis');
+assert.ok(html.includes('async function travelVentTo(')&&html.includes('function drawVentTargets(')&&!html.includes('CONDUCTOS DE SERVICIO</h2>'),'Los ductos se seleccionan con flechas visibles y cámara');
 console.log('✓ Datos de minijuegos, sabotajes y red de conductos coherentes');
 
 for (const token of ['async function eliminate(', 'async function useVent(', 'async function processMeetingVotes(', 'function finishMatch(', 'function showRoleReveal(', 'function renderLobby(', 'function draw()', 'function startTask()', 'function openMiniGame(', 'async function moveUpdate(']) {
@@ -126,7 +131,7 @@ assert.ok(html.includes('for(let i=0;i<72;i++)angles.push'), 'Las sombras deben 
 assert.ok(html.includes("canvas.addEventListener('click'") && html.includes('function startTask()') && html.includes("cafe.x+cafe.w/2"), 'El botón SOS debe responder al clic y a la interacción cercana');
 assert.ok(html.includes('for(let i=0;i<72;i++)angles.push'), 'La visibilidad y las sombras deben usar mayor resolución angular');
 
-assert.ok(html.includes("const visionRadius=lightsSabotage?6.7*0.035:(p.role==='impostor'?10.5:6.7)"), 'La visión normal debe ampliarse ligeramente y el sabotaje debe limitarla');
+assert.ok(html.includes("const visionRadius=lightsSabotage?6.7*0.34:(p.role==='impostor'?10.5:6.7)"), 'La visión normal debe ampliarse ligeramente y el sabotaje debe limitarla');
 assert.ok(html.includes('No furniture casts dynamic visibility shadows.'), 'Los muebles decorativos no deben proyectar sombras');
 assert.ok(html.includes('const corridors=MAP.corridors||[]') && html.includes('corridorId:corridor.id'), 'Los bordes de los pasillos deben bloquear la luz');
 assert.ok(html.includes('function segmentRectInterval') && html.includes('function shadowGeometryAudit()'), 'Las sombras de pasillos deben recortarse en habitaciones y cruces');
