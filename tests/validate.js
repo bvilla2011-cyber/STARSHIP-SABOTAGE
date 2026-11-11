@@ -46,6 +46,50 @@ assert.ok(html.includes('40000'), 'El cooldown de asesinato debe ser de 40 segun
 assert.ok(html.includes('35000'), 'El cooldown de sabotaje debe ser de 35 segundos');
 assert.ok(html.includes('6.7*0.34'), 'El sabotaje de luces conserva 34% de visibilidad radial, con sombras de paredes');
 assert.equal((html.match(/data-camera="[0-3]"/g) || []).length, 4, 'Seguridad debe ofrecer cuatro cámaras');
+
+assert.equal((html.match(/<canvas data-camera="[0-3]"/g) || []).length,4,'Deben existir cuatro canvas independientes, visibles simultáneamente');
+assert.ok(html.includes('security-cctv.js?v=20261111-v4')&&html.includes('security-cctv.css?v=20261111-v4'),'Deben cargarse la lógica y estilos de las nuevas cámaras');
+assert.ok(html.includes("e.key?.toLowerCase()!=='c'")&&html.includes('function openSecurityCameras()'),'La tecla C debe abrir y cerrar las cámaras');
+assert.ok(html.includes("const nameOrigin=p;")&&!html.includes('const nameOrigin=securityCameraIndex>=0?'),'Las cámaras no deben alterar la visión principal ni revelar jugadores detrás de paredes');
+const cctvCode=fs.readFileSync('security-cctv.js','utf8');
+new vm.Script(cctvCode,{filename:'security-cctv.js'});
+const cctvWin={StarshipVisual:{canvas(ctx,x,y,appearance){ctx.renderedSprites.push(appearance.name)}}};
+vm.runInNewContext(cctvCode,{window:cctvWin});
+assert.ok(cctvWin.StarshipCCTV?.renderFeed,'El sistema de cuatro transmisiones debe exponer su renderer');
+const cameras=[
+ {name:'CAFETERÍA',roomId:'cafeteria'},{name:'ADMINISTRACIÓN',roomId:'admin'},
+ {name:'OXÍGENO',roomId:'oxygen'},{name:'REACTOR',roomId:'reactor'}
+];
+const players=Object.fromEntries(cameras.map((camera,i)=>{
+ const room=MAP.rooms.find(r=>r.id===camera.roomId);
+ return ['cctv_player_'+i,{id:'cctv_player_'+i,name:'JUGADOR '+i,x:room.x+room.w/2,y:room.y+room.h/2,alive:true}];
+}));
+players.outside={id:'outside',name:'PASILLO',x:44,y:21,alive:true};
+players.hiddenVent={id:'hiddenVent',name:'DUCTO',x:14,y:28,alive:true,inVent:true};
+const feedState={phase:'playing',players};
+const recordedRooms=[];
+function fakeCameraCtx(){
+ const gradient=()=>({addColorStop(){}});
+ return new Proxy({renderedSprites:[],createLinearGradient:gradient,createRadialGradient:gradient},{
+  get(target,key){if(key in target)return target[key];if(key==='then')return undefined;return()=>{};},
+  set(target,key,value){target[key]=value;return true}
+ });
+}
+for(let i=0;i<cameras.length;i++){
+ const camera=cameras[i],room=MAP.rooms.find(r=>r.id===camera.roomId),ctx=fakeCameraCtx();
+ const canvas={width:0,height:0,getBoundingClientRect:()=>({width:480,height:270}),getContext:()=>ctx};
+ const output=cctvWin.StarshipCCTV.renderFeed({canvas,room,state:feedState,camera,index:i,time:1200,appearance:p=>p,world:{draw(_ctx,map){
+  recordedRooms.push(map.rooms.map(r=>r.id).join(','));
+  assert.equal(map.corridors.length,0,'Ninguna cámara puede dibujar pasillos');
+ }}});
+ assert.equal(output.room,camera.roomId,'Cada transmisión pertenece a su sala');
+ assert.equal(output.players.join(','),'cctv_player_'+i,'Cada cámara debe mostrar solo los personajes de su sala');
+ assert.equal(ctx.renderedSprites.join(','),'JUGADOR '+i,'No debe filtrarse un personaje de otra habitación');
+ assert.ok(canvas.width>=480&&canvas.height>=270,'El lienzo de cada cámara debe producir un fotograma real');
+}
+assert.equal(recordedRooms.join(';'),'cafeteria;admin;oxygen;reactor','Se dibuja una sala exacta por transmisión, sin mezclar habitaciones');
+console.log('✓ Seguridad: cuatro cámaras simultáneas, fotogramas renderizados y aislamiento estricto por habitación');
+
 assert.equal(MAP.obstacles.length, 5, 'Solo las cinco mesas de cafetería tienen colisión');
 assert.ok(MAP.obstacles.every(o=>o.room==='cafeteria'&&o.kind==='ellipse'),'Los bloques industriales y las sillas no deben bloquear');
 assert.ok(MAP.obstacles.some(o=>o.id==='sos_table'&&o.rx===1.72&&o.ry===1.12),'La mesa SOS central debe ser sólida');
