@@ -361,7 +361,7 @@ test('gameplay: la interacción abre y completa los cinco tipos de minijuego con
   try {
     await page.locator('#explore').click();
     await expect(page.locator('#game')).toBeVisible();
-    const types=['card','wires','route','filter','sequence'];
+    const types=['card','wires','route','filter','sequence','scan','cipher','pulse','sort','frequency','cells'];
     for (const type of types) {
       const taskId=await page.evaluate(type=>window.__STARSHIP_TEST__.prepareTask(type),type);
       await page.locator('#interact').click();
@@ -451,11 +451,12 @@ test('gameplay: colisión de mesas de cafetería, objetos decorativos transitabl
     const first=await page.evaluate(()=>window.__STARSHIP_TEST__.prepareVent('v1'));
     await page.locator('#vent').click();
     await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.ventPlayerState())).toMatchObject({inVent:true,ventId:'v1'});
-    await page.locator('#vent').click();
-    await expect(page.locator('#modal')).toContainText('CONDUCTOS DE SERVICIO');
-    await expect(page.locator('#modal')).toContainText('REACTOR');
-    await page.locator('#modal [data-exit="v2"]').click();
-    await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.ventPlayerState())).toMatchObject({inVent:false,ventId:null});
+    await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.ventTargets().length)).toBeGreaterThanOrEqual(2);
+    await expect(page.locator('#modal')).toHaveClass(/hidden/);
+    const choice=await page.evaluate(()=>window.__STARSHIP_TEST__.ventTargets().find(v=>v.action==='travel'));
+    expect(choice, 'La red de ductos debe ofrecer flechas rojas clicables').toBeDefined();
+    await page.locator('#world').click({position:{x:choice.x+choice.w/2,y:choice.y+choice.h/2}});
+    await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.ventPlayerState()),{timeout:6000}).toMatchObject({inVent:false,ventId:null});
     const lighting=await page.evaluate(()=>({hasLayer:!!window.__starshipLightLayer,code:document.documentElement.innerHTML.includes('visionRadius')}));
     expect(lighting.code).toBe(true);
     const shadowGeometry=await page.evaluate(()=>window.__STARSHIP_TEST__.shadowGeometryAudit());
