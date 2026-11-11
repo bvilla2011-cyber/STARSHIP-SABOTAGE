@@ -566,54 +566,17 @@ const MAP={
 };
 
 // Colisionadores del mobiliario: los mismos volúmenes que ocupan los elementos dibujados.
+// Only the five physical CAFETERIA tables obstruct movement.
+// All industrial equipment in other rooms remains visible but traversable.
 const buildFurnitureColliders=()=>{
- const out=[];
- const rect=(r,x,y,w,h)=>out.push({kind:'rect',room:r.id,x,y,w,h});
- const circle=(r,x,y,rad)=>out.push({kind:'circle',room:r.id,x,y,r:rad});
- const ellipse=(r,x,y,rx,ry)=>out.push({kind:'ellipse',room:r.id,x,y,rx,ry});
- for(const r of MAP.rooms){
-  const {x,y,w,h}=r,cx=x+w/2,cy=y+h/2;
-  if(r.kind==='cafe'){
-   // Cuatro mesas grandes, separadas alrededor de la mesa SOS central.
-   [[-8,-5.4],[8,-5.4],[-8,5.4],[8,5.4]].forEach(([dx,dy])=>{
-    ellipse(r,cx+dx,cy+dy,1.42,.92);
-    rect(r,cx+dx-1.62,cy+dy-1.42,.52,.48);rect(r,cx+dx+1.10,cy+dy-1.42,.52,.48);
-    rect(r,cx+dx-1.62,cy+dy+.96,.52,.48);rect(r,cx+dx+1.10,cy+dy+.96,.52,.48);
-   });
-   // La mesa SOS central es decorativa y no bloquea el paso.
-  }else if(r.kind==='electrical'){
-   for(let j=0;j<3;j++)rect(r,x+1.05,y+1+j*2.15,1.05,1.35);
-   // El bloque inferior POWER GRID sigue dibujado, pero no tiene colisión.
-  }else if(r.kind==='reactor'){
-   circle(r,cx,cy,2.12);
-   for(let j=0;j<4;j++)rect(r,cx+Math.cos(j*Math.PI/2)*2.3-.45,cy+Math.sin(j*Math.PI/2)*2.3-.325,.9,.65);
-  }else if(r.kind==='medbay'){
-   rect(r,x+.85,y+1.25,1.15,3.1);rect(r,x+w-2,y+1.25,1.15,3.1);
-  }else if(r.kind==='security'){
-   for(let j=0;j<3;j++)rect(r,x+1+j*2,y+2,1.65,1.05);
-   rect(r,cx-2,y+h-1.5,4,.5);
-  }else if(r.kind==='engine'){
-   for(let j=0;j<3;j++)rect(r,cx+(j-1)*1.65-.55,cy-1.25,1.1,2.5);
-  }else if(r.kind==='storage'){
-   for(let j=0;j<3;j++)rect(r,x+1.05,y+1+j*2.25,1.35,1.55);
-   rect(r,x+w-1.25,y+3.3,.65,3.4);
-  }else if(r.kind==='admin'){
-   for(let j=0;j<3;j++)rect(r,x+1.05,y+1+j*2.25,.85,1.5);
-   // El bloque inferior ID / ACCESS sigue dibujado, pero no tiene colisión.
-  }else if(r.kind==='weapons'){
-   rect(r,x+1,y+2,w-2,1.1);
-   for(let j=0;j<3;j++)rect(r,x+1.5+j*1.7,y+2.1,.95,.65);
-  }else if(r.kind==='nav'){
-   rect(r,x+1,y+2,w-2,1.1);
-  }else if(r.kind==='o2'){
-   for(let j=0;j<3;j++)circle(r,x+1.5+j*2,y+3,.62);
-  }else if(r.kind==='shields'){
-   rect(r,x+1,y+2,w-2,1);
-  }else if(r.kind==='comms'){
-   rect(r,x+1.05,y+1,1.15,h-2);
-  }
+ const r=MAP.rooms.find(r=>r.id==='cafeteria');
+ if(!r)return [];
+ const cx=r.x+r.w/2,cy=r.y+r.h/2;
+ const tables=[{kind:'ellipse',room:r.id,id:'sos_table',x:cx,y:cy,rx:1.72,ry:1.12}];
+ for(const [dx,dy] of [[-8,-5.4],[8,-5.4],[-8,5.4],[8,5.4]]){
+  tables.push({kind:'ellipse',room:r.id,id:'cafe_table_'+dx+'_'+dy,x:cx+dx,y:cy+dy,rx:1.42,ry:.92});
  }
- return out;
+ return tables;
 };
 function segmentRectInterval(x1,y1,x2,y2,rect){
  let lo=0,hi=1;const dx=x2-x1,dy=y2-y1;
@@ -720,7 +683,7 @@ const ROOM_SIGNATURE_COLORS={
  laboratory:'#91e8d0',cargo_s:'#e2a66e',engine_s:'#ff795b'
 };
 
-const SPAWN_X=61,SPAWN_Y=35;
+const SPAWN_X=61,SPAWN_Y=40;
 // API de pruebas E2E disponible únicamente en localhost; nunca se expone en producción.
 if(location.hostname==='127.0.0.1'||location.hostname==='localhost'){
  window.__STARSHIP_TEST__={
@@ -795,7 +758,41 @@ async function saveRoomState(s,status='playing'){await getDb().updateRow({databa
 function updateLobbyCountdown(){const left=Math.max(0,Math.ceil(((gameState?.countdownEndsAt||Date.now())-Date.now())/1000));$('countdownNumber').textContent=left;$('countdownCaption').textContent=left>0?'PREPARANDO DESPEGUE':'SECUENCIA COMPLETADA';$('countdownPanel').classList.toggle('zero',left===0);if(left===0)$('lobbyStatus').textContent='MOTORES ESTABLES · ESPERANDO SIGUIENTE FASE'}
 let countdownTicker=null;function ensureCountdownTicker(){if(countdownTicker)return;countdownTicker=setInterval(()=>{if(gameState?.phase!=='countdown'){clearInterval(countdownTicker);countdownTicker=null;return}updateLobbyCountdown();if(isHost&&Date.now()>=(gameState.countdownEndsAt||0)){clearInterval(countdownTicker);countdownTicker=null;launchMatchAfterCountdown()}},250)}
 let launchingMatch=false,roleRevealShown=false,gameUIStarted=false,roleRevealTimer=null;
-function getCafeteriaSpawnPoints(count){const cafe=MAP.rooms.find(q=>q.id==='cafeteria');if(!cafe)return Array.from({length:count},()=>({x:SPAWN_X,y:SPAWN_Y}));const candidates=[];for(let y=cafe.y+2.2;y<cafe.y+cafe.h-2;y+=2.05)for(let x=cafe.x+2.2;x<cafe.x+cafe.w-2;x+=2.25)if(canWalk(x,y))candidates.push({x,y});for(let i=candidates.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[candidates[i],candidates[j]]=[candidates[j],candidates[i]]}const chosen=[];for(const point of candidates){if(chosen.every(q=>Math.hypot(q.x-point.x,q.y-point.y)>=1.65)){chosen.push(point);if(chosen.length>=count)break}}if(chosen.length<count){for(const point of candidates){if(!chosen.includes(point)){chosen.push(point);if(chosen.length>=count)break}}}while(chosen.length<count)chosen.push({x:cafe.x+cafe.w/2+(Math.random()-.5)*4,y:cafe.y+cafe.h/2+(Math.random()-.5)*4});return chosen;}
+function getCafeteriaSpawnPoints(count){
+ const cafe=MAP.rooms.find(q=>q.id==='cafeteria');
+ if(!cafe)return Array.from({length:count},(_,i)=>({x:SPAWN_X+Math.cos(i*2*Math.PI/Math.max(count,1))*3,y:SPAWN_Y+Math.sin(i*2*Math.PI/Math.max(count,1))*3}));
+ const center={x:cafe.x+cafe.w/2,y:cafe.y+cafe.h/2};
+ const minimumSeparation=1.68;
+ const chosen=[];
+ const safe=p=>canWalk(p.x,p.y)&&p.x>cafe.x+1&&p.x<cafe.x+cafe.w-1&&p.y>cafe.y+1&&p.y<cafe.y+cafe.h-1&&
+   chosen.every(q=>Math.hypot(q.x-p.x,q.y-p.y)>=minimumSeparation);
+ // A different starting angle each game / meeting; each player appears
+ // randomly along the annulus surrounding the SOS table, not inside it.
+ const phase=Math.random()*2*Math.PI;
+ for(let i=0;i<count;i++){
+  let point=null;
+  for(let k=0;k<45;k++){
+   const a=phase+(i+(Math.random()-.5)*.34)*2*Math.PI/Math.max(count,1)+(k%5)*.14;
+   const radius=4.65+Math.random()*1.05;
+   const p={x:center.x+Math.cos(a)*radius,y:center.y+Math.sin(a)*radius};
+   if(safe(p)){point=p;break}
+  }
+  if(!point){
+   // Graceful deterministic fallback: search concentric circles
+   // before accepting any unsafe or overlapping location.
+   outer:for(const radius of [4.7,5.8,6.7,7.6]){
+    for(let k=0;k<128;k++){
+     const a=phase+k*2*Math.PI/128;
+     const p={x:center.x+Math.cos(a)*radius,y:center.y+Math.sin(a)*radius};
+     if(safe(p)){point=p;break outer}
+    }
+   }
+  }
+  if(!point)throw new Error('No hay espacio sin solapamientos alrededor de la mesa SOS');
+  chosen.push(point);
+ }
+ return chosen;
+}
 function teleportPlayersToCafeteria(){const roster=Object.values(gameState?.players||{}),points=getCafeteriaSpawnPoints(roster.length);roster.forEach((q,i)=>{const point=points[i]||points[0]||{x:SPAWN_X,y:SPAWN_Y};q.x=point.x;q.y=point.y;q._targetX=point.x;q._targetY=point.y;q._renderVx=0;q._renderVy=0;q.inVent=false;q.ventId=null;q._moving=false});}
 async function startMatch(){if(!isHost||players.length<2)return toast('Se necesitan al menos 2 jugadores.');const maxPlayers=Math.max(2,Number($('max').value)),impostors=Math.min(players.length-1,3,Math.max(1,Number($('imps').value)));$('imps').value=String(impostors);const countdownEndsAt=Date.now()+10000;await getDb().updateRow({databaseId:DB,tableId:ROOMS,rowId:roomId,data:{maxPlayers,status:'countdown',settings:JSON.stringify({phase:'countdown',maxPlayers,impostors,countdownEndsAt})}});gameState={phase:'countdown',maxPlayers,impostors,countdownEndsAt};renderLobby();}
 async function launchMatchAfterCountdown(){if(!isHost||launchingMatch||gameState?.phase!=='countdown'||Date.now()<(gameState.countdownEndsAt||0))return;launchingMatch=true;try{const count=Math.min(Number(gameState.impostors)||1,players.length-1),shuffled=[...players].sort(()=>Math.random()-.5),roster={},crew=shuffled.slice(count),pool=[...MAP.tasks].sort(()=>Math.random()-.5),assign={};crew.forEach(p=>{const take=[...MAP.tasks].sort(()=>Math.random()-.5).slice(0,4);assign[p.id]=take.map(t=>({...t,id:t.id+'_'+p.id,stationId:t.id}))});const spawnPoints=getCafeteriaSpawnPoints(shuffled.length);shuffled.forEach((p,i)=>{const role=i<count?'impostor':'crew',spawn=spawnPoints[i]||spawnPoints[0]||{x:SPAWN_X,y:SPAWN_Y};roster[p.id]={...p,cosmetics:p.cosmetics||{},role,x:spawn.x,y:spawn.y,_targetX:spawn.x,_targetY:spawn.y,alive:true,inVent:false,done:[],tasks:role==='crew'?(assign[p.id]||[]):[],lastKill:0}});const required=Object.values(roster).reduce((n,p)=>n+(p.tasks?.length||0),0);const next={phase:'playing',players:roster,meeting:null,emergencyUsed:{},completed:0,required,createdAt:Date.now(),settings:{maxPlayers:gameState.maxPlayers,impostors:count}};await saveRoomState(next,'playing');gameState=next;gameUIStarted=false;roleRevealShown=false;await syncRoomAccess();startGameUI()}catch(e){launchingMatch=false;toast('No se pudo iniciar: '+e.message);console.error(e)}}
@@ -1361,7 +1358,7 @@ $('endContinue').onclick=()=>{if(soloMode){location.reload();return}$('end').cla
 function refreshActionAvailability(){const p=gameState?.players?.[playerId];const canAct=!!p&&p.alive&&!p.inVent&&!gameState?.meeting;const task=canAct&&p.role==='crew'&&MAP.tasks.some(t=>Math.hypot(p.x-t.x,p.y-t.y)<=3&&p.tasks?.some(q=>(q.stationId||q.id)===t.id&&!p.done?.includes(q.id)));const repair=canAct&&gameState?.sabotage?.active&&p.role==='crew'&&activeRepairStations().some(q=>Math.hypot(p.x-q.x,p.y-q.y)<=3);const securityNear=canAct&&Math.hypot(p.x-74,p.y-16.5)<=3.5;$('securityBtn').classList.toggle('hidden',!securityNear);const body=canAct&&Object.values(gameState.players||{}).some(q=>!q.alive&&!q.expelled&&q.id!==playerId&&!gameState.reportedBodies?.includes(q.id)&&Number.isFinite(q.x)&&Math.hypot(p.x-q.x,p.y-q.y)<=3);const cafe=MAP.rooms.find(q=>q.id==='cafeteria');const sabotageActive=!!gameState?.sabotage?.active,sos=canAct&&!sabotageActive&&!!cafe&&Math.hypot(p.x-(cafe.x+cafe.w/2),p.y-(cafe.y+cafe.h/2+.22))<=3,startedAt=Number(gameState?.createdAt||gameState?.startedAt||Date.now()),used=!!gameState?.emergencyUsed?.[playerId],ready=Date.now()>=startedAt+20000;$('interact').disabled=!(task||repair);$('report').disabled=!body;$('emergency').disabled=!(sos&&ready&&!used);(()=>{const hint=$('emergency')?.querySelector('small');if(hint)hint.textContent=sabotageActive?'SABOTAJE ACTIVO':used?'BOTÓN UTILIZADO':!ready?'DISPONIBLE EN '+Math.ceil((startedAt+20000-Date.now())/1000)+'s':'1 USO POR PARTIDA'})();const hint=$('contextHint');if(hint)hint.textContent=repair?'REPARAR':task?'TAREA':'ACÉRCATE A UNA TAREA';}window.refreshActionAvailability=function(){const p=gameState?.players?.[playerId];const canAct=!!p&&p.alive&&!p.inVent&&!gameState?.meeting;const task=canAct&&p.role==='crew'&&MAP.tasks.some(t=>Math.hypot(p.x-t.x,p.y-t.y)<=3&&p.tasks?.some(q=>(q.stationId||q.id)===t.id&&!p.done?.includes(q.id)));const repair=canAct&&gameState?.sabotage?.active&&p.role==='crew'&&activeRepairStations().some(q=>Math.hypot(p.x-q.x,p.y-q.y)<=3);const securityNear=canAct&&Math.hypot(p.x-74,p.y-16.5)<=3.5;$('securityBtn').classList.toggle('hidden',!securityNear);const body=canAct&&Object.values(gameState.players||{}).some(q=>!q.alive&&!q.expelled&&q.id!==playerId&&!gameState.reportedBodies?.includes(q.id)&&Number.isFinite(q.x)&&Math.hypot(p.x-q.x,p.y-q.y)<=3);const cafe=MAP.rooms.find(q=>q.id==='cafeteria');const sabotageActive=!!gameState?.sabotage?.active,sos=canAct&&!sabotageActive&&!!cafe&&Math.hypot(p.x-(cafe.x+cafe.w/2),p.y-(cafe.y+cafe.h/2+.22))<=3,startedAt=Number(gameState?.createdAt||gameState?.startedAt||Date.now()),used=!!gameState?.emergencyUsed?.[playerId],ready=Date.now()>=startedAt+20000;$('interact').disabled=!(task||repair);$('report').disabled=!body;$('emergency').disabled=!(sos&&ready&&!used);(()=>{const hint=$('emergency')?.querySelector('small');if(hint)hint.textContent=sabotageActive?'SABOTAJE ACTIVO':used?'BOTÓN UTILIZADO':!ready?'DISPONIBLE EN '+Math.ceil((startedAt+20000-Date.now())/1000)+'s':'1 USO POR PARTIDA'})();const hint=$('contextHint');if(hint)hint.textContent=repair?'REPARAR':task?'TAREA':'ACÉRCATE A UNA TAREA';};
 let previousFrame=0,monguitoWalkPhase=0;
 function loop(ts=0){const dt=previousFrame?Math.max(0,Math.min(.04,(ts-previousFrame)/1000)):.016;previousFrame=ts||previousFrame;try{if(!$('game').classList.contains('hidden')){if(!canvas||canvas!==$('world')||!ctx||canvas.getBoundingClientRect().width<2||canvas.getBoundingClientRect().height<2)resize();const p=gameState?.players?.[playerId];if(gameState?.phase==='playing'){Object.values(gameState.players||{}).forEach(q=>{if(q.id===playerId)return;const tx=q._targetX,ty=q._targetY;if(!Number.isFinite(tx)||!Number.isFinite(ty))return;const dx=tx-q.x,dy=ty-q.y,d=Math.hypot(dx,dy);q._moving=d>.035;if(Math.abs(dx)>.01)q._faceX=dx<0?-1:1;if(q._moving)q._walkPhase=(q._walkPhase||0)+dt*13;if(d>2.2){q.x=tx;q.y=ty;q._renderVx=0;q._renderVy=0;return}const blend=1-Math.exp(-dt*15);q.x+=dx*blend;q.y+=dy*blend;q._renderVx=dx/Math.max(dt,.001);q._renderVy=dy/Math.max(dt,.001)})}updateRepairArrow();window.refreshActionAvailability();if(gameState?.sabotage?.active&&gameState.sabotage.endsAt&&Date.now()>=gameState.sabotage.endsAt){if(['reactor','o2'].includes(gameState.sabotage.type))finishMatch('impostor');else{gameState.sabotage.active=false;if(isHost)saveRoomState(gameState)}}if(p?.alive&&!p.inVent&&!gameState.meeting&&securityCameraIndex<0&&!$('modal').classList.contains('task-modal')){let dx=(keys.d||keys.D||keys.ArrowRight?1:0)-(keys.a||keys.A||keys.ArrowLeft?1:0)+Number(move.x||0),dy=(keys.s||keys.S||keys.ArrowDown?1:0)-(keys.w||keys.W||keys.ArrowUp?1:0)+Number(move.y||0),mag=Math.hypot(dx,dy);if(mag>1){dx/=mag;dy/=mag}const speed=5.2*MAP_SCALE;p._moving=mag>.08;if(Math.abs(dx)>.08)p._faceX=dx<0?-1:1;monguitoWalkPhase+=dt*(p._moving?13:3);p._walkPhase=monguitoWalkPhase;const distance=speed*dt,steps=Math.max(1,Math.ceil(distance/.12));for(let step=0;step<steps;step++){const nx=p.x+dx*distance/steps,ny=p.y+dy*distance/steps;if(dx&&canWalk(nx,p.y))p.x=nx;if(dy&&canWalk(p.x,ny))p.y=ny}if(p._moving&&Date.now()-lastMove>70){lastMove=Date.now();moveUpdate()}else if(!p._moving&&Date.now()-lastMove>160){lastMove=Date.now();moveUpdate()} }try{draw()}catch(e){console.error('Fallo del render principal',e);drawMapFallback()}}}catch(e){console.error('Fallo del bucle de juego',e);try{resize();drawMapFallback()}catch(renderError){console.error('Fallo del render de emergencia',renderError)}}finally{raf=requestAnimationFrame(loop)}}
-function startExplore(){try{clearInterval(poll);poll=null;soloMode=true;isHost=false;cameraIntro=null;cameraIntroPlayed=true;roleRevealShown=true;makeMe();const tasks=MAP.tasks.map(t=>({id:t.id,name:t.name,room:t.room}));gameState={phase:'playing',players:{[playerId]:{...me,role:'crew',alive:true,done:[],tasks}},meeting:null,completed:0,required:tasks.length,createdAt:Date.now(),exploration:true};players=[gameState.players[playerId]];$('connect').classList.add('hidden');$('lobby').classList.add('hidden');startGameUI();toast('Modo exploración: estás solo en la nave.');}catch(e){console.error(e);say('No se pudo abrir la exploración: '+e.message,true);}}
+function startExplore(){try{clearInterval(poll);poll=null;soloMode=true;isHost=false;cameraIntro=null;cameraIntroPlayed=true;roleRevealShown=true;makeMe();const tasks=MAP.tasks.map(t=>({id:t.id,name:t.name,room:t.room}));gameState={phase:'playing',players:{[playerId]:{...me,role:'crew',alive:true,done:[],tasks}},meeting:null,completed:0,required:tasks.length,createdAt:Date.now(),exploration:true};const exploreSpawn=getCafeteriaSpawnPoints(1)[0];gameState.players[playerId].x=exploreSpawn.x;gameState.players[playerId].y=exploreSpawn.y;players=[gameState.players[playerId]];$('connect').classList.add('hidden');$('lobby').classList.add('hidden');startGameUI();toast('Modo exploración: estás solo en la nave.');}catch(e){console.error(e);say('No se pudo abrir la exploración: '+e.message,true);}}
 
 const SHOP_ITEMS=[
 {id:'crown',name:'Corona estelar',icon:'👑',price:650,desc:'Corona dorada de comandante.',skin:'crown',category:'arriba',kind:'accessory'},
