@@ -24,6 +24,7 @@ jobs:
       - run: npm run validate
       - run: npm test
       - run: npm run test:browser
+      - run: npx playwright test tests/v4-live.spec.cjs --config=playwright.live.config.cjs
       - run: node tools/print-qa-visuals.cjs
         if: always()
       - uses: actions/upload-artifact@v4

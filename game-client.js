@@ -313,12 +313,12 @@ function openMiniGame(task,station){
  const m=$('modal');m.classList.remove('hidden');m.classList.add('task-modal');
  const title=clean(task.name),room=clean(station.room),type=station.type,gameType=({fuel:'filter',sequence:'calibrate',upload:'route',scan:'scan'}[type]||type);
  const shell=(sub,content)=>'<div class="card task-card" style="width:min(680px,94vw);max-height:88vh;overflow:auto;background:linear-gradient(145deg,#243b4d,#101d2b);border:2px solid #7894a6;box-shadow:0 0 0 5px #07131e,0 0 35px #48cbe866;color:#edfaff"><div style="display:flex;justify-content:space-between;align-items:center"><small style="color:#8ceaff;letter-spacing:2px">'+room+' · TERMINAL DE MISIÓN</small><b style="color:#f5c96d">✦ 1980</b></div><h2 style="margin:8px 0;color:#fff">'+title+'</h2><p style="color:#a9c4d4">'+sub+'</p><div id="taskBoard" style="background:radial-gradient(ellipse,#203c50,#081521);border:1px solid #45677d;border-radius:12px;padding:18px;min-height:180px">'+content+'</div><p id="taskFeedback" style="min-height:20px;color:#9ce8cb;font-weight:800"></p><button id="cancelTask" style="width:100%">CERRAR TERMINAL</button></div>';
- let finishing=false;
+ let finishing=false,proof=[];const taskSession=v4TaskSession;
  const finish=async()=>{if(finishing)return;finishing=true;try{
   if(String(task.id).startsWith('fake_')){m.classList.add('hidden');m.classList.remove('task-modal');return;}
   if(String(task.id).startsWith('repair_')){await finishRepair(station);}
   else if(soloMode){const p=gameState.players[playerId];if(!p.done.includes(task.id))p.done.push(task.id);updateTasks();}
-  else {const wait=Math.max(0,(v4TaskSession?.at||0)+(v4TaskSession?.minMs||0)-(Date.now()+v4ClockOffset)+150);if(wait)await new Promise(resolve=>setTimeout(resolve,wait));const r=await gameAction('task_finish',{taskId:task.id,token:v4TaskSession?.token});if(!r.taskComplete)toast(tr('Etapa completada. Vuelve al terminal para continuar.'));}
+  else {const wait=Math.max(0,(taskSession?.at||0)+(taskSession?.minMs||0)-(Date.now()+v4ClockOffset)+150);if(wait)await new Promise(resolve=>setTimeout(resolve,wait));const r=await gameAction('task_finish',{taskId:task.id,token:taskSession?.token,proof});if(!r.taskComplete)toast(tr('Etapa completada. Vuelve al terminal para continuar.'));}
   m.classList.add('hidden');m.classList.remove('task-modal');updateTasks();window.StarshipCinematics?.taskComplete(type);window.StarshipAudio?.play('task');
  }catch(e){toast(e.message);finishing=false;}};
  const fail=msg=>{const f=$('taskFeedback');if(f){f.style.color='#ff7c83';f.textContent=msg}};
@@ -329,7 +329,7 @@ function openMiniGame(task,station){
  content='<div style="display:flex;gap:18px;align-items:center;justify-content:center;flex-wrap:wrap"><div id="idCard" draggable="true" style="width:190px;padding:14px;background:linear-gradient(135deg,#fff1c5,#b9c7c8);color:#172b38;border:3px solid #d5e8ed;border-radius:9px;touch-action:none;cursor:grab"><b>STARSHIP · ID</b><div style="font-size:34px">◉</div><b>'+clean(me?.name||'CREWMATE')+'</b><div style="font-size:11px">CREW ID · 0815</div><div style="height:8px;background:#17212b;margin-top:10px"></div></div><div id="cardSlot" style="width:190px;height:110px;border:2px dashed #8ceaff;border-radius:10px;display:grid;place-items:center;color:#8ceaff">ARRASTRA AQUÍ<br>EL CARNÉ</div></div><p style="text-align:center">Arrastra la tarjeta horizontalmente durante 0,4 a 1,5 segundos, o usa el botón de lectura</p><div style="height:9px;background:#152b3a;border-radius:9px;overflow:hidden"><div id="swipeMeter" style="height:100%;width:0;background:#66e2ae"></div></div><button id="cardAssist" class="mission-aux-button">▶ INICIAR LECTURA ASISTIDA (1 SEGUNDO)</button>';
  }else if(gameType==='wires'){
  const colors=[['ROJO','#f05e68'],['AZUL','#58a9f2'],['AMARILLO','#f1ce58'],['ROSA','#e78bc8']];
- content='<p>Conecta cada cable con el terminal del mismo color.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+colors.map((v,i)=>'<button data-wire="'+i+'" style="background:#142838;border:2px solid '+v[1]+';color:'+v[1]+';min-height:48px">● '+v[0]+' → CONECTAR</button>').join('')+'</div><small id="wireCount">0 / 4 CONECTADOS</small>';
+ content='<p>'+tr('Conecta cada cable con el terminal del mismo color.')+'</p><div class="wires-pairs4"><div>'+colors.map((v,i)=>'<button data-wire-left="'+i+'" style="--wire:'+v[1]+'">● '+tr(v[0])+'</button>').join('')+'</div><div>'+[2,0,3,1].map(i=>'<button data-wire-right="'+i+'" style="--wire:'+colors[i][1]+'">'+tr(colors[i][0])+' ●</button>').join('')+'</div></div><small id="wireCount">0 / 4</small>';
  }else if(gameType==='route'){
  content='<p>Arrastra la nave por los cinco puntos de control en orden.</p><div id="routeGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:340px;margin:auto">'+[0,1,2,3,4,5,6,7,8].map(i=>'<button data-route="'+i+'" style="min-height:48px">'+(i===0?'🚀':i===8?'◎':'✦')+'</button>').join('')+'</div><b id="routeCount">PUNTO 1 / 5</b>';
  }else if(gameType==='filter'){
@@ -353,31 +353,31 @@ function openMiniGame(task,station){
  window.StarshipCinematics?.taskOpen(gameType);$('cancelTask').onclick=()=>{m.classList.add('hidden');m.classList.remove('task-modal')};
  if(gameType==='card'){
  const card=$('idCard'),slot=$('cardSlot');
- const assist=$('cardAssist');assist.onclick=()=>{assist.disabled=true;assist.textContent='LEYENDO DATOS DEL CARNÉ…';$('swipeMeter').style.width='100%';setTimeout(()=>{if(!m.classList.contains('hidden')){slot.textContent='IDENTIDAD VERIFICADA ✓';ok('LECTURA CORRECTA');finish()}},1050)};let down=0,startX=0,moved=false;card.addEventListener('pointerdown',e=>{down=performance.now();startX=e.clientX;moved=false;card.setPointerCapture(e.pointerId)});card.addEventListener('pointermove',e=>{if(!down)return;if(Math.abs(e.clientX-startX)>12)moved=true});card.addEventListener('pointerup',()=>{const elapsed=performance.now()-down;down=0;if(!moved){fail('Debes deslizar, no solo tocar.');return}if(elapsed>350&&elapsed<1500){slot.style.background='#174b3e';slot.textContent='IDENTIDAD VERIFICADA ✓';$('swipeMeter').style.width='100%';ok('LECTURA CORRECTA');setTimeout(finish,650)}else{fail(elapsed<=350?'Demasiado rápido.':'Demasiado lento.');card.animate([{transform:'translateX(0)'},{transform:'translateX(-12px)'},{transform:'translateX(0)'}],250)}})
+ const assist=$('cardAssist');assist.onclick=()=>{assist.disabled=true;assist.textContent='LEYENDO DATOS DEL CARNÉ…';$('swipeMeter').style.width='100%';setTimeout(()=>{if(!m.classList.contains('hidden')){slot.textContent='IDENTIDAD VERIFICADA ✓';ok('LECTURA CORRECTA');proof=[900];finish()}},1050)};let down=0,startX=0,moved=false;card.addEventListener('pointerdown',e=>{down=performance.now();startX=e.clientX;moved=false;card.setPointerCapture(e.pointerId)});card.addEventListener('pointermove',e=>{if(!down)return;if(Math.abs(e.clientX-startX)>12)moved=true});card.addEventListener('pointerup',()=>{const elapsed=performance.now()-down;down=0;if(!moved){fail('Debes deslizar, no solo tocar.');return}if(elapsed>350&&elapsed<1500){slot.style.background='#174b3e';slot.textContent='IDENTIDAD VERIFICADA ✓';$('swipeMeter').style.width='100%';ok('LECTURA CORRECTA');proof=[elapsed];setTimeout(finish,650)}else{fail(elapsed<=350?'Demasiado rápido.':'Demasiado lento.');card.animate([{transform:'translateX(0)'},{transform:'translateX(-12px)'},{transform:'translateX(0)'}],250)}})
  }else if(gameType==='wires'){
- let n=0;m.querySelectorAll('[data-wire]').forEach(b=>b.onclick=()=>{if(b.disabled)return;b.disabled=true;b.textContent='✓ CIRCUITO CONECTADO';b.style.background='#14513f';n++;$('wireCount').textContent=n+' / 4 CONECTADOS';if(n===4){ok('CIRCUITOS RESTABLECIDOS');setTimeout(finish,500)}})
+ let selected=null;const left=[...m.querySelectorAll('[data-wire-left]')],right=[...m.querySelectorAll('[data-wire-right]')];left.forEach(b=>b.onclick=()=>{selected=Number(b.dataset.wireLeft);left.forEach(x=>x.classList.toggle('selected',x===b))});right.forEach(b=>b.onclick=()=>{if(selected===null)return;if(Number(b.dataset.wireRight)!==selected)return fail(tr('Terminal incorrecto. Prueba con el mismo color.'));const source=left.find(x=>Number(x.dataset.wireLeft)===selected);source.disabled=b.disabled=true;source.classList.remove('selected');source.textContent+=' ✓';b.textContent+=' ✓';proof.push(selected);selected=null;$('wireCount').textContent=proof.length+' / 4';if(proof.length===4){ok(tr('CIRCUITOS RESTABLECIDOS'));setTimeout(finish,500)}});
  }else if(gameType==='route'){
- const seq=[0,1,2,5,8];let n=0;m.querySelectorAll('[data-route]').forEach(b=>b.onclick=()=>{if(+b.dataset.route===seq[n]){b.disabled=true;b.style.background='#17634d';n++;$('routeCount').textContent='PUNTO '+Math.min(n+1,5)+' / 5';if(n===5){ok('RUTA ESTABLECIDA');setTimeout(finish,550)}}else{n=0;fail('Te has salido de la trayectoria. Vuelve al inicio.');m.querySelectorAll('[data-route]').forEach(x=>{x.disabled=false;x.style.background=''})}})}
+ const seq=[0,1,2,5,8];let n=0;m.querySelectorAll('[data-route]').forEach(b=>b.onclick=()=>{if(+b.dataset.route===seq[n]){b.disabled=true;b.style.background='#17634d';proof.push(Number(b.dataset.route));n++;$('routeCount').textContent='PUNTO '+Math.min(n+1,5)+' / 5';if(n===5){ok('RUTA ESTABLECIDA');setTimeout(finish,550)}}else{n=0;proof=[];fail('Te has salido de la trayectoria. Vuelve al inicio.');m.querySelectorAll('[data-route]').forEach(x=>{x.disabled=false;x.style.background=''})}})}
  else if(gameType==='filter'){
- let n=6;m.querySelectorAll('[data-debris]').forEach(b=>b.onclick=()=>{b.remove();n--;$('debrisCount').textContent=n+' RESIDUOS';if(!n){$('ventDrop').style.background='#155440';ok('FILTRO LIMPIO');setTimeout(finish,550)}})
+ let n=6;m.querySelectorAll('[data-debris]').forEach(b=>b.onclick=()=>{proof.push(Number(b.dataset.debris));b.remove();n--;$('debrisCount').textContent=n+' RESIDUOS';if(!n){$('ventDrop').style.background='#155440';ok('FILTRO LIMPIO');setTimeout(finish,550)}})
  }else if(gameType==='scan'){
  let index=0;const labels=['CABEZA','CORAZÓN','PIERNAS'];
  [0,1,2].forEach(i=>$('scanPart'+i).onclick=()=>{
   if(index!==i){fail('Sigue el orden: '+labels[index]);return}
-  $('scanPart'+i).disabled=true;$('scanPart'+i).textContent='✓ '+labels[i]+' VERIFICADO';index++;
+  proof.push(i);$('scanPart'+i).disabled=true;$('scanPart'+i).textContent='✓ '+labels[i]+' VERIFICADO';index++;
   $('scanProgress').style.width=index/3*100+'%';$('scanReadout').textContent=index<3?'SIGUIENTE: '+labels[index]:'TODOS LOS SIGNOS VITALES ESTABLES';
   if(index===3){ok('DIAGNÓSTICO APROBADO');setTimeout(finish,650)}
  });
  }else if(gameType==='cipher'){
  const target=['◆','◉','▲'];let index=0;
  m.querySelectorAll('[data-cipher]').forEach(b=>b.onclick=()=>{
-  const val=b.dataset.cipher;if(val===target[index]){index++;$('cipherSlots').textContent=target.slice(0,index).join(' ')+' '+Array(3-index).fill('□').join(' ');if(index===3){ok('ACCESO CONCEDIDO');setTimeout(finish,550)}}
-  else{index=0;$('cipherSlots').textContent='□ □ □';fail('Código incorrecto. Repite la secuencia.')}
+  const val=b.dataset.cipher;if(val===target[index]){proof.push(val);index++;$('cipherSlots').textContent=target.slice(0,index).join(' ')+' '+Array(3-index).fill('□').join(' ');if(index===3){ok('ACCESO CONCEDIDO');setTimeout(finish,550)}}
+  else{index=0;proof=[];$('cipherSlots').textContent='□ □ □';fail('Código incorrecto. Repite la secuencia.')}
  });
  }else if(gameType==='pulse'){
  let i=0;[0,1,2].forEach(k=>$('pulseValve'+k).onclick=()=>{
   if(k!==i)return fail('Activa primero la VÁLVULA '+['A','B','C'][i]);
-  $('pulseValve'+k).disabled=true;$('pulseValve'+k).textContent='✓ VÁLVULA '+['A','B','C'][k];i++;
+  proof.push(k);$('pulseValve'+k).disabled=true;$('pulseValve'+k).textContent='✓ VÁLVULA '+['A','B','C'][k];i++;
   $('pulseReadout').textContent=i+' / 3 FILTROS';
   if(i===3){ok('OXÍGENO ESTABILIZADO');setTimeout(finish,550)}
  });
@@ -385,7 +385,7 @@ function openMiniGame(task,station){
  const sequence=['◈','✚','⬡','◈'];let i=0;
  m.querySelectorAll('[data-cargo]').forEach(b=>b.onclick=()=>{
   if(b.dataset.cargo!==sequence[i])return fail('Contenedor incorrecto. Comprueba el símbolo.');
-  i++;$('cargoCount').textContent=i+' / 4 CAJAS';$('cargoTarget').textContent=sequence[i]||'✓';
+  proof.push(b.dataset.cargo);i++;$('cargoCount').textContent=i+' / 4 CAJAS';$('cargoTarget').textContent=sequence[i]||'✓';
   if(i===4){ok('CARGA CLASIFICADA');setTimeout(finish,600)}
  });
  }else if(gameType==='frequency'){
@@ -393,7 +393,7 @@ function openMiniGame(task,station){
  $('freqSlider').oninput=e=>$('freqValue').textContent=e.target.value+' MHz';
  $('freqSubmit').onclick=()=>{
   if(Math.abs(Number($('freqSlider').value)-targets[i])>5)return fail('Ajusta el control a ±5 MHz de '+targets[i]);
-  i++;$('freqCount').textContent=i+' / 3 FRECUENCIAS';
+  proof.push(Number($('freqSlider').value));i++;$('freqCount').textContent=i+' / 3 FRECUENCIAS';
   if(i===3){ok('COMUNICACIÓN RESTABLECIDA');setTimeout(finish,600)}
   else{$('freqTarget').textContent=String(targets[i]);$('freqSlider').value='50';$('freqValue').textContent='50 MHz'}
  };
@@ -403,11 +403,11 @@ function openMiniGame(task,station){
   if(completed[i])return;charge[i]++;
   if(charge[i]>6){charge[i]=0;fail('Sobrecarga: celda '+(i+1)+' reiniciada')}
   $('cellEnergy'+i).textContent=String(charge[i]);
-  if(charge[i]>=4&&charge[i]<=6){completed[i]=true;$('cellCharge'+i).disabled=true;$('cellCharge'+i).textContent='✓ CELDA ESTABLE';total++;$('cellsCount').textContent=total+' / 3 ESTABLES';if(total===3){ok('NÚCLEO ESTABILIZADO');setTimeout(finish,550)}}
+  if(charge[i]>=4&&charge[i]<=6){proof[i]=charge[i];completed[i]=true;$('cellCharge'+i).disabled=true;$('cellCharge'+i).textContent='✓ CELDA ESTABLE';total++;$('cellsCount').textContent=total+' / 3 ESTABLES';if(total===3){ok('NÚCLEO ESTABILIZADO');setTimeout(finish,550)}}
  });
  }else if(gameType==='calibrate'){
  let stage=0,angle=0;const needles=[0,1,2].map((_,i)=>({el:$('needle'+i),pos:0}));const timer=setInterval(()=>{angle=(angle+2.7)%100;needles.forEach((n,i)=>{if(i<stage)return;n.pos=angle;n.el.style.left=angle+'%'})},35);
- needles.forEach((n,i)=>$('cal'+i).onclick=()=>{if(i!==stage)return;const pos=angle%100;if(pos>=42&&pos<=58){$('calState'+i).textContent='SINCRONIZADO ✓';$('calState'+i).style.color='#7cf0b0';stage++;if(stage===3){clearInterval(timer);ok('DISTRIBUIDOR CALIBRADO');setTimeout(finish,600)}}else fail('Aguja fuera de la zona verde. Inténtalo de nuevo.')});
+ needles.forEach((n,i)=>$('cal'+i).onclick=()=>{if(i!==stage)return;const pos=angle%100;if(pos>=42&&pos<=58){proof.push(pos);$('calState'+i).textContent='SINCRONIZADO ✓';$('calState'+i).style.color='#7cf0b0';stage++;if(stage===3){clearInterval(timer);ok('DISTRIBUIDOR CALIBRADO');setTimeout(finish,600)}}else fail('Aguja fuera de la zona verde. Inténtalo de nuevo.')});
  $('cancelTask').onclick=()=>{clearInterval(timer);m.classList.add('hidden');m.classList.remove('task-modal')};
  }
 }async function eliminate(){const p=gameState?.players?.[playerId];if(!p)return;const target=Object.values(gameState.players).filter(q=>q.id!==playerId&&q.alive&&!q.inVent&&q.role!=='impostor'&&window.StarshipRules.lineClear(p,q,gameState.sabotage)).sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];if(!target)return;try{await gameAction('kill',{targetId:target.id})}catch(e){toast(e.message)}}
@@ -1004,6 +1004,7 @@ function notifyGamePatch(){const key='starship_seen_patch';try{const seen=localS
 // Room-only realtime frames back up a 20 Hz peer movement stream. All critical
 // actions still use validated server positions; peer packets carry no roles.
 const v4Peers=new Map(),v4PeerFrames=new Map(),v4Signals={},v4SignalSeen=new Map();
+let v4PeerMessages=0;
 let v4Realtime=null,v4FrameSubscription=null,v4SignalSubscription=null,v4SignalRow='',v4SignalFlush=0,v4PeerTicker=0;
 async function startRealtime4(){
  if(!AppwriteSDK?.Realtime||soloMode||!roomId)return;
@@ -1041,7 +1042,7 @@ function updatePeers4(){
  for(const [uid,peer] of v4Peers)if(!gameState.players[uid]){peer.pc.close();v4Peers.delete(uid);v4PeerFrames.delete(uid);}
 }
 function wireChannel4(peer,uid,channel){
- peer.channel=channel;channel.onmessage=event=>{if(typeof event.data!=='string'||event.data.length>512)return;try{const frame=JSON.parse(event.data);applyRealtimeFrame4({...frame,id:uid},true)}catch(e){}};
+ peer.channel=channel;channel.onmessage=event=>{if(typeof event.data!=='string'||event.data.length>512)return;try{const frame=JSON.parse(event.data);v4PeerMessages++;applyRealtimeFrame4({...frame,id:uid},true)}catch(e){}};
  channel.onclose=()=>v4PeerFrames.delete(uid);
 }
 async function makePeer4(uid,initiator){
@@ -1061,6 +1062,7 @@ async function receiveSignals4(row){
  try{if(!peer)peer=await makePeer4(uid,false);if(signal.type==='offer'){await peer.pc.setRemoteDescription({type:'offer',sdp:signal.sdp});await peer.pc.setLocalDescription(await peer.pc.createAnswer());await gatherIce4(peer.pc);sendSignal4(uid,peer.pc.localDescription);}else if(peer.pc.signalingState==='have-local-offer')await peer.pc.setRemoteDescription({type:'answer',sdp:signal.sdp});}catch(e){console.warn('Peer negotiation fallback:',e.message);}
 }
 
+window.StarshipNetwork={metrics:()=>({peerCount:[...v4Peers.values()].filter(p=>p.channel?.readyState==='open').length,peerMessages:v4PeerMessages,serverSamples:v4Samples.length,serverP95:[...v4Samples].sort((a,b)=>a-b)[Math.floor(v4Samples.length*.95)]||0})};
 function networkPosition(){const p=gameState?.players?.[playerId];return p?{x:p.x,y:p.y,teleport:p.teleport,moving:!!p._moving,faceX:p._faceX||1}:undefined;}
 function authority(action,extra={}){
  const execute=async()=>{
