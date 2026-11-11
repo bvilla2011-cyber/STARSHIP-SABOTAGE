@@ -963,8 +963,9 @@ function drawVentTargets(w,h,view){
  const bw=Math.min(245,Math.max(155,w*.28)),bh=58;
  const list=[...others.map((v,i)=>({v,label:'➤ '+v.room,action:'travel',id:v.id})),{v:current,label:'SALIR AQUÍ [G]',action:'exit',id:current.id}];
  list.forEach((item,i)=>{
-  const xx=w/2+(i-(list.length-1)/2)*Math.min(bw+12,w/list.length);
-  const x=Math.max(7,Math.min(w-bw-7,xx-bw/2)),y=h-Math.max(86,Math.min(142,h*.18));
+  const mobile=w<650,xx=mobile?w/2:w/2+(i-(list.length-1)/2)*Math.min(bw+12,w/list.length);
+  const x=Math.max(7,Math.min(w-bw-7,xx-bw/2)),
+    y=mobile?Math.min(h*.35+i*(bh+8),h-bh-24):Math.min(h*.57,h-170);
   ctx.save();ctx.shadowColor='#ff3248';ctx.shadowBlur=12;
   ctx.fillStyle='#220c1cec';ctx.strokeStyle='#ff5a70';ctx.beginPath();ctx.roundRect(x,y,bw,bh,11);ctx.fill();ctx.stroke();
   ctx.shadowBlur=0;ctx.fillStyle='#ff8c9a';ctx.font='900 '+(w<560?11:13)+'px system-ui';ctx.fillText(item.label,x+bw/2,y+bh/2);
