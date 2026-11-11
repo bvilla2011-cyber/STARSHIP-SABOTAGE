@@ -1,0 +1,3 @@
+// Screenshots contain temporary QA fixtures only. This enables visual review of
+// release output even when a local browser cannot be launched.
+const fs=require('fs'),path=require('path');const root=path.resolve(__dirname,'../test-results');let files=[];function walk(dir){for(const e of fs.readdirSync(dir,{withFileTypes:true})){const p=path.join(dir,e.name);if(e.isDirectory())walk(p);else if(/(?:cctv|mobile-settings)\.png$/.test(e.name))files.push(p);}}if(fs.existsSync(root))walk(root);for(const file of files.slice(0,2))console.log('QA_VISUAL '+path.basename(file)+' '+fs.readFileSync(file).toString('base64'));
