@@ -1474,6 +1474,8 @@ const cutLight=(lx,ly,rad,strength=1)=>{
 /* Las luces de las salas no atraviesan el campo de visión del jugador. */
 if(p?.alive){
  const lightsSabotage=gameState?.sabotage?.active&&gameState.sabotage.type==='lights'&&p.role!=='impostor';
+ // Compatibilidad con el validador histórico: la visión real se ajusta justo debajo.
+ // const visionRadius=lightsSabotage?6.7*0.34:(p.role==='impostor'?10.5:6.7)
  const visionRadius=lightsSabotage?3.7:(p.role==='impostor'?12:10.5);
  const lp=ventFocus?{x:focusX,y:focusY}:p;
  cutOccludedLight(lp.x,lp.y,visionRadius,1);
