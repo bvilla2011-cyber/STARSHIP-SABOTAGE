@@ -97,10 +97,10 @@ function renderFeed({canvas,room,state,camera,index,time,appearance,world}){
  if(world&&typeof world.draw==='function')world.draw(c,{rooms:[room],corridors:[]},time);
  drawSet(c,room,time);
  const shown=[];
- const players=Object.values(state?.players||{}).filter(p=>p&&!p.expelled&&!p.inVent);
+ const players=Object.values(state?.players||{}).filter(p=>p&&!p.expelled&&!p.inVent&&(p.alive||p.body&&!p.body.reported));
  players.sort((a,b)=>(a.y||0)-(b.y||0));
  for(const p of players){
-  const x=Number(p.alive?p.x:(p.corpse?.x??p.x)),y=Number(p.alive?p.y:(p.corpse?.y??p.y));
+  const x=Number(p.alive?p.x:(p.body?.x??p.x)),y=Number(p.alive?p.y:(p.body?.y??p.y));
   if(!contains(room,x,y))continue;
   shown.push(p.id);
   if(!p.alive){

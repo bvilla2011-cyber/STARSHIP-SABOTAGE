@@ -1,0 +1,1 @@
+{"name":"starship-sabotage","version":"4.0.0","private":true,"scripts":{"test":"node --test tests/core.test.cjs","validate":"node tests/validate.js","test:browser":"playwright test tests/v4.spec.cjs"},"devDependencies":{"@playwright/test":"1.58.2"}}

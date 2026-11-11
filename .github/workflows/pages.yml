@@ -1,48 +1,47 @@
-name: Validate source and deploy STARSHIP SABOTAGE
-
+name: Validate and publish STARSHIP SABOTAGE 4
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
 permissions:
   contents: read
   pages: write
   id-token: write
-
-# The full Chromium multiplayer suite remains in .github/workflows/qa.yml.
-# A static site release is gated by deterministic source/game-map validation;
-# external browser-download delays must not prevent the game being published.
 concurrency:
   group: starship-pages
   cancel-in-progress: true
-
 jobs:
-  deploy:
-    name: Validate and publish website
-    if: github.ref == 'refs/heads/main'
+  validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - run: npm run validate
+      - run: npm test
+      - run: npm run test:browser
+      - run: node tools/package-site.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: starship-v4-release-qa
+          path: |
+            playwright-report/
+            test-results/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Validate syntax, navigation and gameplay invariants
-        run: node tests/validate.js
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-      - name: Upload site
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-      - name: Deploy
+      - uses: actions/configure-pages@v5
+      - uses: actions/deploy-pages@v4
         id: deployment
-        uses: actions/deploy-pages@v4
