@@ -1,0 +1,110 @@
+/* STARSHIP SABOTAGE — CINEMATIC UI / WORLD EDITION 3.0
+   Desktop and mobile-safe polish with motion reduction. */
+:root{--ss-accent:#8fefff;--ss-gold:#f4d88b;--ss-layer:#06131f}
+#connect,#lobby,#homeScreen,.screen{background-image:radial-gradient(ellipse at 28% 9%,#22516b32,transparent 43%),repeating-linear-gradient(90deg,transparent 0 79px,#a2e6ee07 80px),repeating-linear-gradient(0deg,transparent 0 79px,#a2e6ee07 80px),linear-gradient(155deg,#0a2332,#040d19 65%)}
+.home-layout{isolation:isolate}
+.home-layout:before{content:"";position:absolute;inset:5% 2%;border:1px solid #8bdaf322;pointer-events:none;border-radius:32px;mask-image:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent)}
+.hero-side{filter:drop-shadow(0 18px 30px #0007)}
+.hero-side:after{content:"";position:absolute;left:12%;right:12%;top:18%;height:40%;background:radial-gradient(ellipse,#a5efff15,transparent 70%);pointer-events:none;animation:ssV3Breath 4.5s ease-in-out infinite alternate}
+.menu-side{position:relative}
+.menu-side h1{filter:drop-shadow(0 6px 13px #0007);text-shadow:0 0 39px #92f0ff1c}
+.menu-buttons button{transition:transform .18s cubic-bezier(.2,.83,.2,1),filter .18s,box-shadow .18s}
+.menu-buttons button:hover{transform:translateX(3px);filter:brightness(1.1)}
+.menu-buttons button:active{transform:translateX(0) scale(.985)}
+#lobbyList .pill{position:relative;border:1px solid #a7dbef38;box-shadow:inset 0 1px 0 #c2efff16,0 4px 12px #0004;background:linear-gradient(125deg,#16334a,#091d2c);transition:transform .17s,border-color .17s}
+#lobbyList .pill:hover{transform:translateY(-3px);border-color:#9cf0ec91}
+#lobbyList .monguito-svg{filter:drop-shadow(0 3px 6px #0008) drop-shadow(0 0 6px #b9dfff24)}
+#roleReveal{backdrop-filter:blur(8px)}
+#roleReveal .role-card{background:linear-gradient(150deg,#1e3a4dd7,#081625ef);border:1px solid #9bddf554;box-shadow:0 8px 24px #0007,inset 0 1px 0 #cffaff23;transition:transform .25s}
+#roleReveal .role-card:hover{transform:translateY(-5px)}
+#roleReveal .role-reveal-title{filter:drop-shadow(0 6px 15px #000a)}
+#roleReveal:not(.impostor) .role-card:before{content:"IDENTIDAD OCULTA";position:absolute;left:0;right:0;top:7px;text-align:center;font:800 8px system-ui;letter-spacing:1.7px;color:#a5ecf0a8;pointer-events:none}
+#roleReveal.impostor .role-card:before{content:"COMPAÑERO IMPOSTOR";position:absolute;left:0;right:0;top:7px;text-align:center;font:800 8px system-ui;letter-spacing:1.7px;color:#ffb7bb;pointer-events:none}
+#game #arena{background:#020b15}
+#game #hud #tasks,#game #hud #actions{backdrop-filter:blur(16px);background:linear-gradient(125deg,#081b2fe9,#050e1be7)!important;border:1px solid #8ed6e35b!important;box-shadow:inset 0 1px 0 #bdedff19,0 11px 32px #0008,0 0 26px #53d7ff17}
+#game #hud #actions button{border-color:#8adae475;background:linear-gradient(125deg,#1a3b51,#0c2131);text-shadow:0 1px 4px #000c;letter-spacing:1px}
+#game #hud #actions #sabotage{border-color:#ff577f;background:linear-gradient(120deg,#712a43,#270e22);box-shadow:0 0 15px #ed38602e;animation:ssV3SabotageGlow 2s ease-in-out infinite alternate}
+#game #hud #actions #vent{border-color:#fb768f;background:linear-gradient(120deg,#642339,#271629);box-shadow:0 0 15px #f647632a}
+#game #hud #actions #vent:hover{box-shadow:0 0 21px #ff5478a1}
+#game #contextActions #emergency{border:2px solid #f1c997;box-shadow:0 0 20px #ffb36a4c,inset 0 0 12px #ffad5523}
+#game #contextActions #emergency:not(:disabled){animation:ssV3SOS 2.4s ease-in-out infinite alternate}
+#game #taskFill{background:linear-gradient(90deg,#66dcc0,#adffc6,#ecff9e)!important;box-shadow:0 0 12px #77ffd58e}
+#game #mapPanel,#game #sabotagePanel{background:linear-gradient(155deg,#11283de8,#06101ff4)!important;backdrop-filter:blur(15px);border:1px solid #8ad6ea77;box-shadow:0 22px 70px #000c,inset 0 0 32px #5397dd12}
+#game #sabotagePanel [data-sab]{position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s}
+#game #sabotagePanel [data-sab]:hover{transform:translateY(-5px);border-color:#ff7f91;box-shadow:0 6px 24px #f6526361}
+#game #mapPanel:before{content:"RED CARTOGRÁFICA / ESPACIO INTERIOR";position:absolute;bottom:5px;left:16px;font:800 9px system-ui;letter-spacing:2px;color:#9dd6f499;pointer-events:none}
+#modal .meeting-chat-log{background:radial-gradient(ellipse at 50% 20%,#183748,#081625 70%);border:1px solid #8bddec42;border-radius:12px;padding:12px}
+#modal .meeting-message{position:relative;background:#152c3a9c;border:1px solid #9de9ec1e;border-radius:10px;margin:5px 0;padding:8px;animation:ssV3MessageIn .22s ease-out both}
+#modal .meeting-message:nth-child(2n){background:#183241a3}
+#modal .meeting-message-body{min-width:0;overflow-wrap:anywhere}
+#modal .meeting-compose{background:#0a1c2a;border:1px solid #9de0eb7b;padding:7px;border-radius:10px;box-shadow:0 0 17px #87e1fa1c}
+#modal #meetingChatInput{background:#051422;border:1px solid #6eaaba;color:#f4fdff}
+#modal #meetingChatInput:focus{outline:2px solid #8cf1ed;box-shadow:0 0 15px #7affdc44}
+#modal #meetingSend{border-color:#b8e1ce;background:linear-gradient(120deg,#2b775c,#1c4949)}
+#modal .vote-choice{transition:transform .18s,border-color .18s,box-shadow .18s;background:linear-gradient(115deg,#143148,#081a29);border:1px solid #85d2e45b}
+#modal .vote-choice:hover:not(:disabled){transform:translateX(4px);border-color:#a8ffff;box-shadow:0 0 22px #8edafa48}
+#modal.task-modal .task-card{max-width:680px;--mission-line:#83e3ef}
+#modal.task-modal #taskBoard{background:linear-gradient(150deg,#142d42,#081b29)!important;box-shadow:inset 0 0 45px #061019,0 0 21px #8cddf723}
+#modal.task-modal #taskBoard h3{font-weight:900;letter-spacing:2px;color:#e7faff;text-shadow:0 0 13px #9deaff45}
+#modal.task-modal #taskBoard p{color:#b9dbe8;line-height:1.6;font-size:13px}
+#modal.task-modal .mission-stages{margin:17px auto;padding:10px;text-align:center;letter-spacing:3px;font-weight:1000;color:#e2f9ff;background:#061a2c;border:1px solid #91cde363;border-radius:9px;box-shadow:0 0 15px #79d9e321}
+#modal.task-modal .mission-aux-button{display:block;margin:17px auto 6px;width:100%;border:1px solid #afeff1;background:linear-gradient(130deg,#237b89,#123c55);color:#ecffff;font-weight:900}
+#modal.task-modal .mission-dial{display:inline-flex;flex-direction:column;justify-content:center;align-items:center;gap:7px;padding:13px;margin:6px;border:2px solid #9be3ef;background:linear-gradient(135deg,#173e56,#08233a);border-radius:9px;color:#fcffff;font-size:27px;min-width:95px;box-shadow:0 5px 14px #0007}
+#modal.task-modal .mission-dial small{font-size:9px;letter-spacing:1px;color:#b4eaff}
+#modal.task-modal .mission-dial:hover{background:#20597a;box-shadow:0 0 21px #8ce5ff85}
+#modal.task-modal .medscan-console{display:flex;gap:21px;align-items:center;justify-content:space-around;min-height:260px}
+#modal.task-modal .scan-silhouette{position:relative;flex:0 0 130px;min-height:240px;border:2px solid #74d7e9;border-radius:22px;background:radial-gradient(ellipse,#144661,#031c2f);box-shadow:inset 0 0 19px #82edfa42,0 0 17px #78dff74c}
+#modal.task-modal .scan-head{position:absolute;top:17px;left:43px;width:44px;height:45px;border-radius:50%;background:linear-gradient(#8dfaff,#19758d);border:2px solid #d3ffff}
+#modal.task-modal .scan-torso{position:absolute;top:73px;left:21px;width:90px;height:94px;border-radius:40% 40% 20% 20%;background:linear-gradient(#66e5f0,#1b6e85);border:2px solid #beffff}
+#modal.task-modal .scan-heart{position:absolute;top:16px;left:28px;color:#ff8898;font-size:34px;text-shadow:0 0 16px #ff6b88;animation:ssV3Beat 1.3s ease-in-out infinite}
+#modal.task-modal .scan-legs{position:absolute;top:165px;left:38px;width:54px;height:60px;border-left:19px solid #41b2c9;border-right:19px solid #41b2c9}
+#modal.task-modal .scan-controls{flex:1;min-width:0}
+#modal.task-modal .scan-controls>button{display:block;width:100%;margin:5px 0}
+#modal.task-modal .scan-progress{background:#071725;height:11px;border-radius:7px;overflow:hidden;margin:9px 0}
+#modal.task-modal .scan-progress i{display:block;background:linear-gradient(90deg,#65ded7,#c8ffff);height:100%;width:0;transition:width .25s}
+#modal.task-modal #scanReadout{display:block;color:#aaffdb;margin-top:9px;letter-spacing:1px}
+#modal.task-modal .pulse-spectrum{display:flex;align-items:center;justify-content:center;gap:4px;height:100px;background:#092b34;border:1px solid #80f8d36b;border-radius:12px;padding:12px}
+#modal.task-modal .pulse-spectrum i{flex:1;max-width:15px;height:calc(14px + 40px * (1 + sin(0)));border-radius:6px;background:linear-gradient(#c8ff8c,#35dcb8);transform:scaleY(.65);animation:ssV3Bar 1.2s ease-in-out infinite alternate;animation-delay:calc(var(--i) * -.13s);box-shadow:0 0 9px #65ffcc}
+#modal.task-modal .cargo-target{display:grid;place-items:center;width:140px;height:140px;margin:12px auto;background:radial-gradient(ellipse,#275b71,#0a2037);border:3px solid #78e9f9;border-radius:18px;font-size:76px;color:#ffecac;box-shadow:0 0 35px #8fdbfa5c;animation:ssV3SpinIn .5s ease-out}
+#modal.task-modal .frequency-display{display:flex;justify-content:space-between;padding:15px;background:#0b2b3e;border:1px solid #78ddf6;border-radius:12px;color:#eaffff}
+#modal.task-modal #freqSlider{display:block;width:100%;height:32px;margin:19px 0;accent-color:#9efce1;cursor:pointer}
+#modal.task-modal .cells-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#modal.task-modal .cell{padding:10px;text-align:center;border:1px solid #c6a6ff;background:#191b3b;border-radius:10px}
+#modal.task-modal .cell-energy{font:900 46px system-ui;color:#e5cfff;text-shadow:0 0 13px #ad7aff}
+#modal.task-modal .cell button{font-size:10px;min-width:0;width:100%;padding:10px 3px}
+#modal.task-modal .cell button:disabled{border-color:#75ffb5!important;background:#215643!important}
+@keyframes ssV3MessageIn{from{opacity:0;transform:translateX(-9px)}to{opacity:1;transform:translateX(0)}}
+@keyframes ssV3SabotageGlow{to{box-shadow:0 0 26px #f4456971}}
+@keyframes ssV3SOS{to{filter:brightness(1.2);box-shadow:0 0 23px #ffb86ca0}}
+@keyframes ssV3Bar{to{transform:scaleY(1.6)}}
+@keyframes ssV3Breath{to{opacity:.45;transform:scale(1.05)}}
+@keyframes ssV3Beat{50%{transform:scale(1.25)}}
+@keyframes ssV3SpinIn{from{transform:rotate(-12deg) scale(.5)}to{transform:rotate(0) scale(1)}}
+@media(max-width:620px){#modal.task-modal .medscan-console{flex-direction:column}#modal.task-modal .scan-silhouette{min-height:180px;transform:scale(.75);margin:-20px 0}#modal.task-modal .cells-grid{gap:4px}#modal.task-modal .cell-energy{font-size:32px}#modal.task-modal .cell button{font-size:8px}#game #hud #actions{max-width:53%}}
+@media(prefers-reduced-motion:reduce){.hero-side:after,#roleReveal .role-card,.skin-card,.pulse-spectrum i,#game #contextActions #emergency{animation:none!important} }
+
+/* Keep every monguito visible in the role assignment (up to fifteen players). */
+#roleReveal .role-reveal-crew{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px!important;justify-items:center;align-content:center;max-width:1080px;min-height:0!important;max-height:56vh;overflow:visible;margin:8px auto 0}
+#roleReveal .role-card{width:100%!important;max-width:100%!important;min-width:0;padding:5px!important}
+#roleReveal .role-card-avatar{height:clamp(82px,14vh,138px)!important}
+#roleReveal .role-card-name{font-size:clamp(8px,1vw,11px)!important;letter-spacing:0!important;padding:5px 3px!important;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;width:100%}
+#roleReveal .role-card-loadout{display:none!important}
+@media(max-width:680px){#roleReveal .role-reveal-crew{grid-template-columns:repeat(4,minmax(0,1fr));gap:3px!important;max-height:61vh}#roleReveal .role-card-avatar{height:clamp(54px,9vh,79px)!important}#roleReveal .role-card-name{font-size:8px!important;padding:4px 2px!important}#roleReveal .role-card{padding:2px!important}}
+
+
+/* Free-form multiplayer lobby chat stored with each player's own data. */
+.lobby-chat-panel{position:relative;background:linear-gradient(155deg,#102a3fe8,#061321f4);border:1px solid #86ddea79;border-radius:13px;padding:10px;margin:12px 0;box-shadow:inset 0 1px 0 #dffaff14,0 8px 23px #0007}
+.lobby-chat-header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 5px 9px;border-bottom:1px solid #c8ecf02b;font-size:10px;letter-spacing:1.6px;color:#bdf6ff}
+.lobby-chat-header small{font-size:8px;letter-spacing:1px;color:#7fe7d3}
+.lobby-chat-log{height:clamp(100px,17vh,175px);overflow:auto;padding:8px 5px;scrollbar-color:#4a92ad #071722}
+.lobby-chat-message{display:flex;gap:9px;align-items:flex-start;background:#152f43a6;border:1px solid #87d7eb22;border-radius:9px;padding:8px;margin:5px 0;animation:ssV3MessageIn .2s ease-out both}
+.lobby-chat-avatar{display:inline-block;flex:0 0 13px;width:13px;height:13px;margin-top:5px;border:2px solid #e9faff;border-radius:5px;background:var(--chat-color,#8adee9);box-shadow:0 0 10px var(--chat-color,#8adee9)}
+.lobby-chat-message>span:last-child{display:block;min-width:0;flex:1}
+.lobby-chat-message b{display:inline-block;font-size:11px;color:#e7faff;margin-right:9px}
+.lobby-chat-message small{display:inline-block;font-size:9px;color:#9bd6e2}
+.lobby-chat-message em{display:block;font-style:normal;font-size:12px;line-height:1.4;color:#f0ffff;margin-top:3px;overflow-wrap:anywhere}
+.lobby-chat-compose{display:flex;gap:7px;margin-top:5px}
+.lobby-chat-compose input{flex:1;min-width:0;padding:10px 11px;background:#071b2b;border:1px solid #95dbec;color:#effaff;border-radius:8px;font-size:12px}
+.lobby-chat-compose input:focus{outline:1px solid #a4ffeb;box-shadow:0 0 13px #75eafa36}
+.lobby-chat-compose button{flex:0 0 auto;padding:9px 10px;font-size:10px;background:linear-gradient(115deg,#186d7e,#123a4e);border:1px solid #9deaff}
+@media(max-width:520px){.lobby-chat-header{flex-wrap:wrap}.lobby-chat-header small{font-size:7px}.lobby-chat-panel{margin:7px 0;padding:7px}.lobby-chat-log{height:116px}.lobby-chat-compose button{padding:8px}}

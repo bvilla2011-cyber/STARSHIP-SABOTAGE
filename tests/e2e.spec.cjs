@@ -355,13 +355,13 @@ test('renderer del mapa: Canvas 2D dibuja las salas y pasillos sin excepciones',
   }
 });
 
-test('gameplay: la interacción abre y completa los cinco tipos de minijuego con IDs de tarea online', async ({browser}) => {
-  test.setTimeout(90000);
+test('gameplay: las nueve modalidades de minijuego funcionan con IDs online', async ({browser}) => {
+  test.setTimeout(120000);
   const {context,page}=await openAsGuest(browser);
   try {
     await page.locator('#explore').click();
     await expect(page.locator('#game')).toBeVisible();
-    const types=['card','wires','route','filter','sequence'];
+    const types=['card','wires','sequence','scan','cipher','pulse','sort','frequency','cells'];
     for (const type of types) {
       const taskId=await page.evaluate(type=>window.__STARSHIP_TEST__.prepareTask(type),type);
       await page.locator('#interact').click();
@@ -382,18 +382,23 @@ test('gameplay: la interacción abre y completa los cinco tipos de minijuego con
           }
           expect(synced,'El módulo '+stage+' debe sincronizarse dentro del rango verde').toBe(true);
         }
+      } else if(type==='scan'){
+        for(let i=0;i<3;i++)await page.locator('#modal #scanPart'+i).click();
+      } else if(type==='cipher'){
+        for(const v of ['◆','◉','▲'])await page.locator('#modal [data-cipher="'+v+'"]').click();
+      } else if(type==='pulse'){
+        for(let i=0;i<3;i++)await page.locator('#modal #pulseValve'+i).click();
+      } else if(type==='sort'){
+        for(const v of ['◈','✚','⬡','◈'])await page.locator('#modal [data-cargo="'+v+'"]').click();
+      } else if(type==='frequency'){
+        for(const v of [35,70,20]){
+          await page.locator('#modal #freqSlider').evaluate((el,value)=>{el.value=String(value);el.dispatchEvent(new Event('input',{bubbles:true}))},v);
+          await page.locator('#modal #freqSubmit').click();
+        }
+      } else if(type==='cells'){
+        for(let i=0;i<3;i++)for(let n=0;n<4;n++)await page.locator('#modal #cellCharge'+i).click();
       } else if(type==='card') {
-        await page.evaluate(async()=>{
-          const card=document.querySelector('#modal #idCard');
-          const startX=card.getBoundingClientRect().left+card.getBoundingClientRect().width/2;
-          const startY=card.getBoundingClientRect().top+card.getBoundingClientRect().height/2;
-          // Dispatch the same pointer sequence while preserving the minigame's timed swipe window.
-          card.setPointerCapture=()=>{};
-          card.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:1,clientX:startX,clientY:startY}));
-          await new Promise(resolve=>setTimeout(resolve,500));
-          card.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,pointerId:1,clientX:startX+45,clientY:startY}));
-          card.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:1,clientX:startX+45,clientY:startY}));
-        });
+        await page.locator('#modal #cardAssist').click();
       }
       await expect(page.locator('#modal')).toHaveClass(/hidden/,{timeout:7000});
       await expect.poll(()=>page.evaluate(id=>window.__STARSHIP_TEST__.taskDone(id),taskId)).toBe(true);
@@ -451,11 +456,12 @@ test('gameplay: colisión de mesas de cafetería, objetos decorativos transitabl
     const first=await page.evaluate(()=>window.__STARSHIP_TEST__.prepareVent('v1'));
     await page.locator('#vent').click();
     await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.ventPlayerState())).toMatchObject({inVent:true,ventId:'v1'});
-    await page.locator('#vent').click();
-    await expect(page.locator('#modal')).toContainText('CONDUCTOS DE SERVICIO');
-    await expect(page.locator('#modal')).toContainText('REACTOR');
-    await page.locator('#modal [data-exit="v2"]').click();
-    await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.ventPlayerState())).toMatchObject({inVent:false,ventId:null});
+    await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.ventTargets().length)).toBeGreaterThanOrEqual(2);
+    await expect(page.locator('#modal')).toHaveClass(/hidden/);
+    const choice=await page.evaluate(()=>window.__STARSHIP_TEST__.ventTargets().find(v=>v.action==='travel'));
+    expect(choice, 'La red de ductos debe ofrecer flechas rojas clicables').toBeDefined();
+    await page.locator('#world').click({position:{x:choice.x+choice.w/2,y:choice.y+choice.h/2}});
+    await expect.poll(()=>page.evaluate(()=>window.__STARSHIP_TEST__.ventPlayerState()),{timeout:6000}).toMatchObject({inVent:false,ventId:null});
     const lighting=await page.evaluate(()=>({hasLayer:!!window.__starshipLightLayer,code:document.documentElement.innerHTML.includes('visionRadius')}));
     expect(lighting.code).toBe(true);
     const shadowGeometry=await page.evaluate(()=>window.__STARSHIP_TEST__.shadowGeometryAudit());
