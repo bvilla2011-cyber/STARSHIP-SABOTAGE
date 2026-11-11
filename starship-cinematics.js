@@ -64,7 +64,7 @@ function meeting(m,getPlayer){
  }else if(stage==='voting')play('vote',{title:'HORA DE VOTAR',key});
  else if(stage==='resolved'){
   const victim=m.result?.targetId&&getPlayer?.(m.result.targetId);
-  if(victim)play('eject',{target:victim,title:'¡JUGADOR EXPULSADO!',subtitle:ESC(victim.name||'EXPULSADO')+' · '+(m.result?.targetWasImpostor?'IMPOSTOR':'TRIPULANTE'),key});
+  if(victim)play('eject',{target:victim,title:'¡JUGADOR EXPULSADO!',subtitle:ESC(victim.name||'EXPULSADO')+(typeof m.result?.targetWasImpostor==='boolean'?' · '+(m.result.targetWasImpostor?'IMPOSTOR':'TRIPULANTE'):''),key});
   else play('skip',{key});
  }
 }

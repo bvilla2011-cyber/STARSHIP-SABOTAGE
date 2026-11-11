@@ -1,1 +1,1 @@
-const {defineConfig}=require(process.env.PLAYWRIGHT_TEST_MODULE||'@playwright/test');module.exports=defineConfig({testDir:'./tests',testMatch:'v4-live.spec.cjs',workers:1,timeout:240000,use:{headless:true,trace:'retain-on-failure'},reporter:'list'});
+const {defineConfig}=require(process.env.PLAYWRIGHT_TEST_MODULE||'@playwright/test');module.exports=defineConfig({testDir:'./tests',outputDir:'test-results/live',testMatch:'v4-live.spec.cjs',workers:1,timeout:240000,use:{headless:true,trace:'retain-on-failure'},reporter:'list'});
