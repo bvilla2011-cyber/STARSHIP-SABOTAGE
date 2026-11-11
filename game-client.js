@@ -1,4 +1,10 @@
 (()=>{'use strict';
+const v4Settings={...window.StarshipRules.defaults};
+let v4ClockOffset=0,v4Queue=Promise.resolve(),v4Jwt=null,v4TaskSession=null,v4LastSuccess=Date.now(),v4Correction=null,v4Busy=false;
+const v4Samples=[],v4SeenEvents=new Set();
+const v4Preferences=Object.assign({master:.65,music:.18,effects:.8,quality:'medium',reduceMotion:false,contrast:false,scale:1,language:localStorage.getItem('starship_language')||'es'},(()=>{try{return JSON.parse(localStorage.getItem('starship_settings4')||'{}')}catch(e){return {}}})());
+const tr=text=>window.StarshipI18n?.translate(String(text),gameLang)||String(text);
+
 const ENDPOINT='https://fra.cloud.appwrite.io/v1',PROJECT='6af106fb00396755a6fb',DB='starship_db',ROOMS='rooms_v2',PLAYERS='players_v2';
 // Appwrite Cloud usa TablesDB: el SDK web debe exponer esta API.
 const AppwriteSDK=window.Appwrite||null;
@@ -1019,11 +1025,6 @@ function setup(){initProfile();startShopTimer();const splash=$('introSplash');if
 window.addEventListener('error',e=>{console.error(e.error||e.message);if($('status'))say('Error del juego: '+(e.message||'error inesperado'),true);});
 const GAME_BUILD_VERSION='4.0.0-20261111';
 function notifyGamePatch(){const key='starship_seen_patch';try{const seen=localStorage.getItem(key);if(seen===GAME_BUILD_VERSION)return;localStorage.setItem(key,GAME_BUILD_VERSION);const n=$('patchNotice');if(!n)return;n.classList.remove('show');void n.offsetWidth;n.classList.add('show');clearTimeout(window.patchNoticeTimer);window.patchNoticeTimer=setTimeout(()=>n.classList.remove('show'),4800)}catch(e){console.warn('No se pudo mostrar el aviso de actualización',e)}}
-const v4Settings={...window.StarshipRules.defaults};
-let v4ClockOffset=0,v4Queue=Promise.resolve(),v4Jwt=null,v4TaskSession=null,v4LastSuccess=Date.now(),v4Correction=null,v4Busy=false;
-const v4Samples=[],v4SeenEvents=new Set();
-const v4Preferences=Object.assign({master:.65,music:.18,effects:.8,quality:'medium',reduceMotion:false,contrast:false,scale:1,language:localStorage.getItem('starship_language')||'es'},(()=>{try{return JSON.parse(localStorage.getItem('starship_settings4')||'{}')}catch(e){return {}}})());
-const tr=text=>window.StarshipI18n?.translate(String(text),gameLang)||String(text);
 // Room-only realtime frames back up a 20 Hz peer movement stream. All critical
 // actions still use validated server positions; peer packets carry no roles.
 const v4Peers=new Map(),v4PeerFrames=new Map(),v4Signals={},v4SignalSeen=new Map();
