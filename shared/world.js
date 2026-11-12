@@ -776,6 +776,272 @@
         "y": 55.75,
         "w": 1.1,
         "h": 2.5
+      },
+      {
+        "id": "cafeteria_emergency_table",
+        "room": "cafeteria",
+        "kind": "ellipse",
+        "x": 61,
+        "y": 35,
+        "rx": 1.72,
+        "ry": 1.12
+      },
+      {
+        "id": "cafeteria_table_nw",
+        "room": "cafeteria",
+        "kind": "ellipse",
+        "x": 53,
+        "y": 29.6,
+        "rx": 1.42,
+        "ry": 0.92
+      },
+      {
+        "id": "cafeteria_table_ne",
+        "room": "cafeteria",
+        "kind": "ellipse",
+        "x": 69,
+        "y": 29.6,
+        "rx": 1.42,
+        "ry": 0.92
+      },
+      {
+        "id": "cafeteria_table_sw",
+        "room": "cafeteria",
+        "kind": "ellipse",
+        "x": 53,
+        "y": 40.4,
+        "rx": 1.42,
+        "ry": 0.92
+      },
+      {
+        "id": "cafeteria_table_se",
+        "room": "cafeteria",
+        "kind": "ellipse",
+        "x": 69,
+        "y": 40.4,
+        "rx": 1.42,
+        "ry": 0.92
+      },
+      {
+        "id": "cafeteria_counter",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 59.9,
+        "y": 24.3,
+        "w": 2.2,
+        "h": 0.65
+      },
+      {
+        "id": "cafeteria_chair_nw_0",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 51.38,
+        "y": 28.18,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "cafeteria_chair_nw_1",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 54.1,
+        "y": 28.18,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "cafeteria_chair_nw_2",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 51.38,
+        "y": 30.56,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "cafeteria_chair_nw_3",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 54.1,
+        "y": 30.56,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "cafeteria_chair_ne_0",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 67.38,
+        "y": 28.18,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "cafeteria_chair_ne_1",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 70.1,
+        "y": 28.18,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "cafeteria_chair_ne_2",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 67.38,
+        "y": 30.56,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "cafeteria_chair_ne_3",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 70.1,
+        "y": 30.56,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "cafeteria_chair_sw_0",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 51.38,
+        "y": 38.98,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "cafeteria_chair_sw_1",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 54.1,
+        "y": 38.98,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "cafeteria_chair_sw_2",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 51.38,
+        "y": 41.36,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "cafeteria_chair_sw_3",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 54.1,
+        "y": 41.36,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "cafeteria_chair_se_0",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 67.38,
+        "y": 38.98,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "cafeteria_chair_se_1",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 70.1,
+        "y": 38.98,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "cafeteria_chair_se_2",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 67.38,
+        "y": 41.36,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "cafeteria_chair_se_3",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 70.1,
+        "y": 41.36,
+        "w": 0.52,
+        "h": 0.48
+      },
+      {
+        "id": "reactor_core",
+        "room": "reactor",
+        "kind": "circle",
+        "x": 14.5,
+        "y": 42,
+        "r": 2.15
+      },
+      {
+        "id": "reactor_console_e",
+        "room": "reactor",
+        "kind": "rect",
+        "x": 16.35,
+        "y": 41.68,
+        "w": 0.9,
+        "h": 0.65
+      },
+      {
+        "id": "reactor_console_s",
+        "room": "reactor",
+        "kind": "rect",
+        "x": 14.05,
+        "y": 43.98,
+        "w": 0.9,
+        "h": 0.65
+      },
+      {
+        "id": "reactor_console_w",
+        "room": "reactor",
+        "kind": "rect",
+        "x": 11.75,
+        "y": 41.68,
+        "w": 0.9,
+        "h": 0.65
+      },
+      {
+        "id": "reactor_console_n",
+        "room": "reactor",
+        "kind": "rect",
+        "x": 14.05,
+        "y": 39.38,
+        "w": 0.9,
+        "h": 0.65
+      },
+      {
+        "id": "oxygen_tank_0",
+        "room": "oxygen",
+        "kind": "circle",
+        "x": 46.5,
+        "y": 12,
+        "r": 0.58
+      },
+      {
+        "id": "oxygen_tank_1",
+        "room": "oxygen",
+        "kind": "circle",
+        "x": 48.5,
+        "y": 12,
+        "r": 0.58
+      },
+      {
+        "id": "oxygen_tank_2",
+        "room": "oxygen",
+        "kind": "circle",
+        "x": 50.5,
+        "y": 12,
+        "r": 0.58
       }
     ],
     "tasks": [

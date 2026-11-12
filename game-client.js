@@ -26,18 +26,8 @@ function getDb(){
 const $=id=>document.getElementById(id);let roomId='',roomCode='',playerId='',hostId='',isHost=false,soloMode=false,me=null,players=[],gameState=null,poll=null,move={x:0,y:0},keys={},lastMove=0,canvas,ctx,raf=0;
 // One canonical original map is shared with server validation and navigation tests.
 const MAP=window.StarshipData.map;
-// Colisionadores del mobiliario: los mismos volúmenes que ocupan los elementos dibujados.
-// Cafeteria table outlines complement the canonical machinery fixtures.
-const buildFurnitureColliders=()=>{
- const r=MAP.rooms.find(r=>r.id==='cafeteria');
- if(!r)return [];
- const cx=r.x+r.w/2,cy=r.y+r.h/2;
- const tables=[{kind:'ellipse',room:r.id,id:'sos_table',x:cx,y:cy,rx:1.72,ry:1.12}];
- for(const [dx,dy] of [[-8,-5.4],[8,-5.4],[-8,5.4],[8,5.4]]){
-  tables.push({kind:'ellipse',room:r.id,id:'cafe_table_'+dx+'_'+dy,x:cx+dx,y:cy+dy,rx:1.42,ry:.92});
- }
- return tables;
-};
+// El mobiliario canónico vive en shared/world.js: movimiento, autoridad y
+// sombras consumen exactamente los mismos volúmenes.
 function segmentRectInterval(x1,y1,x2,y2,rect){
  let lo=0,hi=1;const dx=x2-x1,dy=y2-y1;
  for(const [p,q] of [[-dx,x1-rect.x],[dx,rect.x+rect.w-x1],[-dy,y1-rect.y],[dy,rect.y+rect.h-y1]]){
@@ -59,8 +49,16 @@ function buildOcclusionSegments(){
   wall(r.x,r.y,r.x,r.y+r.h,r.doors?.filter(d=>d.side==='left'),true);
   wall(r.x+r.w,r.y,r.x+r.w,r.y+r.h,r.doors?.filter(d=>d.side==='right'),true);
  }
- for(const o of MAP.obstacles||[]){add(o.x,o.y,o.x+o.w,o.y,{furniture:true});add(o.x+o.w,o.y,o.x+o.w,o.y+o.h,{furniture:true});add(o.x+o.w,o.y+o.h,o.x,o.y+o.h,{furniture:true});add(o.x,o.y+o.h,o.x,o.y,{furniture:true});}
- for(const o of buildFurnitureColliders()){const points=Array.from({length:12},(_,i)=>[o.x+Math.cos(i*Math.PI/6)*o.rx,o.y+Math.sin(i*Math.PI/6)*o.ry]);for(let i=0;i<points.length;i++)add(...points[i],...points[(i+1)%points.length],{furniture:true});}
+ for(const o of MAP.obstacles||[]){
+  if(o.kind==='circle'||o.kind==='ellipse'){
+   const rx=o.kind==='circle'?o.r:o.rx,ry=o.kind==='circle'?o.r:o.ry;
+   const points=Array.from({length:20},(_,i)=>[o.x+Math.cos(i*Math.PI/10)*rx,o.y+Math.sin(i*Math.PI/10)*ry]);
+   for(let i=0;i<points.length;i++)add(...points[i],...points[(i+1)%points.length],{furniture:true,obstacleId:o.id});
+  }else{
+   add(o.x,o.y,o.x+o.w,o.y,{furniture:true,obstacleId:o.id});add(o.x+o.w,o.y,o.x+o.w,o.y+o.h,{furniture:true,obstacleId:o.id});
+   add(o.x+o.w,o.y+o.h,o.x,o.y+o.h,{furniture:true,obstacleId:o.id});add(o.x,o.y+o.h,o.x,o.y,{furniture:true,obstacleId:o.id});
+  }
+ }
  // Las aristas de los pasillos se recortan en habitaciones y cruces: así no
  // atraviesan las puertas ni crean paredes invisibles entre corredores conectados.
  const corridors=MAP.corridors||[];
@@ -100,7 +98,8 @@ function shadowGeometryAudit(){
   if(MAP.rooms.some(r=>x>r.x+.001&&x<r.x+r.w-.001&&y>r.y+.001&&y<r.y+r.h-.001))roomLeaks++;
   if(MAP.corridors.some(c=>c.id!==s.corridorId&&distance(x,y,c.points[0],c.points[1])<(c.width||0)/2-.001))junctionLeaks++;
  }
- return {corridorSegments:corridorSegments.length,roomLeaks,junctionLeaks};
+ const furnitureSegments=MAP_OCCLUSION_SEGMENTS.filter(s=>s.furniture),shadowedObstacles=new Set(furnitureSegments.map(s=>s.obstacleId));
+ return {corridorSegments:corridorSegments.length,furnitureSegments:furnitureSegments.length,shadowedObstacles:shadowedObstacles.size,roomLeaks,junctionLeaks};
 }
 function visibilityPolygon(px,py,radius){
  const relevant=[];
@@ -999,7 +998,7 @@ $('editProfile').onclick=async()=>{if(authUser){try{await getAccount().deleteSes
 async function leaveCurrentRoom(){try{if(!soloMode&&roomId)await gameAction('leave');clearTimeout(poll);poll=null;roomId='';localStorage.removeItem('starship_active_room');location.reload()}catch(e){toast(e.message)}}
 function setup(){initProfile();startShopTimer();const splash=$('introSplash');if(splash)setTimeout(()=>splash.remove(),v4Preferences.reduceMotion?20:3400);const j=$('joystick');let joyPointer=null;function joy(e){const r=j.getBoundingClientRect();if(!r.width||!r.height)return;let dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,l=Math.hypot(dx,dy),m=Math.min(r.width,r.height)*.34;if(l>m){dx*=m/l;dy*=m/l}const response=v=>Math.sign(v)*Math.pow(Math.min(1,Math.abs(v)),1/(v4Preferences.sensitivity||1));move={x:response(dx/m),y:response(dy/m)};$('stick').style.transform='translate('+dx+'px,'+dy+'px)'}j.style.touchAction='none';j.addEventListener('pointerdown',e=>{e.preventDefault();joyPointer=e.pointerId;j.setPointerCapture(e.pointerId);joy(e)});j.addEventListener('pointermove',e=>{if(e.pointerId===joyPointer){e.preventDefault();joy(e)}});function stopJoy(e){if(joyPointer!==null&&(e.pointerId===undefined||e.pointerId===joyPointer)){joyPointer=null;move={x:0,y:0};$('stick').style.transform='translate(0,0)'}}['pointerup','pointercancel','lostpointercapture'].forEach(n=>j.addEventListener(n,stopJoy));window.addEventListener('blur',()=>{keys={};move={x:0,y:0};joyPointer=null;$('stick').style.transform='translate(0,0)'});installControls4();window.addEventListener('resize',resize)}
 window.addEventListener('error',e=>{console.error(e.error||e.message);if($('status'))say('Error del juego: '+(e.message||'error inesperado'),true);});
-const GAME_BUILD_VERSION='4.0.0-20261111-r2';
+const GAME_BUILD_VERSION='4.0.1-20261112-r1';
 function notifyGamePatch(){const key='starship_seen_patch';try{const seen=localStorage.getItem(key);if(seen===GAME_BUILD_VERSION)return;localStorage.setItem(key,GAME_BUILD_VERSION);const n=$('patchNotice');if(!n)return;n.classList.remove('show');void n.offsetWidth;n.classList.add('show');clearTimeout(window.patchNoticeTimer);window.patchNoticeTimer=setTimeout(()=>n.classList.remove('show'),4800)}catch(e){console.warn('No se pudo mostrar el aviso de actualización',e)}}
 // Room-only realtime frames back up a 20 Hz peer movement stream. All critical
 // actions still use validated server positions; peer packets carry no roles.
