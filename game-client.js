@@ -99,7 +99,33 @@ function shadowGeometryAudit(){
   if(MAP.corridors.some(c=>c.id!==s.corridorId&&distance(x,y,c.points[0],c.points[1])<(c.width||0)/2-.001))junctionLeaks++;
  }
  const furnitureSegments=MAP_OCCLUSION_SEGMENTS.filter(s=>s.furniture),shadowedObstacles=new Set(furnitureSegments.map(s=>s.obstacleId));
- return {corridorSegments:corridorSegments.length,furnitureSegments:furnitureSegments.length,shadowedObstacles:shadowedObstacles.size,roomLeaks,junctionLeaks};
+ return {corridorSegments:corridorSegments.length,furnitureSegments:furnitureSegments.length,shadowedObstacles:shadowedObstacles.size,shadowCasters:(MAP.obstacles||[]).length,roomLeaks,junctionLeaks};
+}
+function obstacleOutline(o){
+ if(o.kind==='circle'||o.kind==='ellipse'){const rx=o.kind==='circle'?o.r:o.rx,ry=o.kind==='circle'?o.r:o.ry;return Array.from({length:20},(_,i)=>[o.x+Math.cos(i*Math.PI/10)*rx,o.y+Math.sin(i*Math.PI/10)*ry]);}
+ return [[o.x,o.y],[o.x+o.w,o.y],[o.x+o.w,o.y+o.h],[o.x,o.y+o.h]];
+}
+function projectedFurnitureShadow(o,lx,ly,radius){
+ const points=obstacleOutline(o),cx=points.reduce((s,p)=>s+p[0],0)/points.length,cy=points.reduce((s,p)=>s+p[1],0)/points.length,dx=cx-lx,dy=cy-ly,d=Math.hypot(dx,dy);
+ if(d<.08||d>radius+2)return null;
+ const ux=dx/d,uy=dy/d;let edge=null,best=-Infinity;
+ for(let i=0;i<points.length;i++){const a=points[i],b=points[(i+1)%points.length],score=((a[0]+b[0])*.5-lx)*ux+((a[1]+b[1])*.5-ly)*uy;if(score>best){best=score;edge=[a,b]}}
+ if(!edge)return null;
+ const length=Math.min(3.1,Math.max(.38,(radius-d)*.30)),factor=1+length/d;
+ return [edge[0],edge[1],[lx+(edge[1][0]-lx)*factor,ly+(edge[1][1]-ly)*factor],[lx+(edge[0][0]-lx)*factor,ly+(edge[0][1]-ly)*factor]];
+}
+function drawFurnitureCastShadows(lx,ly,radius){
+ if(!ctx||!Number.isFinite(lx)||!Number.isFinite(ly))return;
+ ctx.save();ctx.globalCompositeOperation='multiply';
+ for(const o of MAP.obstacles||[]){
+  const room=MAP.rooms.find(r=>r.id===o.room),poly=projectedFurnitureShadow(o,lx,ly,radius);
+  if(!room||!poly)continue;
+  ctx.save();const boundary=roomPolygon(room);ctx.beginPath();boundary.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath();ctx.clip();
+  const a=poly[0],b=poly[1],c=poly[2],d=poly[3],shade=ctx.createLinearGradient((a[0]+b[0])/2,(a[1]+b[1])/2,(c[0]+d[0])/2,(c[1]+d[1])/2);
+  shade.addColorStop(0,'rgba(0,3,9,.34)');shade.addColorStop(.55,'rgba(0,3,9,.20)');shade.addColorStop(1,'rgba(0,3,9,.025)');
+  ctx.fillStyle=shade;ctx.beginPath();poly.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath();ctx.fill();ctx.restore();
+ }
+ ctx.restore();
 }
 function visibilityPolygon(px,py,radius){
  const relevant=[];
@@ -202,6 +228,7 @@ if(location.hostname==='127.0.0.1'||location.hostname==='localhost'){
   spawnAudit(count=15){const pts=getCafeteriaSpawnPoints(Math.max(1,Math.min(15,Number(count)||15)));return {points:pts,minimumDistance:Math.min(...pts.flatMap((p,i)=>pts.slice(i+1).map(q=>Math.hypot(p.x-q.x,p.y-q.y)))),walkable:pts.every(p=>canWalk(p.x,p.y)),centerExcluded:pts.every(p=>Math.hypot(p.x-61,p.y-35)>3.4)}},
   shadowProbe(x,y,radius=6.7){const pts=visibilityPolygon(Number(x),Number(y),Number(radius));return {segments:MAP_OCCLUSION_SEGMENTS.length,points:pts.length,occludedRays:pts.filter(q=>Math.hypot(q[0]-Number(x),q[1]-Number(y))<Number(radius)-.12).length}},
   shadowGeometryAudit(){return shadowGeometryAudit()},
+  shadowCasterProbe(x,y,radius){return (MAP.obstacles||[]).filter(o=>projectedFurnitureShadow(o,Number(x),Number(y),Number(radius))).map(o=>o.id)},
   doorAccessAudit(){
    const blocked=[];
    for(const r of MAP.rooms)for(const d of r.doors||[]){
@@ -721,6 +748,7 @@ visibleRooms.forEach(r=>{const pts=roomPolygon(r),ox=.0,oy=.82;ctx.save();for(le
 const gridRect=(x,y,ww,hh,step=1.1)=>{ctx.fillStyle='#263d4c';ctx.fillRect(x,y,ww,hh);ctx.strokeStyle='#a8d9e51b';ctx.lineWidth=.035;for(let xx=x+step;xx<x+ww;xx+=step){ctx.beginPath();ctx.moveTo(xx,y);ctx.lineTo(xx,y+hh);ctx.stroke()}for(let yy=y+step;yy<y+hh;yy+=step){ctx.beginPath();ctx.moveTo(x,yy);ctx.lineTo(x+ww,yy);ctx.stroke()}};
 visibleRooms.forEach(r=>{ctx.save();const pts=roomPolygon(r);poly(pts);const rp={cafe:'#497f91',engine:'#a65f42',reactor:'#76539a',security:'#347e88',medbay:'#398b86',electrical:'#a77a3f',storage:'#8a704c',admin:'#438d70',weapons:'#9b6748',nav:'#3e75a8',o2:'#31947d',shields:'#347f9b',comms:'#765d9b'};ctx.fillStyle=rp[r.kind]||'#344d5d';ctx.fill();ctx.save();poly(pts);ctx.clip();ctx.fillStyle=rp[r.kind]||'#344d5d';ctx.fillRect(r.x,r.y,r.w,r.h);ctx.strokeStyle='#b8e2ef20';ctx.lineWidth=.04;for(let xx=r.x+1;xx<r.x+r.w;xx+=1){ctx.beginPath();ctx.moveTo(xx,r.y);ctx.lineTo(xx,r.y+r.h);ctx.stroke()}for(let yy=r.y+1;yy<r.y+r.h;yy+=1){ctx.beginPath();ctx.moveTo(r.x,yy);ctx.lineTo(r.x+r.w,yy);ctx.stroke()}ctx.globalAlpha=.32;ctx.fillStyle=r.color;ctx.fillRect(r.x,r.y,r.w,r.h);ctx.restore();ctx.strokeStyle='#d9f5ff';ctx.lineWidth=.18;poly(pts);ctx.stroke();drawRoomSurfaceDetails(r);drawRoomFinishPass(r);if(r.kind==='o2'||r.kind==='comms'||r.kind==='electrical'){const yy=r.kind==='electrical'?r.y+r.h:r.y;ctx.strokeStyle='#263d4c';ctx.lineWidth=.34;ctx.beginPath();ctx.moveTo(r.x+1.6,yy);ctx.lineTo(r.x+4.4,yy);ctx.stroke();ctx.strokeStyle='#f5d76e';ctx.lineWidth=.09;ctx.beginPath();ctx.moveTo(r.x+1.6,yy+(r.kind==='electrical'?-.08:.08));ctx.lineTo(r.x+4.4,yy+(r.kind==='electrical'?-.08:.08));ctx.stroke()}ctx.fillStyle='#f2fbff';ctx.font='bold .62px system-ui';ctx.textAlign='center';ctx.shadowColor='#06111b';ctx.shadowBlur=.18;ctx.fillText(tr(r.name),r.x+r.w/2,r.y+1.05);if(r.kind==='comms'){ctx.fillStyle='#142b3a';ctx.fillRect(r.x+5.15,r.y-.12,1.7,.32);ctx.strokeStyle='#7fe6ed';ctx.lineWidth=.08;ctx.strokeRect(r.x+5.15,r.y-.12,1.7,.32);ctx.fillStyle='#b7faff';ctx.fillRect(r.x+6.55,r.y+.02,.12,.12)}ctx.restore()});
 MAP.corridors.forEach((c,i)=>{const tones=['#4d91a5','#8c805d','#527fa7','#a16b58','#4e9a83'];ctx.lineCap='square';ctx.lineJoin='round';ctx.strokeStyle='#07121b';ctx.lineWidth=c.width+.65;ctx.beginPath();c.points.forEach((p,j)=>j?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.strokeStyle=tones[i%tones.length];ctx.lineWidth=c.width;ctx.stroke();ctx.strokeStyle='#d5f5ed30';ctx.lineWidth=.055;ctx.setLineDash([.3,.8]);ctx.beginPath();c.points.forEach((p,j)=>j?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.setLineDash([])});MAP.corridors.forEach(drawCorridorSurfaceDetails);MAP.corridors.forEach(drawCorridorArchitecture);
+if(p?.alive){const shadowRadius=gameState?.sabotage?.active&&gameState.sabotage.type==='lights'&&p.role!=='impostor'?3.7:p.role==='impostor'?(gameState.settings?.impostorVision||12):(gameState.settings?.crewVision||10.5);drawFurnitureCastShadows(p.x,p.y,shadowRadius)}
 
 
 
@@ -998,7 +1026,7 @@ $('editProfile').onclick=async()=>{if(authUser){try{await getAccount().deleteSes
 async function leaveCurrentRoom(){try{if(!soloMode&&roomId)await gameAction('leave');clearTimeout(poll);poll=null;roomId='';localStorage.removeItem('starship_active_room');location.reload()}catch(e){toast(e.message)}}
 function setup(){initProfile();startShopTimer();const splash=$('introSplash');if(splash)setTimeout(()=>splash.remove(),v4Preferences.reduceMotion?20:3400);const j=$('joystick');let joyPointer=null;function joy(e){const r=j.getBoundingClientRect();if(!r.width||!r.height)return;let dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,l=Math.hypot(dx,dy),m=Math.min(r.width,r.height)*.34;if(l>m){dx*=m/l;dy*=m/l}const response=v=>Math.sign(v)*Math.pow(Math.min(1,Math.abs(v)),1/(v4Preferences.sensitivity||1));move={x:response(dx/m),y:response(dy/m)};$('stick').style.transform='translate('+dx+'px,'+dy+'px)'}j.style.touchAction='none';j.addEventListener('pointerdown',e=>{e.preventDefault();joyPointer=e.pointerId;j.setPointerCapture(e.pointerId);joy(e)});j.addEventListener('pointermove',e=>{if(e.pointerId===joyPointer){e.preventDefault();joy(e)}});function stopJoy(e){if(joyPointer!==null&&(e.pointerId===undefined||e.pointerId===joyPointer)){joyPointer=null;move={x:0,y:0};$('stick').style.transform='translate(0,0)'}}['pointerup','pointercancel','lostpointercapture'].forEach(n=>j.addEventListener(n,stopJoy));window.addEventListener('blur',()=>{keys={};move={x:0,y:0};joyPointer=null;$('stick').style.transform='translate(0,0)'});installControls4();window.addEventListener('resize',resize)}
 window.addEventListener('error',e=>{console.error(e.error||e.message);if($('status'))say('Error del juego: '+(e.message||'error inesperado'),true);});
-const GAME_BUILD_VERSION='4.0.1-20261112-r1';
+const GAME_BUILD_VERSION='4.0.2-20261112-r1';
 function notifyGamePatch(){const key='starship_seen_patch';try{const seen=localStorage.getItem(key);if(seen===GAME_BUILD_VERSION)return;localStorage.setItem(key,GAME_BUILD_VERSION);const n=$('patchNotice');if(!n)return;n.classList.remove('show');void n.offsetWidth;n.classList.add('show');clearTimeout(window.patchNoticeTimer);window.patchNoticeTimer=setTimeout(()=>n.classList.remove('show'),4800)}catch(e){console.warn('No se pudo mostrar el aviso de actualización',e)}}
 // Room-only realtime frames back up a 20 Hz peer movement stream. All critical
 // actions still use validated server positions; peer packets carry no roles.

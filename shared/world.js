@@ -1042,6 +1042,123 @@
         "x": 50.5,
         "y": 12,
         "r": 0.58
+      },
+      {
+        "id": "cargo_n_wall_rack",
+        "room": "cargo_n",
+        "kind": "rect",
+        "x": 7.55,
+        "y": 12.85,
+        "w": 1.55,
+        "h": 3.9
+      },
+      {
+        "id": "comms_n_wall_panel",
+        "room": "comms_n",
+        "kind": "rect",
+        "x": 39.85,
+        "y": 12.9,
+        "w": 1.45,
+        "h": 3.8
+      },
+      {
+        "id": "admin_wall_panel",
+        "room": "admin",
+        "kind": "rect",
+        "x": 19.85,
+        "y": 26.9,
+        "w": 1.45,
+        "h": 3.7
+      },
+      {
+        "id": "electrical_wall_panel",
+        "room": "electrical",
+        "kind": "rect",
+        "x": 36.85,
+        "y": 26.75,
+        "w": 1.55,
+        "h": 3.95
+      },
+      {
+        "id": "cafeteria_dispenser",
+        "room": "cafeteria",
+        "kind": "rect",
+        "x": 46.05,
+        "y": 43.25,
+        "w": 2.2,
+        "h": 2.7
+      },
+      {
+        "id": "reactor_wall_panel",
+        "room": "reactor",
+        "kind": "rect",
+        "x": 7.55,
+        "y": 40.7,
+        "w": 1.5,
+        "h": 4
+      },
+      {
+        "id": "medbay_wall_panel",
+        "room": "medbay",
+        "kind": "rect",
+        "x": 36.85,
+        "y": 40.85,
+        "w": 1.48,
+        "h": 3.8
+      },
+      {
+        "id": "oxygen_wall_panel",
+        "room": "oxygen",
+        "kind": "rect",
+        "x": 56.85,
+        "y": 12.75,
+        "w": 1.5,
+        "h": 3.95
+      },
+      {
+        "id": "security_wall_panel",
+        "room": "security",
+        "kind": "rect",
+        "x": 74.85,
+        "y": 12.8,
+        "w": 1.5,
+        "h": 3.8
+      },
+      {
+        "id": "navigation_wall_window",
+        "room": "navigation",
+        "kind": "rect",
+        "x": 19.85,
+        "y": 55.85,
+        "w": 1.52,
+        "h": 3.8
+      },
+      {
+        "id": "shields_wall_panel",
+        "room": "shields",
+        "kind": "rect",
+        "x": 36.85,
+        "y": 55.85,
+        "w": 1.5,
+        "h": 3.8
+      },
+      {
+        "id": "laboratory_wall_panel",
+        "room": "laboratory",
+        "kind": "rect",
+        "x": 56.85,
+        "y": 55.85,
+        "w": 1.48,
+        "h": 3.8
+      },
+      {
+        "id": "engine_s_wall_panel",
+        "room": "engine_s",
+        "kind": "rect",
+        "x": 74.85,
+        "y": 55.7,
+        "w": 1.5,
+        "h": 4
       }
     ],
     "tasks": [
